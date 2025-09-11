@@ -27,7 +27,7 @@ export default function Home() {
           {/* Immagine albero */}
           <Col xs={5} className="m-0 p-0 text-center align-middle">
             <Image
-              src="/01.L797.RN.08.png" // inserisci immagine in public/
+              src="/04.A944.BO.08.png" // inserisci immagine in public/
               alt="Cipresso di San Francesco"
               fill   
               className={`${styles.treeImg} img-fluid}`}
@@ -41,7 +41,11 @@ export default function Home() {
               <strong> <a href="https://alberimonumentali.info/regioni/emilia-romagna" target="_blank">126 alberi monumentali</a></strong>, 
               di cui <strong>1 vicino a te</strong>.
             </p>
-            <p className="mt-1 fw-bold">Dimensioni</p>
+            <p className="mt-1">
+              <strong>Specie:</strong> Cipresso comune <i>(Cupressus sempervirens L.)</i>
+            </p>
+            
+            <p className="mt-2 fw-bold">Dimensioni</p>
             <ul>
               <li>Circonferenza fusto: 650 cm</li>
               <li>Altezza: 25 m</li>
@@ -60,7 +64,7 @@ export default function Home() {
             
           </Col>
         </Row>
-
+        
         <TimeLine startYear={startYear} endYear={currentYear}/>
       </Container>
     </main>

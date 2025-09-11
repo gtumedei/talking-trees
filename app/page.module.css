@@ -5,7 +5,7 @@
     left: -5vw !important;;
     width: 55vw !important;
     object-fit: contain;
-    padding: 2vw;
+    padding-right: 2vw;
 }
 
 .treeTitle{

@@ -56,6 +56,8 @@ export default function TimeLine({ startYear, endYear }: TimeLineProps) {
   }
 
   return (
+    <div className="mt-2">
+    <p>Alcuni eventi successi durante la mia vita</p>
     <div className={styles.timelineContainer}>
       <div className={styles.timelineBar}>
         {/* Tacche */}
@@ -98,6 +100,7 @@ export default function TimeLine({ startYear, endYear }: TimeLineProps) {
           <em>({events[activeEvent].category})</em>
         </div>
       )}*/}
+    </div>
     </div>
   );
 }
