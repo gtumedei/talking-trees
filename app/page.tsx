@@ -27,7 +27,7 @@ export default function Home() {
           {/* Immagine albero */}
           <Col xs={5} className="m-0 p-0 text-center align-middle">
             <Image
-              src="/cypress.png" // inserisci immagine in public/
+              src="/01.L797.RN.08.png" // inserisci immagine in public/
               alt="Cipresso di San Francesco"
               fill   
               className={`${styles.treeImg} img-fluid}`}
