@@ -56,3 +56,43 @@
   font-size: 0.9rem;
   color: #333;
 }
+
+.dropdownCustom {
+  margin-top: 10px;
+  font-family: inherit;
+}
+
+.dropdownCustom > button {
+  background-color: #eaeaea !important;
+  color: #533e3285 !important;           /* testo marrone */
+  border: none !important;
+  font-style: italic;
+  font-size: 14px !important;
+  padding: 0;
+}
+
+.dropdownCustom > button:hover {
+  background-color: #eaeaea !important;
+  color: #533e3285 !important;
+  text-decoration: underline;
+}
+
+.dropdownMenuCustom {
+  padding: 0px 10px;
+}
+.dropdownCheck input:checked{
+  background-color: #533e3285;
+  border: #533e32 solid 1px;
+}
+.dropdownCheck label {
+  font-size: 0.9rem;
+  color: #3a2c2c;
+}
+
+.filterButton {
+  background-color: inherit !important;
+  color: #533e3285 !important;
+  border: solid 1px #533e3285 !important;
+  border-radius: 6px !important;
+  padding: 4px 10px !important;
+}

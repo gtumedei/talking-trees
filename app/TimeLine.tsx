@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { OverlayTrigger, Tooltip } from "react-bootstrap";
+import React, { useState, useEffect } from "react";
+import { OverlayTrigger, Tooltip, Form, Button, Dropdown, DropdownButton } from "react-bootstrap";
+
 import styles from "./TimeLine.module.css";
 
 type Event = {
@@ -16,18 +17,47 @@ interface TimeLineProps {
 }
 
 export default function TimeLine({ startYear, endYear }: TimeLineProps) {
-  const [events, setEvents] = useState<Event[]>([]);
-  const [activeEvent, setActiveEvent] = useState<number | null>(null);
+  const [allEvents, setAllEvents] = useState<Event[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([
+    "storico",
+    "artistico",
+    "culturale",
+    "scientifico",
+    "tecnologico",
+    "sportivo",
+  ]);
+  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
 
   const totalYears = endYear - startYear;
-  const getPosition = (year: number) =>
-    ((year - startYear) / totalYears) * 100;
+  const getPosition = (year: number) => ((year - startYear) / totalYears) * 100;
 
-  // Estrazione casuale di 1 evento per ogni intervallo di 50 anni
-  const pickRandomEvents = (data: Event[]): Event[] => {
+  // Carica eventi dal JSON
+  useEffect(() => {
+    const loadEvents = async () => {
+      const res = await fetch("/event_catalog.json");
+      const data: Event[] = await res.json();
+      setAllEvents(data);
+      setFilteredEvents(selectRandomEvents(data, selectedCategories));
+    };
+    loadEvents();
+  }, []);
+
+  // Gestione toggle categorie
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategories(prev =>
+      prev.includes(category)
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    );
+  };
+
+  // Funzione per scegliere 1 evento random per slot di 50 anni
+  const selectRandomEvents = (events: Event[], categories: string[]) => {
+    const filtered = events.filter(e => categories.includes(e.category));
     const selected: Event[] = [];
+
     for (let y = startYear; y <= endYear; y += 50) {
-      const slotEvents = data.filter((e) => e.year >= y && e.year < y + 50);
+      const slotEvents = filtered.filter(e => e.year >= y && e.year < y + 50);
       if (slotEvents.length > 0) {
         const random = slotEvents[Math.floor(Math.random() * slotEvents.length)];
         selected.push(random);
@@ -36,18 +66,10 @@ export default function TimeLine({ startYear, endYear }: TimeLineProps) {
     return selected;
   };
 
-  useEffect(() => {
-    fetch("/event_catalog.json")
-      .then((res) => res.json())
-      .then((data: Event[]) => {
-        const filtered = data.filter(
-          (e) => e.year >= startYear && e.year <= endYear
-        );
-        const picked = pickRandomEvents(filtered);
-        setEvents(picked);
-      })
-      .catch((err) => console.error("Errore caricamento eventi:", err));
-  }, [startYear, endYear]);
+  // Applica filtro
+  const applyFilter = () => {
+    setFilteredEvents(selectRandomEvents(allEvents, selectedCategories));
+  };
 
   // Tacche ogni 50 anni
   const ticks: number[] = [];
@@ -57,50 +79,67 @@ export default function TimeLine({ startYear, endYear }: TimeLineProps) {
 
   return (
     <div className="mt-2">
-    <p>Alcuni eventi successi durante la mia vita</p>
-    <div className={styles.timelineContainer}>
-      <div className={styles.timelineBar}>
-        {/* Tacche */}
-        {ticks.map((year, i) => (
-          <div
-            key={i}
-            className={styles.tick}
-            style={{ left: `${getPosition(year)}%` }}
-          >
-            <span className={styles.tickLabel}>{year}</span>
-          </div>
-        ))}
 
-        {/* Eventi selezionati random */}
-        {events.map((event, i) => (
-          <OverlayTrigger
-            key={i}
-            placement="bottom"
-            overlay={
-              <Tooltip id={`tooltip-${i}`} className={styles.customTooltip}>
-                <strong>{event.year}</strong> <br/> {event.text} 
-              </Tooltip>}
-          >
+      <p className="mb-1 text-center">Alcuni eventi successi durante la mia vita</p>
+      <div className={styles.timelineContainer}>
+        <div className={styles.timelineBar}>
+          {/* Tacche ogni 50 anni */}
+          {ticks.map((year, i) => (
             <div
-              className={`${styles.eventDot} ${
-                event.year === endYear ? styles.today : ""
-              }`}
-              style={{ left: `${getPosition(event.year)}%` }}
-              onClick={() => setActiveEvent(i)}
-            />
-          </OverlayTrigger>
-        ))}
+              key={i}
+              className={styles.tick}
+              style={{ left: `${getPosition(year)}%` }}
+            >
+              <span className={styles.tickLabel}>{year}</span>
+            </div>
+          ))}
+
+          {/* Eventi */}
+          {filteredEvents.map((event, i) => (
+            <OverlayTrigger
+              key={i}
+              placement="top"
+              overlay={
+                <Tooltip className={styles.customTooltip}>
+                  {event.text} ({event.year})
+                </Tooltip>
+              }
+            >
+              <div
+                className={styles.eventDot}
+                style={{ left: `${getPosition(event.year)}%` }}
+              />
+            </OverlayTrigger>
+          ))}
+        </div>
       </div>
 
-      {/* Evento selezionato (click) 
-      {activeEvent !== null && (
-        <div className={styles.eventInfo}>
-          <strong>{events[activeEvent].year}:</strong>{" "}
-          {events[activeEvent].text}{" "}
-          <em>({events[activeEvent].category})</em>
-        </div>
-      )}*/}
-    </div>
+       {/* Menu di filtro dentro combobox/accordion */}
+      <div className="mt-3 pt-1 text-end">
+        <DropdownButton id="dropdown-categories" title="Filtra tipologia eventi" drop="start" className={styles.dropdownCustom}>
+          <div className={styles.dropdownMenuCustom}>
+            {["storico", "artistico", "culturale", "scientifico", "tecnologico", "sportivo"].map(
+              cat => (
+                <Form.Check
+                  key={cat}
+                  type="checkbox"
+                  label={cat}
+                  checked={selectedCategories.includes(cat)}
+                  onChange={() => handleCategoryChange(cat)}
+                  className={styles.dropdownCheck}
+                />
+              )
+            )}
+            <div className="mt-3 text-center">
+              <Button className={styles.filterButton} size="sm" onClick={applyFilter}>
+                Mostra
+              </Button>
+            </div>
+          </div>
+        </DropdownButton>
+
+      </div>
+
     </div>
   );
 }

@@ -5,6 +5,7 @@ import Image from "next/image";
 import styles from "./page.module.css";
 import Title from "./Title";
 import TimeLine from "./TimeLine";
+import Link from "next/link";
 
 export default function Home() {
   const currentYear = new Date().getFullYear();
@@ -27,7 +28,7 @@ export default function Home() {
           {/* Immagine albero */}
           <Col xs={5} className="m-0 p-0 text-center align-middle">
             <Image
-              src="/04.A944.BO.08.png" // inserisci immagine in public/
+              src="/01.L797.RN.08.png" // inserisci immagine in public/
               alt="Cipresso di San Francesco"
               fill   
               className={`${styles.treeImg} img-fluid}`}
@@ -42,7 +43,10 @@ export default function Home() {
               di cui <strong>1 vicino a te</strong>.
             </p>
             <p className="mt-1">
-              <strong>Specie:</strong> Cipresso comune <i>(Cupressus sempervirens L.)</i>
+              <strong>Specie: </strong> 
+              <Link href="/treedetail">
+                Cipresso comune <i>(Cupressus sempervirens L.)</i>
+              </Link>
             </p>
             
             <p className="mt-2 fw-bold">Dimensioni</p>
