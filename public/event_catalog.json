@@ -1,0 +1,410 @@
+[
+  { "year": 1054, "text": "Scisma d’Oriente (separazione Chiesa cattolica e ortodossa)", "category": "storico" },
+  { "year": 1066, "text": "Battaglia di Hastings, conquista normanna dell’Inghilterra", "category": "storico" },
+  { "year": 1071, "text": "Battaglia di Manzicerta tra Bizantini e Selgiuchidi", "category": "storico" },
+
+  { "year": 1095, "text": "Papa Urbano II proclama la Prima Crociata", "category": "storico" },
+  { "year": 1099, "text": "Presa di Gerusalemme da parte dei crociati", "category": "storico" },
+  { "year": 1122, "text": "Concordato di Worms", "category": "storico" },
+
+  { "year": 1147, "text": "Inizio della Seconda Crociata", "category": "storico" },
+  { "year": 1152, "text": "Federico Barbarossa diventa imperatore del Sacro Romano Impero", "category": "storico" },
+  { "year": 1171, "text": "Fondazione della potenza marinara di Venezia", "category": "storico" },
+
+  { "year": 1187, "text": "Saladino riconquista Gerusalemme", "category": "storico" },
+  { "year": 1204, "text": "Sacco di Costantinopoli (Quarta Crociata)", "category": "storico" },
+  { "year": 1215, "text": "Firma della Magna Carta in Inghilterra", "category": "storico" },
+
+  { "year": 1241, "text": "Battaglia di Legnica (invasione mongola in Europa)", "category": "storico" },
+  { "year": 1258, "text": "Caduta di Baghdad ad opera dei Mongoli", "category": "storico" },
+  { "year": 1271, "text": "Marco Polo parte per l’Asia", "category": "storico" },
+
+  { "year": 1291, "text": "Fine degli stati crociati in Terra Santa (caduta di San Giovanni d’Acri)", "category": "storico" },
+  { "year": 1302, "text": "Bolla papale Unam Sanctam", "category": "storico" },
+  { "year": 1314, "text": "Rogo del Gran Maestro templare Jacques de Molay", "category": "storico" },
+
+  { "year": 1337, "text": "Inizio della Guerra dei Cent’Anni", "category": "storico" },
+  { "year": 1347, "text": "Arrivo della Peste Nera in Europa", "category": "storico" },
+  { "year": 1370, "text": "Fondazione della dinastia Ming in Cina", "category": "storico" },
+
+  { "year": 1381, "text": "Rivolta dei contadini in Inghilterra", "category": "storico" },
+  { "year": 1396, "text": "Battaglia di Nicopoli (contro i Turchi Ottomani)", "category": "storico" },
+  { "year": 1415, "text": "Battaglia di Azincourt", "category": "storico" },
+
+  { "year": 1431, "text": "Rogo di Giovanna d’Arco", "category": "storico" },
+  { "year": 1453, "text": "Caduta di Costantinopoli (fine Impero Bizantino)", "category": "storico" },
+  { "year": 1471, "text": "Battaglia di Tewkesbury (Guerra delle Due Rose)", "category": "storico" },
+
+  { "year": 1492, "text": "Scoperta dell’America da parte di Cristoforo Colombo", "category": "storico" },
+  { "year": 1494, "text": "Inizio delle guerre d’Italia (Francia contro Spagna e stati italiani)", "category": "storico" },
+  { "year": 1517, "text": "Lutero affigge le 95 tesi a Wittenberg", "category": "storico" },
+
+  { "year": 1527, "text": "Sacco di Roma da parte dei lanzichenecchi", "category": "storico" },
+  { "year": 1547, "text": "Ivan IV (il Terribile) zar di Russia", "category": "storico" },
+  { "year": 1571, "text": "Battaglia di Lepanto", "category": "storico" },
+
+  { "year": 1588, "text": "Sconfitta dell’Armada spagnola da parte dell’Inghilterra", "category": "storico" },
+  { "year": 1600, "text": "Fondazione della Compagnia delle Indie Orientali", "category": "storico" },
+  { "year": 1618, "text": "Inizio della Guerra dei Trent’Anni", "category": "storico" },
+
+  { "year": 1642, "text": "Inizio guerra civile inglese", "category": "storico" },
+  { "year": 1648, "text": "Pace di Vestfalia", "category": "storico" },
+  { "year": 1661, "text": "Luigi XIV inizia il suo regno personale in Francia", "category": "storico" },
+
+  { "year": 1683, "text": "Assedio di Vienna da parte degli Ottomani", "category": "storico" },
+  { "year": 1701, "text": "Inizio della Guerra di successione spagnola", "category": "storico" },
+  { "year": 1715, "text": "Morte di Luigi XIV", "category": "storico" },
+
+  { "year": 1740, "text": "Inizio regno di Federico II di Prussia", "category": "storico" },
+  { "year": 1756, "text": "Guerra dei Sette Anni", "category": "storico" },
+  { "year": 1773, "text": "Boston Tea Party", "category": "storico" },
+
+  { "year": 1776, "text": "Dichiarazione d’Indipendenza degli Stati Uniti", "category": "storico" },
+  { "year": 1789, "text": "Rivoluzione Francese", "category": "storico" },
+  { "year": 1815, "text": "Battaglia di Waterloo, sconfitta di Napoleone", "category": "storico" },
+
+  { "year": 1830, "text": "Rivoluzioni in Europa", "category": "storico" },
+  { "year": 1848, "text": "Primavera dei Popoli", "category": "storico" },
+  { "year": 1861, "text": "Unità d’Italia", "category": "storico" },
+
+  { "year": 1879, "text": "Guerra anglo-zulu", "category": "storico" },
+  { "year": 1914, "text": "Inizio Prima Guerra Mondiale", "category": "storico" },
+  { "year": 1917, "text": "Rivoluzione russa", "category": "storico" },
+
+  { "year": 1939, "text": "Inizio Seconda Guerra Mondiale", "category": "storico" },
+  { "year": 1949, "text": "Nascita della Repubblica Popolare Cinese", "category": "storico" },
+  { "year": 1969, "text": "Primo uomo sulla Luna", "category": "storico" },
+
+  { "year": 1989, "text": "Caduta del Muro di Berlino", "category": "storico" },
+  { "year": 2001, "text": "Attentati dell’11 settembre", "category": "storico" },
+  { "year": 2020, "text": "Pandemia COVID-19", "category": "storico" },
+
+  { "year": 1026, "text": "Costruzione della Cattedrale di San Miniato al Monte (Firenze)", "category": "artistico" },
+  { "year": 1045, "text": "Avvio costruzione della Cattedrale di Spira (Germania)", "category": "artistico" },
+  { "year": 1050, "text": "Sviluppo dello stile romanico in Europa", "category": "artistico" },
+
+  { "year": 1080, "text": "Costruzione della Basilica di San Marco a Venezia", "category": "artistico" },
+  { "year": 1093, "text": "Inizio costruzione della Cattedrale di Durham (Inghilterra)", "category": "artistico" },
+  { "year": 1100, "text": "Diffusione dei mosaici bizantini in Italia meridionale", "category": "artistico" },
+
+  { "year": 1137, "text": "Fondazione dell’Abbazia di Saint-Denis (nascita gotico)", "category": "artistico" },
+  { "year": 1150, "text": "Costruzione della Cattedrale di Sens", "category": "artistico" },
+  { "year": 1170, "text": "Prime vetrate artistiche in Francia settentrionale", "category": "artistico" },
+
+  { "year": 1180, "text": "Costruzione della Cattedrale di Chartres", "category": "artistico" },
+  { "year": 1200, "text": "Sviluppo delle miniature gotiche in Francia", "category": "artistico" },
+  { "year": 1211, "text": "Inizio costruzione della Cattedrale di Reims", "category": "artistico" },
+
+  { "year": 1248, "text": "Fondazione della Cattedrale di Colonia", "category": "artistico" },
+  { "year": 1260, "text": "Nicola Pisano scolpisce il pulpito del Battistero di Pisa", "category": "artistico" },
+  { "year": 1270, "text": "Diffusione della pittura bizantina in Italia (Cimabue)", "category": "artistico" },
+
+  { "year": 1296, "text": "Avvio costruzione del Duomo di Firenze (Arnolfo di Cambio)", "category": "artistico" },
+  { "year": 1305, "text": "Giotto dipinge la Cappella degli Scrovegni a Padova", "category": "artistico" },
+  { "year": 1310, "text": "Diffusione della pittura gotica in Europa", "category": "artistico" },
+
+  { "year": 1334, "text": "Giotto nominato capomastro del Duomo di Firenze", "category": "artistico" },
+  { "year": 1350, "text": "Nascita della pittura senese (Simone Martini, Lorenzetti)", "category": "artistico" },
+  { "year": 1375, "text": "Affreschi del Camposanto di Pisa", "category": "artistico" },
+
+  { "year": 1386, "text": "Fondazione del Duomo di Milano", "category": "artistico" },
+  { "year": 1401, "text": "Concorso per le porte del Battistero di Firenze (Ghiberti vs Brunelleschi)", "category": "artistico" },
+  { "year": 1420, "text": "Brunelleschi avvia la Cupola di Santa Maria del Fiore", "category": "artistico" },
+
+  { "year": 1434, "text": "Masaccio dipinge la Trinità in Santa Maria Novella", "category": "artistico" },
+  { "year": 1452, "text": "Nascita di Leonardo da Vinci", "category": "artistico" },
+  { "year": 1475, "text": "Nascita di Michelangelo Buonarroti", "category": "artistico" },
+
+  { "year": 1482, "text": "Leonardo alla corte di Ludovico il Moro a Milano", "category": "artistico" },
+  { "year": 1498, "text": "Leonardo completa L’Ultima Cena", "category": "artistico" },
+  { "year": 1504, "text": "Michelangelo scolpisce il David", "category": "artistico" },
+
+  { "year": 1512, "text": "Michelangelo completa la volta della Cappella Sistina", "category": "artistico" },
+  { "year": 1519, "text": "Morte di Leonardo da Vinci", "category": "artistico" },
+  { "year": 1527, "text": "Sacco di Roma e fine del Rinascimento romano", "category": "artistico" },
+
+  { "year": 1545, "text": "Fondazione della Scuola di San Rocco a Venezia (Tintoretto)", "category": "artistico" },
+  { "year": 1565, "text": "Bruegel il Vecchio dipinge “I mesi”", "category": "artistico" },
+  { "year": 1580, "text": "El Greco attivo in Spagna", "category": "artistico" },
+
+  { "year": 1600, "text": "Caravaggio dipinge le tele di San Luigi dei Francesi", "category": "artistico" },
+  { "year": 1623, "text": "Bernini scolpisce l’Apollo e Dafne", "category": "artistico" },
+  { "year": 1642, "text": "Rembrandt dipinge La ronda di notte", "category": "artistico" },
+
+  { "year": 1667, "text": "Versailles inizia ad assumere la sua forma definitiva", "category": "artistico" },
+  { "year": 1670, "text": "Claude Lorrain sviluppa il paesaggio ideale", "category": "artistico" },
+  { "year": 1700, "text": "Sviluppo del barocco in Italia e Francia", "category": "artistico" },
+
+  { "year": 1720, "text": "Canaletto attivo a Venezia", "category": "artistico" },
+  { "year": 1750, "text": "Diffusione del rococò in Europa", "category": "artistico" },
+  { "year": 1770, "text": "Giovan Battista Piranesi pubblica le Carceri d’invenzione", "category": "artistico" },
+
+  { "year": 1784, "text": "Jacques-Louis David dipinge “Il giuramento degli Orazi”", "category": "artistico" },
+  { "year": 1808, "text": "Francisco Goya dipinge “Il 3 maggio 1808”", "category": "artistico" },
+  { "year": 1827, "text": "Ingres dipinge “L’odalisca”", "category": "artistico" },
+
+  { "year": 1830, "text": "Delacroix dipinge “La Libertà che guida il popolo”", "category": "artistico" },
+  { "year": 1848, "text": "Courbet avvia il realismo con “Gli spaccapietre”", "category": "artistico" },
+  { "year": 1872, "text": "Monet dipinge “Impression, soleil levant”", "category": "artistico" },
+
+  { "year": 1889, "text": "Van Gogh dipinge “Notte stellata”", "category": "artistico" },
+  { "year": 1907, "text": "Picasso dipinge “Les Demoiselles d’Avignon”", "category": "artistico" },
+  { "year": 1910, "text": "Kandinsky dipinge la prima opera astratta", "category": "artistico" },
+
+  { "year": 1924, "text": "Manifesto surrealista di André Breton", "category": "artistico" },
+  { "year": 1937, "text": "Picasso dipinge “Guernica”", "category": "artistico" },
+  { "year": 1948, "text": "Pollock avvia l’action painting", "category": "artistico" },
+
+  { "year": 1960, "text": "Andy Warhol e la Pop Art", "category": "artistico" },
+  { "year": 1977, "text": "Biennale di Venezia dedicata all’arte femminista", "category": "artistico" },
+  { "year": 1989, "text": "Mostra di Basquiat a Parigi", "category": "artistico" },
+
+  { "year": 2000, "text": "Arte digitale e Net Art si diffondono", "category": "artistico" },
+  { "year": 2010, "text": "Banksy porta la street art a livello globale", "category": "artistico" },
+  { "year": 2021, "text": "NFT e arte digitale diventano mainstream", "category": "artistico" },
+
+  { "year": 1030, "text": "Fondazione della scuola di medicina di Salerno", "category": "culturale" },
+  { "year": 1054, "text": "Scisma d’Oriente influenza cultura e religione europea", "category": "culturale" },
+  { "year": 1070, "text": "Prime traduzioni arabe di testi greci in Spagna", "category": "culturale" },
+
+  { "year": 1098, "text": "Fondazione dell’ordine cistercense", "category": "culturale" },
+  { "year": 1115, "text": "Fondazione dell’Università di Bologna (prima università europea)", "category": "culturale" },
+  { "year": 1120, "text": "Diffusione dei poemi cavallereschi in Francia", "category": "culturale" },
+
+  { "year": 1140, "text": "Abelardo scrive *Sic et Non*", "category": "culturale" },
+  { "year": 1150, "text": "Nascita della scuola delle cattedrali gotiche", "category": "culturale" },
+  { "year": 1170, "text": "Diffusione dei trovatori in Provenza", "category": "culturale" },
+
+  { "year": 1190, "text": "Università di Parigi diventa centro culturale europeo", "category": "culturale" },
+  { "year": 1210, "text": "San Francesco predica e avvia un nuovo movimento spirituale", "category": "culturale" },
+  { "year": 1225, "text": "Tommaso d’Aquino inizia la sua formazione", "category": "culturale" },
+
+  { "year": 1240, "text": "Diffusione della filosofia scolastica", "category": "culturale" },
+  { "year": 1265, "text": "Nasce Dante Alighieri", "category": "culturale" },
+  { "year": 1274, "text": "Morte di Tommaso d’Aquino", "category": "culturale" },
+
+  { "year": 1290, "text": "Marco Polo diffonde conoscenze dall’Oriente", "category": "culturale" },
+  { "year": 1310, "text": "Dante inizia a scrivere la *Divina Commedia*", "category": "culturale" },
+  { "year": 1320, "text": "Diffusione della poesia stilnovista", "category": "culturale" },
+
+  { "year": 1348, "text": "La Peste Nera influenza letteratura e pensiero", "category": "culturale" },
+  { "year": 1350, "text": "Petrarca consolida l’Umanesimo", "category": "culturale" },
+  { "year": 1374, "text": "Morte di Petrarca", "category": "culturale" },
+
+  { "year": 1387, "text": "Chaucer scrive i *Canterbury Tales*", "category": "culturale" },
+  { "year": 1400, "text": "Nascita di Jan Hus e del movimento riformatore", "category": "culturale" },
+  { "year": 1415, "text": "Morte al rogo di Jan Hus", "category": "culturale" },
+
+  { "year": 1439, "text": "Gutenberg sviluppa la stampa a caratteri mobili", "category": "culturale" },
+  { "year": 1453, "text": "Intellettuali greci portano testi classici in Italia", "category": "culturale" },
+  { "year": 1470, "text": "Diffusione della stampa in Europa", "category": "culturale" },
+
+  { "year": 1492, "text": "Antonio de Nebrija pubblica la prima grammatica spagnola", "category": "culturale" },
+  { "year": 1500, "text": "Erasmo da Rotterdam promuove l’Umanesimo cristiano", "category": "culturale" },
+  { "year": 1516, "text": "Thomas More pubblica *Utopia*", "category": "culturale" },
+
+  { "year": 1530, "text": "Machiavelli diffonde *Il Principe*", "category": "culturale" },
+  { "year": 1543, "text": "Copernico pubblica *De revolutionibus orbium coelestium*", "category": "culturale" },
+  { "year": 1564, "text": "Nascono Galileo Galilei e Shakespeare", "category": "culturale" },
+
+  { "year": 1580, "text": "Montaigne pubblica i suoi *Saggi*", "category": "culturale" },
+  { "year": 1605, "text": "Cervantes pubblica la prima parte del *Don Chisciotte*", "category": "culturale" },
+  { "year": 1616, "text": "Morte di Shakespeare e Cervantes", "category": "culturale" },
+
+  { "year": 1637, "text": "Cartesio pubblica *Discorso sul metodo*", "category": "culturale" },
+  { "year": 1651, "text": "Thomas Hobbes pubblica *Leviatano*", "category": "culturale" },
+  { "year": 1670, "text": "Spinoza pubblica *Trattato teologico-politico*", "category": "culturale" },
+
+  { "year": 1687, "text": "Newton pubblica i *Principia Mathematica*", "category": "culturale" },
+  { "year": 1704, "text": "John Locke pubblica *Saggio sull’intelletto umano*", "category": "culturale" },
+  { "year": 1712, "text": "Rousseau nasce a Ginevra", "category": "culturale" },
+
+  { "year": 1734, "text": "Voltaire pubblica *Lettere filosofiche*", "category": "culturale" },
+  { "year": 1751, "text": "Diderot e d’Alembert pubblicano l’*Encyclopédie*", "category": "culturale" },
+  { "year": 1762, "text": "Rousseau pubblica *Il contratto sociale*", "category": "culturale" },
+
+  { "year": 1781, "text": "Kant pubblica *Critica della ragion pura*", "category": "culturale" },
+  { "year": 1807, "text": "Hegel pubblica *Fenomenologia dello spirito*", "category": "culturale" },
+  { "year": 1821, "text": "Morte di Napoleone, nuova ondata di romanticismo", "category": "culturale" },
+
+  { "year": 1835, "text": "Alexis de Tocqueville pubblica *Democrazia in America*", "category": "culturale" },
+  { "year": 1859, "text": "Darwin pubblica *L’origine delle specie*", "category": "culturale" },
+  { "year": 1871, "text": "Rivoluzione culturale del positivismo", "category": "culturale" },
+
+  { "year": 1883, "text": "Nietzsche pubblica *Così parlò Zarathustra*", "category": "culturale" },
+  { "year": 1900, "text": "Freud pubblica *L’interpretazione dei sogni*", "category": "culturale" },
+  { "year": 1916, "text": "Manifesto dadaista a Zurigo", "category": "culturale" },
+
+  { "year": 1922, "text": "Joyce pubblica *Ulisse*", "category": "culturale" },
+  { "year": 1945, "text": "Diffusione dell’esistenzialismo (Sartre, Camus)", "category": "culturale" },
+  { "year": 1962, "text": "Foucault pubblica *Storia della follia*", "category": "culturale" },
+
+  { "year": 1980, "text": "Espansione postmodernismo nelle arti e nella filosofia", "category": "culturale" },
+  { "year": 1991, "text": "Nascita del World Wide Web e nuova cultura digitale", "category": "culturale" },
+  { "year": 2016, "text": "Diffusione mondiale della cultura social e digitale", "category": "culturale" },
+
+  { "year": 1025, "text": "Avicenna pubblica il *Canone della medicina*", "category": "scientifico" },
+  { "year": 1040, "text": "Alhazen sviluppa la teoria della visione", "category": "scientifico" },
+  { "year": 1054, "text": "Osservata la supernova del Granchio", "category": "scientifico" },
+
+  { "year": 1088, "text": "Fondazione dell’Università di Bologna, centro per studi scientifici", "category": "scientifico" },
+  { "year": 1100, "text": "Traduzioni di testi scientifici arabi a Toledo", "category": "scientifico" },
+  { "year": 1126, "text": "Averroè introduce commenti ad Aristotele", "category": "scientifico" },
+
+  { "year": 1154, "text": "Al-Idrisi realizza la Tabula Rogeriana (mappa del mondo)", "category": "scientifico" },
+  { "year": 1170, "text": "Diffusione della medicina araba in Europa", "category": "scientifico" },
+  { "year": 1190, "text": "Scuola di Salerno produce testi medici influenti", "category": "scientifico" },
+
+  { "year": 1215, "text": "Robert Grosseteste sviluppa metodo sperimentale", "category": "scientifico" },
+  { "year": 1240, "text": "Federico II promuove studi di zoologia", "category": "scientifico" },
+  { "year": 1250, "text": "Diffusione della numerazione araba in Europa", "category": "scientifico" },
+
+  { "year": 1270, "text": "Ruggero Bacone promuove l’osservazione empirica", "category": "scientifico" },
+  { "year": 1290, "text": "Aristotele riscoperto tramite traduzioni latine", "category": "scientifico" },
+  { "year": 1310, "text": "Prime descrizioni europee della bussola", "category": "scientifico" },
+
+  { "year": 1330, "text": "William of Ockham introduce il rasoio di Ockham", "category": "scientifico" },
+  { "year": 1348, "text": "Analisi mediche della Peste Nera", "category": "scientifico" },
+  { "year": 1377, "text": "Guy de Chauliac scrive *Chirurgia Magna*", "category": "scientifico" },
+
+  { "year": 1400, "text": "Diffusione dell’astrologia rinascimentale", "category": "scientifico" },
+  { "year": 1420, "text": "Primi esperimenti sull’ottica prospettica", "category": "scientifico" },
+  { "year": 1440, "text": "Alberti scrive *De pictura* con basi matematiche", "category": "scientifico" },
+
+  { "year": 1464, "text": "Marsilio Ficino traduce testi di Platone", "category": "scientifico" },
+  { "year": 1473, "text": "Nascita di Copernico", "category": "scientifico" },
+  { "year": 1492, "text": "Colombo applica tecniche di navigazione astronomica", "category": "scientifico" },
+
+  { "year": 1514, "text": "Copernico formula il modello eliocentrico (inedito)", "category": "scientifico" },
+  { "year": 1543, "text": "Copernico pubblica *De revolutionibus*", "category": "scientifico" },
+  { "year": 1545, "text": "Cardano pubblica *Ars Magna* (algebra)", "category": "scientifico" },
+
+  { "year": 1572, "text": "Osservata la supernova di Tycho Brahe", "category": "scientifico" },
+  { "year": 1600, "text": "William Gilbert pubblica *De Magnete*", "category": "scientifico" },
+  { "year": 1609, "text": "Keplero pubblica le prime due leggi planetarie", "category": "scientifico" },
+
+  { "year": 1610, "text": "Galileo osserva i satelliti di Giove", "category": "scientifico" },
+  { "year": 1628, "text": "Harvey descrive la circolazione sanguigna", "category": "scientifico" },
+  { "year": 1637, "text": "Cartesio pubblica *La geometria*", "category": "scientifico" },
+
+  { "year": 1665, "text": "Hooke osserva le cellule", "category": "scientifico" },
+  { "year": 1676, "text": "Rømer misura la velocità della luce", "category": "scientifico" },
+  { "year": 1687, "text": "Newton pubblica *Principia Mathematica*", "category": "scientifico" },
+
+  { "year": 1704, "text": "Newton pubblica *Opticks*", "category": "scientifico" },
+  { "year": 1735, "text": "Linnaeus pubblica *Systema Naturae*", "category": "scientifico" },
+  { "year": 1752, "text": "Benjamin Franklin scopre l’elettricità atmosferica", "category": "scientifico" },
+
+  { "year": 1774, "text": "Priestley isola l’ossigeno", "category": "scientifico" },
+  { "year": 1785, "text": "Coulomb formula la legge dell’elettrostatica", "category": "scientifico" },
+  { "year": 1796, "text": "Jenner introduce il vaccino contro il vaiolo", "category": "scientifico" },
+
+  { "year": 1803, "text": "Dalton formula la teoria atomica", "category": "scientifico" },
+  { "year": 1820, "text": "Oersted scopre l’elettromagnetismo", "category": "scientifico" },
+  { "year": 1827, "text": "Ohm formula la legge di Ohm", "category": "scientifico" },
+
+  { "year": 1859, "text": "Darwin pubblica *L’origine delle specie*", "category": "scientifico" },
+  { "year": 1869, "text": "Mendeleev presenta la tavola periodica", "category": "scientifico" },
+  { "year": 1876, "text": "Bell inventa il telefono", "category": "scientifico" },
+
+  { "year": 1895, "text": "Röntgen scopre i raggi X", "category": "scientifico" },
+  { "year": 1905, "text": "Einstein pubblica la teoria della relatività ristretta", "category": "scientifico" },
+  { "year": 1928, "text": "Fleming scopre la penicillina", "category": "scientifico" },
+
+  { "year": 1932, "text": "Chadwick scopre il neutrone", "category": "scientifico" },
+  { "year": 1953, "text": "Watson e Crick scoprono la struttura del DNA", "category": "scientifico" },
+  { "year": 1969, "text": "Sbarco sulla Luna (Apollo 11)", "category": "scientifico" },
+
+  { "year": 1971, "text": "Nascita della microprocessore Intel 4004", "category": "scientifico" },
+  { "year": 1983, "text": "Kary Mullis sviluppa la PCR", "category": "scientifico" },
+  { "year": 1997, "text": "Clonazione della pecora Dolly", "category": "scientifico" },
+
+  { "year": 2003, "text": "Completamento del Progetto Genoma Umano", "category": "scientifico" },
+  { "year": 2012, "text": "Scoperta del bosone di Higgs", "category": "scientifico" },
+  { "year": 2020, "text": "Vaccini mRNA contro COVID-19", "category": "scientifico" },  
+
+  { "year": 1044, "text": "Cina: primo uso documentato della polvere da sparo in armi", "category": "tecnologico" },
+  { "year": 1088, "text": "Prime migliorie all’aratro pesante in Europa", "category": "tecnologico" },
+  { "year": 1120, "text": "Diffusione dei mulini ad acqua in Europa", "category": "tecnologico" },
+
+  { "year": 1206, "text": "Al-Jazari descrive ingranaggi e macchine idrauliche", "category": "tecnologico" },
+  { "year": 1250, "text": "Diffusione dell’orologio meccanico in Europa", "category": "tecnologico" },
+  { "year": 1286, "text": "Invenzione degli occhiali in Italia", "category": "tecnologico" },
+
+  { "year": 1326, "text": "Primi documenti sull’uso dei cannoni in Europa", "category": "tecnologico" },
+  { "year": 1377, "text": "Primi orologi pubblici meccanici in Europa", "category": "tecnologico" },
+  { "year": 1400, "text": "Diffusione della carta dall’Oriente all’Europa", "category": "tecnologico" },
+
+  { "year": 1450, "text": "Gutenberg inventa la stampa a caratteri mobili", "category": "tecnologico" },
+  { "year": 1492, "text": "Navigazione oceanica con nuove caravelle", "category": "tecnologico" },
+  { "year": 1500, "text": "Diffusione della bussola magnetica in Europa", "category": "tecnologico" },
+
+  { "year": 1590, "text": "Hans e Zacharias Janssen inventano il microscopio composto", "category": "tecnologico" },
+  { "year": 1608, "text": "Lippershey brevetta il telescopio", "category": "tecnologico" },
+  { "year": 1642, "text": "Pascal inventa la calcolatrice meccanica", "category": "tecnologico" },
+
+  { "year": 1712, "text": "Thomas Newcomen inventa la macchina a vapore", "category": "tecnologico" },
+  { "year": 1769, "text": "James Watt perfeziona la macchina a vapore", "category": "tecnologico" },
+  { "year": 1795, "text": "Eli Whitney inventa la sgranatrice di cotone", "category": "tecnologico" },
+
+  { "year": 1804, "text": "Prima locomotiva a vapore funzionante", "category": "tecnologico" },
+  { "year": 1825, "text": "Prima ferrovia pubblica in Inghilterra", "category": "tecnologico" },
+  { "year": 1837, "text": "Morse sviluppa il telegrafo elettrico", "category": "tecnologico" },
+
+  { "year": 1876, "text": "Bell brevetta il telefono", "category": "tecnologico" },
+  { "year": 1879, "text": "Edison inventa la lampadina elettrica", "category": "tecnologico" },
+  { "year": 1886, "text": "Benz costruisce la prima automobile", "category": "tecnologico" },
+
+  { "year": 1903, "text": "Primo volo aereo dei fratelli Wright", "category": "tecnologico" },
+  { "year": 1927, "text": "Diffusione della televisione", "category": "tecnologico" },
+  { "year": 1942, "text": "Primo reattore nucleare a Chicago", "category": "tecnologico" },
+
+  { "year": 1947, "text": "Invenzione del transistor ai Bell Labs", "category": "tecnologico" },
+  { "year": 1969, "text": "ARPANET, antenato di Internet", "category": "tecnologico" },
+  { "year": 1971, "text": "Intel rilascia il primo microprocessore (4004)", "category": "tecnologico" },
+
+  { "year": 1981, "text": "IBM lancia il primo personal computer", "category": "tecnologico" },
+  { "year": 1989, "text": "Tim Berners-Lee propone il World Wide Web", "category": "tecnologico" },
+  { "year": 2007, "text": "Apple lancia il primo iPhone", "category": "tecnologico" },
+
+  { "year": 2010, "text": "Diffusione dei social media su larga scala", "category": "tecnologico" },
+  { "year": 2016, "text": "AlphaGo sconfigge un campione mondiale di Go", "category": "tecnologico" },
+  { "year": 2023, "text": "Diffusione globale dell’IA generativa (es. ChatGPT)", "category": "tecnologico" },
+
+  { "year": 1096, "text": "Primi tornei cavallereschi documentati in Europa", "category": "sportivo" },
+  { "year": 1120, "text": "Diffusione del calcio folk in Inghilterra (mob football)", "category": "sportivo" },
+  { "year": 1280, "text": "Gioco del calcio storico fiorentino praticato a Firenze", "category": "sportivo" },
+
+  { "year": 1400, "text": "Popolarità del tiro con l’arco come attività militare e sportiva in Inghilterra", "category": "sportivo" },
+  { "year": 1460, "text": "Primi regolamenti formali dei tornei cavallereschi", "category": "sportivo" },
+
+  { "year": 1530, "text": "Calcio fiorentino molto diffuso come intrattenimento popolare", "category": "sportivo" },
+  { "year": 1555, "text": "Primi giochi popolari con la palla in Francia e Italia", "category": "sportivo" },
+
+  { "year": 1617, "text": "Primi regolamenti scritti per il gioco del golf in Scozia", "category": "sportivo" },
+  { "year": 1640, "text": "Diffusione della scherma come disciplina sportiva", "category": "sportivo" },
+
+  { "year": 1744, "text": "Fondazione della prima società di golf documentata a Edimburgo", "category": "sportivo" },
+  { "year": 1766, "text": "Primi match ufficiali di cricket in Inghilterra", "category": "sportivo" },
+
+  { "year": 1823, "text": "Nascita del rugby a Rugby School, Inghilterra", "category": "sportivo" },
+  { "year": 1846, "text": "Codificazione delle regole del baseball negli Stati Uniti", "category": "sportivo" },
+  { "year": 1863, "text": "Fondazione della Football Association e nascita del calcio moderno", "category": "sportivo" },
+
+  { "year": 1896, "text": "Prima edizione dei Giochi Olimpici moderni ad Atene", "category": "sportivo" },
+  { "year": 1903, "text": "Prima edizione del Tour de France", "category": "sportivo" },
+  { "year": 1930, "text": "Prima Coppa del Mondo FIFA in Uruguay", "category": "sportivo" },
+
+  { "year": 1950, "text": "Prima edizione del Campionato Mondiale di Formula 1", "category": "sportivo" },
+  { "year": 1960, "text": "Prima Olimpiade trasmessa in TV (Roma)", "category": "sportivo" },
+  { "year": 1971, "text": "Incontro di ping pong USA-Cina (Ping Pong Diplomacy)", "category": "sportivo" },
+
+  { "year": 1980, "text": "Partita di hockey 'Miracle on Ice' alle Olimpiadi di Lake Placid", "category": "sportivo" },
+  { "year": 1992, "text": "Dream Team USA di basket alle Olimpiadi di Barcellona", "category": "sportivo" },
+  { "year": 2008, "text": "Olimpiadi di Pechino, record storici di Usain Bolt e Michael Phelps", "category": "sportivo" },
+
+  { "year": 2016, "text": "Olimpiadi di Rio, prime per il Sud America", "category": "sportivo" },
+  { "year": 2021, "text": "Italia vince gli Europei di calcio a Wembley", "category": "sportivo" },
+  { "year": 2022, "text": "Argentina vince i Mondiali di calcio con Messi protagonista", "category": "sportivo" }  
+
+]

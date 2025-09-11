@@ -1,0 +1,82 @@
+@import url('https://fonts.googleapis.com/css2?family=Goudy+Bookletter+1911&family=Inknut+Antiqua:wght@300;400;500;600;700;800;900&display=swap');
+@import 'bootstrap/dist/css/bootstrap.min.css';
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@font-face {
+  font-family: 'Nordic';
+  src: url('/fonts/Nordic Alternative Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Oneday';
+  src: url('/fonts/ONEDAY.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #EEEAE6;
+  }
+}
+
+html {
+  background: var(--foreground);
+  color: var(--background);
+}
+
+body {
+  position: relative; /* necessario per pseudo-elementi */ 
+  font-family: "Goudy Bookletter 1911", "Inknut Antiqua", "Times New Roman", Times, serif;
+  background-color: #00000000;
+}
+
+/* Gradiente a sinistra */
+html::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -2px;
+  width: 8px; /* larghezza del gradiente a sinistra */
+  height: 100%;
+  background: linear-gradient(to right, #434341, #EEEAE6);
+  font-size: 14px;
+}
+
+/* Gradiente a destra */
+html::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -1;
+  width: 4px; /* larghezza del gradiente a destra */
+  height: 100%;
+  background: linear-gradient(to left, #434341, #EEEAE6);
+}
+
+a{color: inherit;}
+
+.nordic {font-family: 'Nordic', sans-serif;}
+.oneday {
+  font-family: 'Oneday', sans-serif;
+  font-size: 0.7em; /* 🔹 più piccolo in proporzione */
+  vertical-align: baseline;
+}
+
+.tx-small{
+    line-height: 24px;
+    font-size: 12px !important;
+}
+
+.tooltip {
+  --bs-tooltip-bg: #fdfaf4;
+  --bs-tooltip-color: #3e2a1f;
+  font-family: "Goudy Bookletter 1911", "Inknut Antiqua", "Times New Roman", Times, serif;
+  font-size: 12px;
+}

@@ -1,0 +1,59 @@
+.timelineContainer {
+  position: relative;
+  width: 100%;
+  padding: 2rem 0;
+}
+
+.timelineBar {
+  position: relative;
+  height: 4px;
+  background: linear-gradient(90deg, #4c4646, #aaa);
+  border-radius: 3px;
+}
+
+.tick {
+  position: absolute;
+  top: -2px;
+  width: 2px;
+  height: 8px;
+  background: #533e32;
+}
+
+.tickLabel {
+  position: absolute;
+  top: 18px;
+  font-size: 0.7rem;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  color: #555;
+}
+
+.eventDot {
+  cursor: pointer;
+  background-color: #b89c8c;
+  border: 3.5px double #533e32;
+  border-radius: 50%;
+  width: 10px;
+  height: 10px;
+  transition: transform .2s, background .2s;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.eventDot:hover {
+  transform: translate(-50%, -50%) scale(1.2);
+  background-color: #b8b28c;
+}
+
+.today {
+  background-color: #dc3545; /* rosso per evidenziare oggi */
+  box-shadow: 0 0 6px rgba(220, 53, 69, 0.6);
+}
+
+.eventInfo {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #333;
+}
