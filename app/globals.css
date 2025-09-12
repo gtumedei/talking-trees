@@ -29,6 +29,7 @@
 html {
   background: var(--foreground);
   color: var(--background);
+  overflow-x: hidden; /* prevenire scroll orizzontale */
 }
 
 body {
@@ -36,6 +37,7 @@ body {
   font-family: "Goudy Bookletter 1911", "Inknut Antiqua", "Times New Roman", Times, serif;
   background-color: #00000000;
   font-size: 14px;
+  overflow-x: hidden; /* prevenire scroll orizzontale */
 }
 
 /* Gradiente a sinistra */
