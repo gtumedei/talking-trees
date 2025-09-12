@@ -159,7 +159,7 @@ export default function DiaryPage() {
         <Modal.Body>
           <Form>
             <Form.Group className="mb-3">
-              <Form.Label>Commento</Form.Label>
+              <Form.Label>Ricordo</Form.Label>
               <Form.Control
                 as="textarea"
                 rows={3}

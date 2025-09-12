@@ -1,16 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Homemade+Apple&family=Reenie+Beanie&display=swap');
+
+
 .content {
   position: relative;
-  padding: 2rem;
+  padding: 20px;
   font-size: 1rem;
-  line-height: 1.6;
   color: #222;
 }
 
 .chat {
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
-  margin-bottom: 2rem;
 }
 
 .message {
@@ -18,16 +18,19 @@
 }
 
 .bot {
-  font-family: 'Caveat', cursive; /* scrittura bot */
-  font-size: 1.1rem;
+  /*font-family: 'Homemade Apple', cursive; /* scrittura bot */
+  font-family: 'Reenie Beanie', cursive; /* scrittura bot */
+  font-weight: bold;
+  line-height: 18px;
+  font-size: 17px;
 }
 
 .user {
-  font-family: 'Oneday', sans-serif;
   font-style: italic;
-  font-size: 0.95rem;
   text-align: center;
   color: #555;
+  font-size: 14px;
+  margin: 10px 20px 0;
 }
 
 .quickReplies {
