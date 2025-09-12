@@ -80,3 +80,32 @@ a{color: inherit;}
   font-family: "Goudy Bookletter 1911", "Inknut Antiqua", "Times New Roman", Times, serif;
   font-size: 12px;
 }
+
+.btn-primary {
+  color: #fff; /* colore testo */
+  background-color: #473727; /* sfondo */
+  border-color: #473727; /* bordo */
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: #473727;
+  border-color: #473727;
+}
+
+/* Bottone outline base */
+.btn-secondary {
+  color: #473727b9 !important; /* testo marrone */
+  border: 0.1px solid #473727;
+  background-color: transparent;
+  box-shadow: inset 0 0 5px #47372730; /* ombra interna leggera */
+}
+
+/* Hover / Focus */
+.btn-secondary:hover,
+.btn-secondary:focus {
+  background-color: #473727;
+  color: #fff;
+  border-color: #473727;
+}
+

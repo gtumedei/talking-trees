@@ -1,6 +1,6 @@
 "use client";
 
-import { Container, Row, Col, OverlayTrigger, Tooltip, Card } from "react-bootstrap";
+import { Container, Row, Col, OverlayTrigger, Tooltip, Card, Button } from "react-bootstrap";
 import Image from "next/image";
 import styles from "./page.module.css";
 import Title from "./Title";
@@ -68,8 +68,11 @@ export default function Home() {
             
           </Col>
         </Row>
-        
-        <TimeLine startYear={startYear} endYear={currentYear}/>
+
+        <TimeLine startYear={startYear} endYear={currentYear} />
+        <Button as={Link} href="/diary" variant="secondary" className="mt-3 mb-5 float-end fw-bold">
+          Pezzi di storia
+        </Button>
       </Container>
     </main>
   );
