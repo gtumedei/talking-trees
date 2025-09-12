@@ -6,7 +6,7 @@
 .timelineBar {
   position: relative;
   height: 4px;
-  background: linear-gradient(90deg, #4c4646, #aaa);
+  background: linear-gradient(90deg, #434341, #605b53);
   border-radius: 3px;
 }
 
@@ -15,7 +15,7 @@
   top: -2px;
   width: 2px;
   height: 8px;
-  background: #533e32;
+  background: #434341;
 }
 
 .tickLabel {
@@ -30,7 +30,7 @@
 .eventDot {
   cursor: pointer;
   background-color: #b89c8c;
-  border: 3.5px double #533e32;
+  border: 3.5px double #434341;
   border-radius: 50%;
   width: 10px;
   height: 10px;
@@ -64,7 +64,7 @@
 
 .dropdownCustom > button {
   background-color: #eaeaea !important;
-  color: #533e3285 !important;           /* testo marrone */
+  color: #43434185 !important;           /* testo marrone */
   border: none !important;
   font-style: italic;
   font-size: 14px !important;
@@ -73,7 +73,7 @@
 
 .dropdownCustom > button:hover {
   background-color: #eaeaea !important;
-  color: #533e3285 !important;
+  color: #43434185 !important;
   text-decoration: underline;
 }
 
@@ -81,8 +81,8 @@
   padding: 0px 10px;
 }
 .dropdownCheck input:checked{
-  background-color: #533e3285;
-  border: #533e32 solid 1px;
+  background-color: #43434185;
+  border: #434341 solid 1px;
 }
 .dropdownCheck label {
   font-size: 0.9rem;
@@ -91,8 +91,8 @@
 
 .filterButton {
   background-color: inherit !important;
-  color: #533e3285 !important;
-  border: solid 1px #533e3285 !important;
+  color: #43434185 !important;
+  border: solid 1px #43434185 !important;
   border-radius: 6px !important;
   padding: 4px 10px !important;
 }
