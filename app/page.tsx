@@ -1,6 +1,7 @@
 "use client";
 
 import { Container, Row, Col, OverlayTrigger, Tooltip, Card, Button } from "react-bootstrap";
+import { FaBookOpen, FaTree } from 'react-icons/fa';
 import Image from "next/image";
 import styles from "./page.module.css";
 import Title from "./Title";
@@ -70,9 +71,28 @@ export default function Home() {
         </Row>
 
         <TimeLine startYear={startYear} endYear={currentYear} />
-        <Button as={Link} href="/diary" variant="secondary" className="mt-3 mb-5 float-end fw-bold">
-          Pezzi di storia
-        </Button>
+        
+        <div className="float-end w-100 d-flex justify-content-around">
+          <Button
+            as={Link}
+            href="/diary"
+            variant="secondary"
+            className="mt-3 mb-5 fw-bold d-flex align-items-center gap-2"
+          >
+            <FaBookOpen />
+            Pezzi di storia
+          </Button>
+
+          <Button
+            as={Link}
+            href="/chatbot"
+            variant="secondary"
+            className="mt-3 mb-5 fw-bold d-flex align-items-center gap-2"
+          >
+            <FaTree />
+            Parla con l'albero
+          </Button>
+        </div>
       </Container>
     </main>
   );
