@@ -105,7 +105,7 @@ a{color: inherit;}
 .btn-secondary:hover,
 .btn-secondary:focus {
   background-color: #473727;
-  color: #fff;
+  color: #fff !important;
   border-color: #473727;
 }
 

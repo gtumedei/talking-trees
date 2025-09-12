@@ -106,7 +106,7 @@ export default function DiaryPage() {
       </p>
 
       {/* pulsante sopra i commenti */}
-      <div className="mb-3 text-start">
+      <div className="mb-1 text-center">
         <Button
           variant="secondary"
           onClick={() => setShowModal(true)}
@@ -127,6 +127,7 @@ export default function DiaryPage() {
 
           return (
             <div key={i} className={styles.entry}>
+              
               {/* data in font normale */}
               <p className={styles.date}><i>{entry.date}</i></p>
               {/* testo + autore con font random */}
@@ -144,6 +145,7 @@ export default function DiaryPage() {
                   — {entry.author}
                 </p>
               )}
+              <hr className="my-2" /> {/* linea di separazione */}
             </div>
           );
         })}

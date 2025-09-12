@@ -77,6 +77,31 @@ export default function TimeLine({ startYear, endYear }: TimeLineProps) {
     ticks.push(y);
   }
 
+  const parseText = (text: string) => {
+    const regex = /\*(.*?)\*/g;
+    const parts = [];
+    let lastIndex = 0;
+
+    // Cerca tutte le occorrenze di testo tra * *
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+      // Aggiungi la parte del testo prima dell'asterisco
+      if (match.index > lastIndex) {
+        parts.push(text.slice(lastIndex, match.index));
+      }
+      // Aggiungi il testo in corsivo
+      parts.push(<em key={match.index}>{match[1]}</em>);
+      lastIndex = regex.lastIndex;
+    }
+
+    // Aggiungi la parte finale del testo
+    if (lastIndex < text.length) {
+      parts.push(text.slice(lastIndex));
+    }
+
+    return parts;
+  };
+
   return (
     <div className="mt-2">
 
@@ -97,19 +122,25 @@ export default function TimeLine({ startYear, endYear }: TimeLineProps) {
           {/* Eventi */}
           {filteredEvents.map((event, i) => (
             <OverlayTrigger
-              key={i}
-              placement="top"
-              overlay={
-                <Tooltip className={styles.customTooltip}>
-                  {event.text} ({event.year})
-                </Tooltip>
-              }
-            >
-              <div
-                className={styles.eventDot}
-                style={{ left: `${getPosition(event.year)}%` }}
-              />
-            </OverlayTrigger>
+  key={i}
+  placement="top"
+  overlay={
+    <Tooltip
+      className={styles.customTooltip}
+      onClick={() =>
+        window.open(`https://www.google.com/search?q=${encodeURIComponent(event.text)}`, "_blank")
+      }
+      style={{ cursor: "pointer" }}
+    >
+      {parseText(event.text)} ({event.year})
+    </Tooltip>
+  }
+>
+  <div
+    className={styles.eventDot}
+    style={{ left: `${getPosition(event.year)}%` }}
+  />
+</OverlayTrigger>
           ))}
         </div>
       </div>

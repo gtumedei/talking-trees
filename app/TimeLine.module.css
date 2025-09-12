@@ -42,7 +42,7 @@
 
 .eventDot:hover {
   transform: translate(-50%, -50%) scale(1.2);
-  background-color: #b8b28c;
+  background-color: #d1c263;
 }
 
 .today {
