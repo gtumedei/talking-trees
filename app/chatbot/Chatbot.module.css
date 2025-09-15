@@ -23,6 +23,7 @@
   font-weight: bold;
   line-height: 18px;
   font-size: 17px;
+  text-align: center;
 }
 
 .user {
@@ -33,49 +34,61 @@
   margin: 10px 20px 0;
 }
 
+/* Barra scorrevole di bottoni */
 .quickReplies {
+  position: fixed;
+  bottom: 60px; /* sopra input */
+  left: 0;
+  right: 0;
+}
+
+.quickScroll {
   display: flex;
-  justify-content: space-around;
   gap: 0.5rem;
-  flex-wrap: wrap;
+  overflow-x: auto;
+  padding-bottom: 0.3rem;
 }
 
-.quickReplies button {
-  flex: 1;
-  padding: 0.6rem;
-  font-size: 0.8rem;
-  border: none;
-  border-radius: 6px;
-  background: #6c584c;
-  color: white;
-  cursor: pointer;
-  transition: background 0.2s;
+.quickScroll button {
+  flex: 0 0 auto;
+  opacity: 0.9;
+  padding: 0.4rem 0.8rem;
 }
-
-.quickReplies button:hover {
-  background: #5a463a;
+.quickScroll button:first-child {
+  margin-left: 0.5rem;
+  padding: 0.4rem 0.8rem;
 }
 
 .micBtn {
-  width: 40px;
-  flex: none;
+  background: #cce;
+}
+
+/* Input bar */
+.inputBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  border-top: 1px solid #ccc;
+  background: #fff;
+  padding: 0.4rem;
+}
+
+.inputBar input {
+  flex: 1;
+  border: none;
+  padding: 0.6rem;
+  border-radius: 20px;
+  outline: none;
+  margin-right: 0.5rem;
+  background: #f5f5f5;
+}
+
+.inputBar button {
+  border: none;
+  background: #4caf50;
+  color: white;
+  padding: 0.6rem 1rem;
   border-radius: 50%;
-  font-size: 1.2rem;
-  background: #c7b198;
-}
-
-.inkLeft {
-  position: absolute;
-  top: 10%;
-  left: -20px;
-  width: 60px;
-  opacity: 0.6;
-}
-
-.inkRight {
-  position: absolute;
-  bottom: 15%;
-  right: -20px;
-  width: 60px;
-  opacity: 0.6;
 }

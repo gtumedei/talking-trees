@@ -43,7 +43,7 @@ body {
 /* Gradiente a sinistra */
 html::before {
   content: "";
-  position: absolute;
+  position: fixed;
   top: 0;
   left: -2px;
   width: 8px; /* larghezza del gradiente a sinistra */
@@ -54,7 +54,7 @@ html::before {
 /* Gradiente a destra */
 html::after {
   content: "";
-  position: absolute;
+  position: fixed;
   top: 0;
   right: -1;
   width: 4px; /* larghezza del gradiente a destra */
@@ -110,4 +110,3 @@ a{color: inherit;}
   color: #fff !important;
   border-color: #473727;
 }
-

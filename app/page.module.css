@@ -1,11 +1,22 @@
+.page{
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.page p, .page a{
+    z-index: 5 !important;
+}
 .treeImg{
     mix-blend-mode: multiply;
     opacity: 0.85;
     position: relative;
-    left: -5vw !important;;
+    left: -5vw !important;
+    top: -16vh !important;
     width: 55vw !important;
     object-fit: contain;
     padding-right: 2vw;
+    z-index: 1 !important;
 }
 
 .treeTitle{
@@ -26,4 +37,19 @@
 .treeInfo>ul{
     line-height: 24px;
     font-size: 12px !important;
+}
+
+.photoButton {
+  position: fixed;
+  bottom: 15px;
+  right: 15px;
+  z-index: 1000;
+  border-radius: 50%;
+  padding: 12px;
+  background-color: #f1f1f1 !important; /* colore neutro */
+  border: 1px solid #ccc !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+.photoButton:hover {
+  background-color: #e0e0e0 !important;
 }

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import styles from "./Chatbot.module.css";
+import { Button } from "react-bootstrap";
 
 type Message = {
   sender: "bot" | "user";
@@ -17,10 +18,14 @@ export default function ChatbotContent() {
     { sender: "bot", text: "Purtroppo sì. Durante l'epoca napoleonica, nel 1796, i soldati tentarono di bruciarmi, ma un messaggero arrivò in tempo per fermarli. Anche durante la Seconda Guerra Mondiale ho assistito a momenti difficili, ma ho resistito a tutte queste avversità." },
   ]);
 
+  const [input, setInput] = useState("");
+
   const quickReplies = [
     "Qual è il tuo ricordo più antico?",
     "Qual messaggio lasceresti a noi?",
     "Cosa hai visto in tutti questi anni?",
+    "Chi ti ha piantato?",
+    "Come sei sopravvissuto così a lungo?"
   ];
 
   const handleReply = (text: string) => {
@@ -33,8 +38,15 @@ export default function ChatbotContent() {
     }, 1000);
   };
 
+  const handleSend = () => {
+    if (!input.trim()) return;
+    handleReply(input);
+    setInput("");
+  };
+
   return (
     <div className={styles.content}>
+      {/* Chat */}
       <div className={styles.chat}>
         {messages.map((msg, i) => (
           <p
@@ -48,13 +60,28 @@ export default function ChatbotContent() {
         ))}
       </div>
 
+      {/* Quick replies scorrevoli */}
       <div className={styles.quickReplies}>
-        {quickReplies.map((reply, i) => (
-          <button key={i} onClick={() => handleReply(reply)}>
-            {reply}
-          </button>
-        ))}
-        <button className={styles.micBtn}>🎤</button>
+        <div className={styles.quickScroll}>
+          {quickReplies.map((reply, i) => (
+            <Button key={i} onClick={() => handleReply(reply)} variant="primary">
+              {reply}
+            </Button>
+          ))}
+          <button className={styles.micBtn}>🎤</button>
+        </div>
+      </div>
+
+      {/* Barra input fissa */}
+      <div className={styles.inputBar}>
+        <input
+          type="text"
+          placeholder="Scrivi un messaggio..."
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSend()}
+        />
+        <button onClick={handleSend}>➤</button>
       </div>
 
       {/* decorazioni */}
