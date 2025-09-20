@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import styles from "./NoTree.module.css";
 import { Container, Accordion } from "react-bootstrap";
-import Image from "next/image";
 
 export default function NoTree() {
   const [form, setForm] = useState({
@@ -17,7 +16,7 @@ export default function NoTree() {
     via: "",
     proprieta: "pubblica",
     proprietario: "",
-    motivi: [] as string[],
+    motivi: [],
     descrizione: "",
     cognome: "",
     nomeSegnalante: "",
@@ -26,14 +25,11 @@ export default function NoTree() {
     mail: "",
   });
 
-  const [foto, setFoto] = useState<File | null>(null);
+  const [foto, setFoto] = useState(null);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    const { name, value, type } = e.target;
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
     if (type === "checkbox") {
-      const checked = (e.target as HTMLInputElement).checked;
       setForm((prev) => ({
         ...prev,
         motivi: checked
@@ -45,7 +41,7 @@ export default function NoTree() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Dati segnalazione:", { ...form, foto });
     alert("Segnalazione inviata con successo!");
@@ -73,9 +69,9 @@ export default function NoTree() {
             "Rarità botanica",
             "Valore architettonico",
             "Valore storico, culturale o religioso",
-            "Forma o portamento particolari",            
+            "Forma o portamento particolari",
           ].map((m, i) => (
-            <label key={i} className={`${styles.checkLabel}`}>
+            <label key={i} className={styles.checkLabel}>
               <input
                 type="checkbox"
                 name="motivi"
