@@ -13,80 +13,129 @@ import { UserContext } from "./layout";
 
 export default function Tree() {
   const { userTree } = useContext(UserContext);
+  
+  // Se userTree non è disponibile, restituisci null
   if (!userTree) return null;
 
   const currentYear = new Date().getFullYear();
   const startYear = currentYear - 200;
 
+  // Funzione per gestire l'evento di caricamento della foto
   const handlePhoto = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
+    const file = e.target.files && e.target.files[0];
+    if (file) {
       alert(`📸 Foto scattata: ${file.name}`);
-      // qui puoi caricarla su server o salvarla in galleria
     }
   };
 
   return (
-    <Container className={`${styles.page}`}>
-      <Title text={userTree.name} level={1} className="text-center mt-3 mb-0 display-6" />
-      <p className="text-center">
-        <Link href="/treedetail">{userTree.species}</Link>
+    <Container className={styles.page}>
+      {/* Titolo: soprannome se presente, altrimenti specie volgare */}
+      <Title
+        text={userTree["soprannome"] || userTree["specie nome volgare"]}
+        level={1}
+        className="text-center mt-3 mb-0 display-6"
+      />
+
+      {/* Nome scientifico se disponibile */}
+      {userTree["specie nome scientifico"] && (
+        <p className="text-center fst-italic">
+          <Link href="/treedetail">{userTree["specie nome scientifico"]}</Link>
+        </p>
+      )}
+
+      <p className="text-muted text-end fst-italic m-0">
+        {userTree["comune"]}, {userTree["provincia"]}, {userTree["regione"]}
       </p>
-      <p className="text-muted text-end fst-italic m-0">{userTree.location}</p>
 
       <Row>
+        {/* Immagine albero (se presente nel dataset) */}
         <Col xs={5} className="m-0 p-0 text-center align-middle">
-          <Image
-            src={userTree.image}
-            alt={userTree.name}
-            fill
-            className={`${styles.treeImg} img-fluid`}
-          />
+          {userTree.image ? (
+            <Image
+              src={userTree.image}
+              alt={userTree["soprannome"] || userTree["specie nome volgare"]}
+              fill
+              className={`${styles.treeImg} img-fluid`}
+            />
+          ) : (
+            <div className={styles.noImage}>Nessuna immagine</div>
+          )}
         </Col>
 
+        {/* Info testo */}
         <Col xs={7} className={`${styles.treeInfo} m-0 align-middle pe-2`}>
           <p className="fst-italic text-muted text-end tx-small m-0">
-            In Emilia Romagna sono presenti  
+            In {userTree["regione"]} sono presenti
             <strong>
-              <a href="https://alberimonumentali.info/regioni/emilia-romagna" target="_blank">
-                126 alberi monumentali
+              {" "}
+              <a
+                href={`https://alberimonumentali.info/regioni/${userTree["regione"].toLowerCase()}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                alberi monumentali
               </a>
-            </strong>, di cui <strong>1 vicino a te</strong>.
+            </strong>
+            , di cui <strong>1 vicino a te</strong>.
           </p>
 
-          <MapLink
-            lat={userTree.lat}
-            lng={userTree.lng}
-            label=">> Vedi posizione"
-            className="tx-small text-end w-100 mt-0 mb-3"
-          />
+          {/* Mappa link */}
+          {userTree.lat && userTree.lng && (
+            <MapLink
+              lat={parseFloat(userTree.lat)}
+              lng={parseFloat(userTree.lng)}
+              label=">> Vedi posizione"
+              className="tx-small text-end w-100 mt-0 mb-3"
+            />
+          )}
 
+          {/* Dimensioni */}
           <p className="mt-2 fw-bold">Dimensioni</p>
           <ul>
-            <li>Circonferenza fusto: {userTree.dimensions.circ}</li>
-            <li>Altezza: {userTree.dimensions.height}</li>
+            <li>Circonferenza fusto: {userTree["circonferenza fusto (cm)"]} cm</li>
+            <li>Altezza: {userTree["altezza (m)"]} m</li>
+            {userTree["altitudine (m s.l.m.)"] && (
+              <li>Altitudine: {userTree["altitudine (m s.l.m.)"]} m s.l.m.</li>
+            )}
           </ul>
 
+          {/* Criteri di Monumentalità */}
           <p className="mt-1 fw-bold">Criteri di Monumentalità</p>
           <ul>
-            {userTree.criteria.map((c, i) => (
-              <li key={i}>{c}</li>
-            ))}
+            {userTree["criteri di monumentalità"]
+              ?.split("-")
+              .map((c, i) => <li key={i}>{c}</li>)}
           </ul>
 
-          <p className="mt-1">
-            <strong>Stima età:</strong> {userTree.age}
-          </p>
+          {/* Età stimata */}
+          {userTree["eta_descrizione"] && (
+            <p className="mt-1">
+              <strong>Stima età:</strong> {userTree["eta_descrizione"]}
+            </p>
+          )}
         </Col>
       </Row>
 
+      {/* Timeline */}
       <TimeLine startYear={startYear} endYear={currentYear} />
 
+      {/* Bottone di navigazione */}
       <div className="w-100 d-flex justify-content-around">
-        <Button as={Link} href="/diary" variant="secondary" className="mt-3 mb-5 fw-bold d-flex align-items-center gap-2">
+        <Button
+          as={Link}
+          href="/diary"
+          variant="secondary"
+          className="mt-3 mb-5 fw-bold d-flex align-items-center gap-2"
+        >
           <FaBookOpen /> Pezzi di storia
         </Button>
-        <Button as={Link} href="/chatbot" variant="secondary" className="mt-3 mb-5 fw-bold d-flex align-items-center gap-2">
+        <Button
+          as={Link}
+          href="/chatbot"
+          variant="secondary"
+          className="mt-3 mb-5 fw-bold d-flex align-items-center gap-2"
+        >
           <FaTree /> Parla con l'albero
         </Button>
       </div>
