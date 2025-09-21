@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState, useContext } from "react";
-import Tree from "./Tree";
-import NoTree from "./NoTree";
-import { UserContext } from "./layout";
+import Tree from "../Tree";
+import NoTree from "../NoTree";
+import { UserContext } from "../layout";
 
 export default function Page() {
   const { userTree, setUserTree, setUserSpecies } = useContext(UserContext);
@@ -11,7 +11,7 @@ export default function Page() {
   const [treesDataset, setTreesDataset] = useState([]);
   const [speciesDataset, setSpeciesDataset] = useState([]);
   const [isRandomTree, setIsRandomTree] = useState(true);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // 👈 stato di caricamento
 
   // Carico i dataset dai CSV
   useEffect(() => {
@@ -49,6 +49,17 @@ export default function Page() {
         (pos) => {
           const lat = parseFloat(pos.coords.latitude);
           const lng = parseFloat(pos.coords.longitude);
+
+          // copio un albero random dal dataset e lo metto alle coordinate correnti
+          if (isRandomTree && userTree === null) {
+            const randomTree =
+              treesDataset[Math.floor(Math.random() * treesDataset.length)];
+            if (randomTree) {
+              const newTree = { ...randomTree, lat, lng };
+              setTreesDataset((prev) => [...prev, newTree]);
+              setIsRandomTree(false);
+            }
+          }
 
           // cerca albero entro 200 metri
           const foundTree = treesDataset.find((t) => {
