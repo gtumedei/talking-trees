@@ -11,6 +11,8 @@ export default function TreeDetail() {
   const { userSpecies } = useContext(UserContext);
   if (!userSpecies) return null;
 
+  console.log("🌳 Specie selezionata:", userSpecies);
+
   return (
     <Container className={styles.page}>
       <section className="mb-4">
@@ -111,9 +113,7 @@ export default function TreeDetail() {
             <Col xs={6}>
               <div className={styles.card}>
                 <Image
-                  src={`/icon/forma_${userSpecies.forma_chioma
-                    .toLowerCase()
-                    .replace(/ /g, "_")}.png`}
+                  src={`/icon/forma_${userSpecies.forma_chioma.toLowerCase().replace(/ /g, "_")}.png`}
                   alt=""
                   width={40}
                   height={40}
@@ -140,7 +140,6 @@ export default function TreeDetail() {
           )}
 
           {(userSpecies.epoca_di_fioritura ||
-            userSpecies.info_stagione_fioritura ||
             userSpecies.info_fioritura) && (
             <Col xs={6}>
               <div className={styles.card}>
@@ -152,7 +151,7 @@ export default function TreeDetail() {
                 />
                 <p className="fw-bold">Fioritura</p>
                 {userSpecies.info_stagione_fioritura && (
-                  <p>Periodo: {userSpecies.info_stagione_fioritura}</p>
+                  <p>Periodo: {userSpecies.epoca_di_fioritura}</p>
                 )}
                 {userSpecies.info_fioritura && (
                   <p className="fst-italic text-muted">
@@ -204,20 +203,22 @@ export default function TreeDetail() {
                 { key: "habitat_alloctona_esotica", label: "Alloctona/Esotica" },
               ]
                 .filter((h) => userSpecies[h.key] === "Sì")
-                .map((h, i) => (
+                .map((h) => (
                   <Image
-                        src={`/icon/${h.key}.png`}
-                        alt={h.label}
-                        width={40}
-                        height={40}
-                        className="px-1 py-1"
-                      />
+                    key={h.key}  // 👈 qui la key unica
+                    src={`/icon/${h.key}.png`}
+                    alt={h.label}
+                    width={40}
+                    height={40}
+                    className="px-1 py-1"
+                  />
                 ))}
             </div>
-          <p className="fw-bold text-center">{userSpecies.habitat}</p>
+            <p className="fw-bold text-center">{userSpecies.habitat}</p>
           </div>
         </section>
       )}
+
     </Container>
   );
 }

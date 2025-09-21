@@ -103,7 +103,7 @@ export default function TimeLine({ startYear, endYear }: TimeLineProps) {
   };
 
   return (
-    <div className="mt-2">
+    <div className="mt-2 mx-2">
 
       <p className="mb-1 text-center">Alcuni eventi successi durante la mia vita</p>
       <div className={styles.timelineContainer}>
