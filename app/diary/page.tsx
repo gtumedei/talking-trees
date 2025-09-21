@@ -65,7 +65,7 @@ const fonts = [
 
 // ---------- funzione per generare numeri pseudo-casuali con seed ----------
 function seededRandom(seed: number) {
-  let x = Math.sin(seed) * 10000;
+  const x = Math.sin(seed) * 10000;
   return x - Math.floor(x);
 }
 
