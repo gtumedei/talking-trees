@@ -10,7 +10,6 @@ export default function Page() {
 
   const [treesDataset, setTreesDataset] = useState([]);
   const [speciesDataset, setSpeciesDataset] = useState([]);
-  const [isRandomTree, setIsRandomTree] = useState(true);
   const [loading, setLoading] = useState(true);
 
   // Carico i dataset dai CSV
@@ -88,7 +87,7 @@ export default function Page() {
     } else {
       setLoading(false);
     }
-  }, [treesDataset, speciesDataset, userTree, isRandomTree, setUserTree, setUserSpecies]);
+  }, [treesDataset, speciesDataset, userTree, setUserTree, setUserSpecies]);
 
   if (loading) {
     return (

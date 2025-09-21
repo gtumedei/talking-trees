@@ -11,7 +11,7 @@ export default function Page() {
   const [treesDataset, setTreesDataset] = useState([]);
   const [speciesDataset, setSpeciesDataset] = useState([]);
   const [isRandomTree, setIsRandomTree] = useState(true);
-  const [loading, setLoading] = useState(true); // 👈 stato di caricamento
+  const [loading, setLoading] = useState(true);
 
   // Carico i dataset dai CSV
   useEffect(() => {

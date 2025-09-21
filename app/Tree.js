@@ -104,7 +104,8 @@ export default function Tree() {
           <p className="mt-1 fw-bold">Criteri di Monumentalità</p>
           <ul>
             {userTree["criteri di monumentalità"]
-              ?.split("-")
+               ?.replace(/^-/, "")
+               .split("-")
               .map((c, i) => <li key={i}>{c}</li>)}
           </ul>
 
