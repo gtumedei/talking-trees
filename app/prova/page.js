@@ -52,12 +52,14 @@ export default function Page() {
 
           // copio un albero random dal dataset e lo metto alle coordinate correnti
           if (isRandomTree && userTree === null) {
+            console.log(isRandomTree, userTree);
             const randomTree =
               treesDataset[Math.floor(Math.random() * treesDataset.length)];
             if (randomTree) {
               const newTree = { ...randomTree, lat, lng };
               setTreesDataset((prev) => [...prev, newTree]);
               setIsRandomTree(false);
+              console.log("🌳 Albero random aggiunto:", newTree);
             }
           }
 
@@ -85,8 +87,10 @@ export default function Page() {
               setUserSpecies(null);
             }
           } else {
-            setUserTree(null);
-            setUserSpecies(null);
+            if (!userTree) {
+              setUserTree(null);
+              setUserSpecies(null);
+            }
           }
 
           setLoading(false); // ✅ abbiamo finito caricamento

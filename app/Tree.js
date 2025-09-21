@@ -40,9 +40,14 @@ export default function Tree() {
       {/* Nome scientifico se disponibile */}
       {userTree["specie nome scientifico"] && (
         <p className="text-center fst-italic">
-          <Link href="/treedetail">{userTree["specie nome scientifico"]}</Link>
+          {userTree["index_specie"] === "" ? (
+            userTree["specie nome scientifico"]
+          ) : (
+            <Link href="/treedetail">{userTree["specie nome scientifico"]}</Link>
+          )}
         </p>
       )}
+
 
       <p className="text-muted text-end fst-italic m-0">
         {userTree["comune"]}, {userTree["provincia"]}, {userTree["regione"]}
