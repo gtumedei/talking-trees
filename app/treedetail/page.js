@@ -128,7 +128,7 @@ export default function TreeDetail() {
             <Col xs={6}>
               <div className={styles.card}>
                 <Image
-                  src={`/icon/portamento_${userSpecies.portamento}.png`}
+                  src={`/icon/portamento_${userSpecies.portamento.toLowerCase()}.png`}
                   alt=""
                   width={40}
                   height={40}
@@ -144,7 +144,7 @@ export default function TreeDetail() {
             <Col xs={6}>
               <div className={styles.card}>
                 <Image
-                  src={`/icon/fioritura_${userSpecies.epoca_di_fioritura || "default"}.png`}
+                  src={`/icon/fioritura_${userSpecies.epoca_di_fioritura.toLowerCase() || "default"}.png`}
                   alt=""
                   width={40}
                   height={40}
