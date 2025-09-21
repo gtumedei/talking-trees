@@ -10,6 +10,7 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
+  // eredita le regole di Next
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
     ignores: [
@@ -19,6 +20,10 @@ const eslintConfig = [
       "build/**",
       "next-env.d.ts",
     ],
+    rules: {
+      // 🔧 Disattiva l'errore sugli apostrofi
+      "react/no-unescaped-entities": "off",
+    },
   },
 ];
 

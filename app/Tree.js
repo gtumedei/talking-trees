@@ -20,7 +20,7 @@ export default function Tree() {
   const currentYear = new Date().getFullYear();
   const startYear = currentYear - 200;
 
-  // Funzione per gestire l&apos;evento di caricamento della foto
+  // Funzione per gestire l'evento di caricamento della foto
   const handlePhoto = (e) => {
     const file = e.target.files && e.target.files[0];
     if (file) {
@@ -137,7 +137,7 @@ export default function Tree() {
           variant="secondary"
           className="mt-3 mb-5 fw-bold d-flex align-items-center gap-2"
         >
-          <FaTree /> Parla con l&apos;albero
+          <FaTree /> Parla con l'albero
         </Button>
       </div>
 
