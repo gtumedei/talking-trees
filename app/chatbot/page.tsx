@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import styles from "./Chatbot.module.css";
 import { Button } from "react-bootstrap";
+import BackButton from "../component/BackButton";
 
 type Message = {
   sender: "bot" | "user";
@@ -46,6 +47,7 @@ export default function ChatbotContent() {
 
   return (
     <div className={styles.content}>
+      <BackButton />
       {/* Chat */}
       <div className={styles.chat}>
         {messages.map((msg, i) => (
@@ -64,11 +66,10 @@ export default function ChatbotContent() {
       <div className={styles.quickReplies}>
         <div className={styles.quickScroll}>
           {quickReplies.map((reply, i) => (
-            <Button key={i} onClick={() => handleReply(reply)} variant="primary">
+            <Button key={i} onClick={() => handleReply(reply)} variant="primary" className="green fw-green">
               {reply}
             </Button>
           ))}
-          <button className={styles.micBtn}>🎤</button>
         </div>
       </div>
 
@@ -81,12 +82,9 @@ export default function ChatbotContent() {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSend()}
         />
-        <button onClick={handleSend}>➤</button>
+        <button className="btn-primary myrtle" onClick={handleSend}>➤</button>
       </div>
 
-      {/* decorazioni */}
-      <img src="/ink-left.png" alt="ink splash" className={styles.inkLeft} />
-      <img src="/ink-right.png" alt="ink splash" className={styles.inkRight} />
     </div>
   );
 }

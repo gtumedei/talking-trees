@@ -1,4 +1,5 @@
 .timelineContainer {
+  margin-top: 30px;
   position: relative;
   width: 100%;
 }
@@ -6,7 +7,7 @@
 .timelineBar {
   position: relative;
   height: 4px;
-  background: linear-gradient(90deg, #434341, #605b53);
+  background: linear-gradient(90deg, var(--dark-noir), var(--light-green));
   border-radius: 3px;
 }
 
@@ -15,7 +16,7 @@
   top: -2px;
   width: 2px;
   height: 8px;
-  background: #434341;
+  background: var(--dark-noir);
 }
 
 .tickLabel {
@@ -25,13 +26,20 @@
   font-size: 0.7rem;
   transform: translate(-50%,-50%);
   white-space: nowrap;
-  color: #555;
+  color: var(--dark-green);
+}
+
+.tickLabelTop {
+  top: -18px;  /* sopra */
+}
+
+.tickLabelBottom {
+  top: 18px;   /* sotto */
 }
 
 .eventDot {
   cursor: pointer;
-  background-color: #b89c8c;
-  border: 3.5px double #434341;
+  background-color: var(--light) ;
   border-radius: 50%;
   width: 10px;
   height: 10px;
@@ -39,18 +47,18 @@
   position: absolute;
   top: 50%;
   transform: translate(-50%, -50%);
+  z-index: 5;
 }
 
 .eventDot:hover {
-  transform: translate(-50%, -50%) scale(1.2);
-  background-color: #d1c263;
+  transform: translate(-50%, -50%) scale(1.3);
+  background-color: var(--flame);
+  box-shadow: inset 0 0 0 2px var(--light), 0 0 5px 0.01px var(--dark-noir) !important;
 }
-
-.today {
-  background-color: #dc3545; /* rosso per evidenziare oggi */
-  box-shadow: 0 0 6px rgba(220, 53, 69, 0.6);
+.dateEvent {
+  font-family: 'Oneday', sans-serif;
+  font-size: 11px;
 }
-
 .eventInfo {
   margin-top: 1rem;
   text-align: center;
@@ -64,7 +72,7 @@
 }
 
 .dropdownCustom > button {
-  background-color: #eaeaea !important;
+  background-color: var(--light) !important;
   color: #43434185 !important;           /* testo marrone */
   border: none !important;
   font-style: italic;
@@ -83,21 +91,17 @@
   top: -200%;
 }
 .dropdownCheck input:checked{
-  background-color: #b89c8c;
-  border: #43434150 solid 1px;
+  background-color: var(--noir);
+  border: var(--light-noir) solid 1px;
 }
 .dropdownCheck label {
   font-size: 0.9rem;
-  color: #3a2c2c;
+  color: var(--noir);
 }
 
 .filterButton {
-  background-color: #917666 !important;
   font-family: 'Oneday', sans-serif;
   font-size: 12px !important;
   font-weight: bold !important;
-  color: #eaeaea !important;
-  border: solid 1px #43434150 !important;
-  border-radius: 6px !important;
   padding: 2px 10px 4px !important;
 }

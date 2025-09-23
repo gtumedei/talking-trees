@@ -2,8 +2,9 @@
 
 import React, { useState } from "react";
 import styles from "./Diary.module.css";
-import Title from "../Title";
+import Title from "../component/Title";
 import { Modal, Button, Form } from "react-bootstrap";
+import BackButton from "../component/BackButton";
 
 // ---------- tipi ----------
 type Entry = {
@@ -96,6 +97,7 @@ export default function DiaryPage() {
 
   return (
     <main className="p-2">
+      <BackButton/>
       <Title
         text="Pezzi di Storia"
         level={1}
@@ -109,6 +111,7 @@ export default function DiaryPage() {
       <div className="mb-1 text-center">
         <Button
           variant="secondary"
+          className="flame"
           onClick={() => setShowModal(true)}
         >
           + Aggiungi ricordo

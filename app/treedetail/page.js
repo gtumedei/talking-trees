@@ -5,7 +5,8 @@ import { Container, Row, Col } from "react-bootstrap";
 import Image from "next/image";
 import styles from "./TreeDetail.module.css";
 import { UserContext } from "../layout";
-import Title from "../Title";
+import Title from "../component/Title";
+import BackButton from "../component/BackButton";
 
 export default function TreeDetail() {
   const { userSpecies } = useContext(UserContext);
@@ -15,6 +16,7 @@ export default function TreeDetail() {
 
   return (
     <Container className={styles.page}>
+      <BackButton />
       <section className="mb-4">
         <Title
           text={userSpecies.nome_comune}

@@ -18,20 +18,21 @@
 }
 
 .bot {
-  /*font-family: 'Homemade Apple', cursive; /* scrittura bot */
-  font-family: 'Reenie Beanie', cursive; /* scrittura bot */
-  font-weight: bold;
-  line-height: 18px;
-  font-size: 17px;
-  text-align: center;
+  /*font-family: 'Just Me Again Down Here', cursive; /* scrittura bot */
+  /*font-family: 'Reenie Beanie', cursive; /* scrittura bot */
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-size: 12px;
+  font-weight: 550;
+  color: var(--dark-noir);
+  line-height: 20px;
+  text-align: left;
+  margin-right: 10px;
 }
 
 .user {
-  font-style: italic;
-  text-align: center;
-  color: #555;
-  font-size: 14px;
-  margin: 10px 20px 0;
+  color: var(--green);
+  text-align: right;
+  margin: 10px 0 0 10px;
 }
 
 /* Barra scorrevole di bottoni */

@@ -7,7 +7,11 @@
 .page p, .page a{
     z-index: 5 !important;
 }
-.treeImg{
+.page .colInfo{
+    min-height: 250px;
+}
+
+.treeImg, .treeImgDef {
     mix-blend-mode: multiply;
     opacity: 0.85;
     position: relative;
@@ -19,14 +23,24 @@
     z-index: 1 !important;
 }
 
+.treeImgDef{
+    width: 48vw !important;
+    opacity: 0.2;
+}
+
 .treeTitle{
     line-height: 30px;
     text-align: center;
 }
 
+.nameLink{
+    text-decoration: underline solid var(--dark-noir);
+    color: var(--dark-noir);
+}
+
 .treeInfo{
     line-height: 20px;
-    font-size: 14px !important;
+    font-size: 16px !important;
 }
 .treeInfo>p, .treeInfo>ul{
     margin: 0;
@@ -36,7 +50,7 @@
 }
 .treeInfo>ul{
     line-height: 24px;
-    font-size: 12px !important;
+    font-size: 14px !important;
 }
 
 .photoButton {

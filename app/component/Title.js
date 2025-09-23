@@ -6,7 +6,11 @@ export default function Title({ text, level = 1, className ="" }) {
   const Tag = `h${level}`; // permette h1, h2, ecc.
 
   return (
-    <Tag className={className}>
+    <Tag className={className} style={{ fontFamily: 'Marker, sans-serif', textTransform: 'uppercase' }}>
+      {text}
+    </Tag>
+  );
+    {/*<Tag className={className}>
       {text.split("").map((char, i) => {
         if (char.match(/[A-Z]/)) {
           return (
@@ -25,5 +29,5 @@ export default function Title({ text, level = 1, className ="" }) {
         }
       })}
     </Tag>
-  );
+  );*/}
 }

@@ -1,0 +1,17 @@
+.backButton {
+  position: fixed;
+  top: 0px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--dark-green); /* usa i tuoi colori */
+  font-size: 1.5rem;
+  z-index: 9999; /* sempre sopra */
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.backButton:hover {
+  transform: scale(1.2);
+  color: var(--light-green);
+}

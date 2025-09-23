@@ -4,7 +4,7 @@ import { Container, Row, Col, Button } from "react-bootstrap";
 import { FaBookOpen, FaTree, FaCamera } from "react-icons/fa";
 import Image from "next/image";
 import styles from "./page.module.css";
-import Title from "./Title";
+import Title from "./component/Title";
 import TimeLine from "./component/TimeLine";
 import Link from "next/link";
 import MapLink from "./component/PositionMap";
@@ -41,9 +41,9 @@ export default function Tree() {
       {userTree["specie nome scientifico"] && (
         <p className="text-center fst-italic">
           {userTree["index_specie"] === "" ? (
-            userTree["specie nome scientifico"]
+            <span>userTree["specie nome scientifico"]</span>
           ) : (
-            <Link href="/treedetail">{userTree["specie nome scientifico"]}</Link>
+            <Link href="/treedetail" className={styles.nameLink}>{userTree["specie nome scientifico"]}</Link>
           )}
         </p>
       )}
@@ -55,16 +55,21 @@ export default function Tree() {
 
       <Row>
         {/* Immagine albero (se presente nel dataset) */}
-        <Col xs={5} className="m-0 p-0 text-center align-middle">
+        <Col xs={5} className="m-0 p-0 text-center colInfo">
           {userTree.image ? (
             <Image
-              src={userTree.image}
+              src={`/${userTree["id scheda"]}.png`}
               alt={userTree["soprannome"] || userTree["specie nome volgare"]}
               fill
               className={`${styles.treeImg} img-fluid`}
             />
           ) : (
-            <div className={styles.noImage}>Nessuna immagine</div>
+            <Image
+              src="/tree-default.png"
+              alt={userTree["soprannome"] || userTree["specie nome volgare"]}
+              fill
+              className={`${styles.treeImgDef} img-fluid`}
+            />
           )}
         </Col>
 
@@ -97,7 +102,7 @@ export default function Tree() {
 
           {/* Dimensioni */}
           <p className="mt-2 fw-bold">Dimensioni</p>
-          <ul>
+          <ul className="list-unstyled">
             <li>Circonferenza fusto: {userTree["circonferenza fusto (cm)"]} cm</li>
             <li>Altezza: {userTree["altezza (m)"]} m</li>
             {userTree["altitudine (m s.l.m.)"] && (
@@ -128,19 +133,13 @@ export default function Tree() {
 
       {/* Bottone di navigazione */}
       <div className="w-100 d-flex justify-content-around">
-        <Button
-          as={Link}
-          href="/diary"
-          variant="secondary"
-          className="mt-3 mb-5 fw-bold d-flex align-items-center gap-2"
+        <Button as={Link} href="/diary" variant="primary"
+          className="mt-3 mb-5 fw-bold d-flex align-items-center gap-2 flame"
         >
           <FaBookOpen /> Pezzi di storia
         </Button>
-        <Button
-          as={Link}
-          href="/chatbot"
-          variant="secondary"
-          className="mt-3 mb-5 fw-bold d-flex align-items-center gap-2"
+        <Button as={Link} href="/chatbot" variant="primary"
+          className="mt-3 mb-5 fw-bold d-flex align-items-center gap-2 green"
         >
           <FaTree /> Parla con l'albero
         </Button>

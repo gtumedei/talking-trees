@@ -102,6 +102,20 @@ export default function TimeLine({ startYear, endYear }: TimeLineProps) {
     return parts;
   };
 
+  /*Color*/
+  function lerpColor(a: string, b: string, amount: number) {
+    const ah = parseInt(a.replace(/#/g, ""), 16);
+    const bh = parseInt(b.replace(/#/g, ""), 16);
+    const ar = ah >> 16, ag = (ah >> 8) & 0xff, ab = ah & 0xff;
+    const br = bh >> 16, bg = (bh >> 8) & 0xff, bb = bh & 0xff;
+    const rr = ar + amount * (br - ar);
+    const rg = ag + amount * (bg - ag);
+    const rb = ab + amount * (bb - ab);
+    return `rgb(${rr|0},${rg|0},${rb|0})`;
+  }
+  // Moved percent and color calculation inside the map callback below
+
+
   return (
     <div className="mt-2 mx-2">
 
@@ -111,37 +125,62 @@ export default function TimeLine({ startYear, endYear }: TimeLineProps) {
           {/* Tacche ogni 50 anni */}
           {ticks.map((year, i) => (
             <div
-              key={i}
+              key={year}
               className={styles.tick}
               style={{ left: `${getPosition(year)}%` }}
             >
-              <span className={styles.tickLabel}>{year}</span>
+              <span
+                className={`${styles.tickLabel} ${
+                  i % 2 === 0 ? styles.tickLabelTop : styles.tickLabelBottom
+                }`}
+              >
+                {year}
+              </span>
             </div>
           ))}
 
           {/* Eventi */}
-          {filteredEvents.map((event, i) => (
-            <OverlayTrigger
-  key={i}
-  placement="top"
-  overlay={
-    <Tooltip
-      className={styles.customTooltip}
-      onClick={() =>
-        window.open(`https://www.google.com/search?q=${encodeURIComponent(event.text)}`, "_blank")
-      }
-      style={{ cursor: "pointer" }}
-    >
-      {parseText(event.text)} ({event.year})
-    </Tooltip>
-  }
->
-  <div
-    className={styles.eventDot}
-    style={{ left: `${getPosition(event.year)}%` }}
-  />
-</OverlayTrigger>
-          ))}
+          {filteredEvents.map((event, i) => {
+            const percent = (event.year - startYear) / totalYears;
+
+            // Colore dal gradiente timeline
+            const hoverColor = lerpColor("#4B301E", "#8BA96E", percent); 
+
+            return (
+              <OverlayTrigger
+                key={event.year + "-" + i}
+                overlay={
+                  <Tooltip
+                    className={styles.customTooltip}
+                    onClick={() =>
+                      window.open(`https://www.google.com/search?q=${encodeURIComponent(event.text)}`, "_blank")
+                    }
+                    style={{ cursor: "pointer", color: hoverColor }}
+                  >
+                    <span className={styles.dateEvent}>{event.year}</span>
+                    <br />
+                    <span>{parseText(event.text)}</span>
+                  </Tooltip>
+                }
+              >
+                <div
+                  className={styles.eventDot}
+                  style={{
+                    left: `${getPosition(event.year)}%`, 
+                     boxShadow: `inset 0 0 0 2.5px ${hoverColor}`, // ✅ bordo colorato
+                  }}
+                  // ✅ cambio colore solo on hover
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = hoverColor;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "";
+                  }}
+                />
+              </OverlayTrigger>
+            );
+          })}
+
         </div>
       </div>
 
@@ -161,8 +200,8 @@ export default function TimeLine({ startYear, endYear }: TimeLineProps) {
                 />
               )
             )}
-            <div className="mt-3 text-center">
-              <Button className={styles.filterButton} size="sm" onClick={applyFilter}>
+            <div className="mt-1 text-center">
+              <Button className={`${styles.filterButton} noir`} size="sm" onClick={applyFilter}>
                 Mostra
               </Button>
             </div>

@@ -1,9 +1,53 @@
 @import url('https://fonts.googleapis.com/css2?family=Goudy+Bookletter+1911&family=Inknut+Antiqua:wght@300;400;500;600;700;800;900&display=swap');
 @import 'bootstrap/dist/css/bootstrap.min.css';
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --light: rgb(243, 245, 247);
+  --dark: #282923ff;
+
+  /* CSS HEX */
+  --dark-green: #24372Aff;
+  --green: #4B6744ff;
+  --light-green: #8BA96Eff;
+  --myrtle: #33685Eff;
+  --light-myrtle: #7CA094ff;
+  --flame: #c2692dff;
+  --light-flame: #db9a4d;
+  --light-noir: #CFBEA4ff;
+  --noir: #7D5440ff;
+  --dark-noir: #4B301Eff;
+
+  /* CSS HSL 
+  --dark-green: hsla(139, 21%, 18%, 1);
+  --myrtle-green: hsla(169, 34%, 30%, 1);
+  --cambridge-blue: hsla(160, 16%, 56%, 1);
+  --hunter-green: hsla(108, 20%, 34%, 1);
+  --asparagus: hsla(91, 26%, 55%, 1);
+  --dun: hsla(36, 31%, 73%, 1);
+  --coffee: hsla(20, 32%, 37%, 1);
+  --caf-noir: hsla(24, 43%, 21%, 1);*/
 }
+
+@font-face {
+  font-family: 'Woodcutter';
+  src: url('/fonts/WOODCUTTER simple font.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Fudgie';
+  src: url('/fonts/Fudgie.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Marker';
+  src: url('/fonts/Studio Brush DEMO.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 
 @font-face {
   font-family: 'Nordic';
@@ -21,24 +65,30 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #EEEAE6;
+    /*??*/
   }
 }
 
 html {
-  background: var(--foreground);
-  color: var(--background);
+  background: var(--light);
+  color: var(--dark);
   overflow-x: hidden; /* prevenire scroll orizzontale */
 }
 
 body {
   position: relative; /* necessario per pseudo-elementi */ 
-  font-family: "Goudy Bookletter 1911", "Inknut Antiqua", "Times New Roman", Times, serif;
+  font-family: "Woodcutter", "Times New Roman", Times, serif;
   background-color: #00000000;
-  font-size: 14px;
+  font-size: 16px;
   overflow-x: hidden; /* prevenire scroll orizzontale */
+  -webkit-text-stroke-width: 0.09px;
+  -webkit-text-stroke-color: var(--light);
 }
+body .fw-bold {
+  -webkit-text-stroke-width: 0;
+}
+
+.fw-green{-webkit-text-stroke-color: var(--green);}
 
 /* Gradiente a sinistra */
 html::before {
@@ -48,7 +98,7 @@ html::before {
   left: -2px;
   width: 8px; /* larghezza del gradiente a sinistra */
   height: 100%;
-  background: linear-gradient(to right, #434341, #EEEAE6);
+  background: linear-gradient(to right, var(--dark-green), var(--light));
 }
 
 /* Gradiente a destra */
@@ -59,7 +109,7 @@ html::after {
   right: -1;
   width: 4px; /* larghezza del gradiente a destra */
   height: 100%;
-  background: linear-gradient(to left, #434341, #EEEAE6);
+  background: linear-gradient(to left, var(--dark-green), var(--light));
 }
 
 a{color: inherit;}
@@ -71,42 +121,136 @@ a{color: inherit;}
   vertical-align: baseline;
 }
 
+ul {
+  padding-left: 12px; /* riduce lo spazio a sinistra */
+}
+
+ul li::marker {
+  font-size: 0.6em;       /* più piccolo se serve */
+  margin-right: -0.4em;   /* riduce lo spazio dopo il puntino */
+}
+
+
 .tx-small{
     line-height: 24px;
     font-size: 12px !important;
 }
 
 .tooltip {
-  --bs-tooltip-bg: #fdfaf4;
-  --bs-tooltip-color: #3e2a1f;
-  font-family: "Goudy Bookletter 1911", "Inknut Antiqua", "Times New Roman", Times, serif;
-  font-size: 12px;
+  --bs-tooltip-bg: #EAEAEA;
+  --bs-tooltip-color: var(--dark-noir);
+  font-family: "Woodcutter", "Times New Roman", Times, serif;
+  -webkit-text-stroke-color: #EAEAEA;
+  -webkit-text-stroke-width: 0.05px;
+  font-size: 13px;
 }
 
 .btn-primary {
-  color: #fff; /* colore testo */
-  background-color: #473727; /* sfondo */
-  border-color: #473727; /* bordo */
+  color: var(--light); /* colore testo */
+}
+.btn-primary.myrtle {
+  background-color: var(--myrtle); /* sfondo */
+  border-color: var(--light-myrtle); /* bordo */
+}
+.btn-primary.flame {
+  background-color: var(--flame);
+  border-color: var(--light-flame);
+}
+.btn-primary.green {
+  background-color: var(--green);
+  border-color: var(--light-green);
+}
+.btn-primary.noir {
+  background-color: var(--noir);
+  border-color: var(--light-noir);
 }
 
-.btn-primary:hover,
-.btn-primary:focus {
-  background-color: #473727;
-  border-color: #473727;
+.btn-primary:hover,.btn-primary:focus {
+background-color: var(--light);
 }
-
-/* Bottone outline base */
+.btn-primary.myrtle:hover,.btn-primary.myrtle:focus {
+  color: var(--myrtle);
+}
+.btn-primary.flame:hover, .btn-primary.flame:focus {
+  color: var(--flame);
+}
+.btn-primary.green:hover,.btn-primary.green:focus {
+  color: var(--green);
+}
+.btn-primary.noir:hover, .btn-primary.noir:focus {
+  color: var(--noir);
+}
+  
+/* Base */
 .btn-secondary {
-  color: #473727b9 !important; /* testo marrone */
+  color: #473727b9 !important;
   border: 0.1px solid #473727;
   background-color: transparent;
-  box-shadow: inset 0 0 5px #47372730; /* ombra interna leggera */
+  box-shadow: inset 0 0 5px #47372730;
+  padding: 0.5em 1em;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
 }
 
-/* Hover / Focus */
+/* Hover / Focus default */
 .btn-secondary:hover,
 .btn-secondary:focus {
   background-color: #473727;
   color: #fff !important;
   border-color: #473727;
+}
+
+/* === Temi personalizzati === */
+
+/* MYRTLE */
+.btn-secondary.myrtle {
+  color: var(--myrtle) !important;
+  border-color: var(--myrtle);
+  box-shadow: inset 0 0 5px color-mix(in srgb, var(--myrtle) 20%, transparent);
+}
+.btn-secondary.myrtle:hover,
+.btn-secondary.myrtle:focus {
+  background-color: var(--myrtle);
+  color: #fff !important;
+  border-color: var(--myrtle);
+}
+
+/* FLAME */
+.btn-secondary.flame {
+  color: var(--flame) !important;
+  border-color: var(--flame);
+  box-shadow: inset 0 0 5px color-mix(in srgb, var(--flame) 20%, transparent);
+}
+.btn-secondary.flame:hover,
+.btn-secondary.flame:focus {
+  background-color: var(--flame);
+  color: #fff !important;
+  border-color: var(--flame);
+}
+
+/* GREEN */
+.btn-secondary.green {
+  color: var(--green) !important;
+  border-color: var(--green);
+  box-shadow: inset 0 0 5px color-mix(in srgb, var(--green) 20%, transparent);
+}
+.btn-secondary.green:hover,
+.btn-secondary.green:focus {
+  background-color: var(--green);
+  color: #fff !important;
+  border-color: var(--green);
+}
+
+/* NOIR */
+.btn-secondary.noir {
+  color: var(--noir) !important;
+  border-color: var(--noir);
+  box-shadow: inset 0 0 5px color-mix(in srgb, var(--noir) 20%, transparent);
+}
+.btn-secondary.noir:hover,
+.btn-secondary.noir:focus {
+  background-color: var(--noir);
+  color: #fff !important;
+  border-color: var(--noir);
 }
