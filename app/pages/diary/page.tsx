@@ -2,9 +2,9 @@
 
 import React, { useState } from "react";
 import styles from "./Diary.module.css";
-import Title from "../component/Title";
+import Title from "../../component/ui/Title";
 import { Modal, Button, Form } from "react-bootstrap";
-import BackButton from "../component/BackButton";
+import BackButton from "../../component/ui/BackButton";
 
 // ---------- tipi ----------
 type Entry = {

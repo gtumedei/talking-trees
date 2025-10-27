@@ -5,8 +5,8 @@ import { Container, Row, Col } from "react-bootstrap";
 import Image from "next/image";
 import styles from "./TreeDetail.module.css";
 import { UserContext } from "../layout";
-import Title from "../component/Title";
-import BackButton from "../component/BackButton";
+import Title from "../component/ui/Title";
+import BackButton from "../component/ui/BackButton";
 
 export default function TreeDetail() {
   const { userSpecies } = useContext(UserContext);

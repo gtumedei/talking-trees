@@ -3,13 +3,13 @@
 import { Container, Row, Col, Button } from "react-bootstrap";
 import { FaBookOpen, FaTree, FaCamera } from "react-icons/fa";
 import Image from "next/image";
-import styles from "./page.module.css";
-import Title from "./component/Title";
-import TimeLine from "./component/TimeLine";
+import styles from "./Tree.module.css";
+import Title from "../ui/Title";
+import TimeLine from "../timeline/TimeLine";
 import Link from "next/link";
-import MapLink from "./component/PositionMap";
+import MapLink from "../maps/PositionMap";
 import { useContext } from "react";
-import { UserContext } from "./layout";
+import { UserContext } from "../../layout";
 
 export default function Tree() {
   const { userTree } = useContext(UserContext);
@@ -43,7 +43,7 @@ export default function Tree() {
           {userTree["index_specie"] === "" ? (
             <span>userTree["specie nome scientifico"]</span>
           ) : (
-            <Link href="/treedetail" className={styles.nameLink}>{userTree["specie nome scientifico"]}</Link>
+            <Link href="/pages/treedetail" className={styles.nameLink}>{userTree["specie nome scientifico"]}</Link>
           )}
         </p>
       )}
@@ -133,12 +133,12 @@ export default function Tree() {
 
       {/* Bottone di navigazione */}
       <div className="w-100 d-flex justify-content-around">
-        <Button as={Link} href="/diary" variant="primary"
+        <Button as={Link} href="/pages/diary" variant="primary"
           className="mt-3 mb-5 fw-bold d-flex align-items-center gap-2 flame"
         >
           <FaBookOpen /> Pezzi di storia
         </Button>
-        <Button as={Link} href="/chatbot" variant="primary"
+        <Button as={Link} href="/pages/chatbot" variant="primary"
           className="mt-3 mb-5 fw-bold d-flex align-items-center gap-2 green"
         >
           <FaTree /> Parla con l'albero
