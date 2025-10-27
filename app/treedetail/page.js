@@ -24,10 +24,10 @@ export default function TreeDetail() {
           className="text-center mt-3 mb-2 mb-0 display-6"
         />
         <p className={`fst-italic text-center mb-0`}>
-          <strong>Specie:</strong>{userSpecies.nome_specie}
+          <strong>Specie:</strong> {userSpecies.nome_specie}
         </p>
         <p className={`fst-italic text-center mb-0`}>
-         <strong>Genere:</strong> {userSpecies.nome_genere}
+          <strong>Genere:</strong> {userSpecies.nome_genere}
         </p>
         <p className={`fst-italic text-center mb-3`}>
           <strong>Famiglia:</strong> {userSpecies.nome_famiglia}
@@ -37,7 +37,7 @@ export default function TreeDetail() {
         )}
       </section>
 
-            {/* --- DIMENSIONI --- */}
+      {/* --- DIMENSIONI --- */}
       <section className="mb-4">
         <p className={styles.sectionTitle}>Dimensioni</p>
         <Row className="g-3">
@@ -115,7 +115,9 @@ export default function TreeDetail() {
             <Col xs={6}>
               <div className={styles.card}>
                 <Image
-                  src={`/icon/forma_${userSpecies.forma_chioma.toLowerCase().replace(/ /g, "_")}.png`}
+                  src={`/icon/forma_${userSpecies.forma_chioma
+                    .toLowerCase()
+                    .replace(/ /g, "_")}.png`}
                   alt=""
                   width={40}
                   height={40}
@@ -141,19 +143,18 @@ export default function TreeDetail() {
             </Col>
           )}
 
-          {(userSpecies.epoca_di_fioritura ||
-            userSpecies.info_fioritura) && (
+          {(userSpecies.epoca_di_fioritura || userSpecies.info_fioritura) && (
             <Col xs={6}>
               <div className={styles.card}>
                 <Image
-                  src={`/icon/fioritura_${userSpecies.epoca_di_fioritura.toLowerCase() || "default"}.png`}
+                  src={`/icon/fioritura_${userSpecies.epoca_di_fioritura?.toLowerCase() || "default"}.png`}
                   alt=""
                   width={40}
                   height={40}
                 />
                 <p className="fw-bold">Fioritura</p>
                 {userSpecies.info_stagione_fioritura && (
-                  <p>Periodo: {userSpecies.epoca_di_fioritura}</p>
+                  <p>Periodo: {userSpecies.info_stagione_fioritura}</p>
                 )}
                 {userSpecies.info_fioritura && (
                   <p className="fst-italic text-muted">
@@ -191,6 +192,34 @@ export default function TreeDetail() {
         </Row>
       </section>
 
+      {/* --- IMPATTO AMBIENTALE --- */}
+      {(userSpecies.info_abbattimento_co2 || userSpecies.info_abbattimento_pm10) && (
+        <section className="mb-4">
+          <p className={styles.sectionTitle}>Impatto Ambientale</p>
+          <Row className="g-3">
+            {userSpecies.info_abbattimento_co2 && (
+              <Col xs={6}>
+                <div className={styles.card}>
+                  <Image src="/icon/co2.png" alt="CO2" width={40} height={40} />
+                  <p className="fw-bold">Assorbimento CO₂</p>
+                  <p>{userSpecies.info_abbattimento_co2}</p>
+                </div>
+              </Col>
+            )}
+
+            {userSpecies.info_abbattimento_pm10 && (
+              <Col xs={6}>
+                <div className={styles.card}>
+                  <Image src="/icon/pm10.png" alt="PM10" width={40} height={40} />
+                  <p className="fw-bold">Rimozione PM10</p>
+                  <p>{userSpecies.info_abbattimento_pm10}</p>
+                </div>
+              </Col>
+            )}
+          </Row>
+        </section>
+      )}
+
       {/* --- AMBIENTE DI PROVENIENZA --- */}
       {userSpecies.habitat && (
         <section className="mb-4">
@@ -207,7 +236,7 @@ export default function TreeDetail() {
                 .filter((h) => userSpecies[h.key] === "Sì")
                 .map((h) => (
                   <Image
-                    key={h.key}  // 👈 qui la key unica
+                    key={h.key}
                     src={`/icon/${h.key}.png`}
                     alt={h.label}
                     width={40}
@@ -220,7 +249,6 @@ export default function TreeDetail() {
           </div>
         </section>
       )}
-
     </Container>
   );
 }

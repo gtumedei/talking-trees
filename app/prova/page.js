@@ -16,7 +16,7 @@ export default function Page() {
   // Carico i dataset dai CSV
   useEffect(() => {
     Promise.all([
-      fetch("/db/df_specie.csv")
+      fetch("/db/df.csv")
         .then((res) => res.text())
         .then((text) => {
           const rows = text.split("\n").map((r) => r.split("$"));
@@ -25,7 +25,7 @@ export default function Page() {
             Object.fromEntries(row.map((val, i) => [headers[i], val]))
           );
         }),
-      fetch("/db/df_abaco_check.csv")
+      fetch("/db/df_specie.csv")
         .then((res) => res.text())
         .then((text) => {
           const rows = text.split("\n").map((r) => r.split("$"));

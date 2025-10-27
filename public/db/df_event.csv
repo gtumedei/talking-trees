@@ -1,0 +1,306 @@
+,year,text,category
+0,1054,Scisma d’Oriente (separazione Chiesa cattolica e ortodossa),storico
+1,1066,"Battaglia di Hastings, conquista normanna dell’Inghilterra",storico
+2,1071,Battaglia di Manzicerta tra Bizantini e Selgiuchidi,storico
+3,1095,Papa Urbano II proclama la Prima Crociata,storico
+4,1099,Presa di Gerusalemme da parte dei crociati,storico
+5,1122,Concordato di Worms,storico
+6,1147,Inizio della Seconda Crociata,storico
+7,1152,Federico Barbarossa diventa imperatore del Sacro Romano Impero,storico
+8,1171,Fondazione della potenza marinara di Venezia,storico
+9,1187,Saladino riconquista Gerusalemme,storico
+10,1204,Sacco di Costantinopoli (Quarta Crociata),storico
+11,1215,Firma della Magna Carta in Inghilterra,storico
+12,1241,Battaglia di Legnica (invasione mongola in Europa),storico
+13,1258,Caduta di Baghdad ad opera dei Mongoli,storico
+14,1271,Marco Polo parte per l’Asia,storico
+15,1291,Fine degli stati crociati in Terra Santa (caduta di San Giovanni d’Acri),storico
+16,1302,Bolla papale Unam Sanctam,storico
+17,1314,Rogo del Gran Maestro templare Jacques de Molay,storico
+18,1337,Inizio della Guerra dei Cent’Anni,storico
+19,1347,Arrivo della Peste Nera in Europa,storico
+20,1370,Fondazione della dinastia Ming in Cina,storico
+21,1381,Rivolta dei contadini in Inghilterra,storico
+22,1396,Battaglia di Nicopoli (contro i Turchi Ottomani),storico
+23,1415,Battaglia di Azincourt,storico
+24,1431,Rogo di Giovanna d’Arco,storico
+25,1453,Caduta di Costantinopoli (fine Impero Bizantino),storico
+26,1471,Battaglia di Tewkesbury (Guerra delle Due Rose),storico
+27,1492,Scoperta dell’America da parte di Cristoforo Colombo,storico
+28,1494,Inizio delle guerre d’Italia (Francia contro Spagna e stati italiani),storico
+29,1517,Lutero affigge le 95 tesi a Wittenberg,storico
+30,1527,Sacco di Roma da parte dei lanzichenecchi,storico
+31,1547,Ivan IV (il Terribile) zar di Russia,storico
+32,1571,Battaglia di Lepanto,storico
+33,1588,Sconfitta dell’Armada spagnola da parte dell’Inghilterra,storico
+34,1600,Fondazione della Compagnia delle Indie Orientali,storico
+35,1618,Inizio della Guerra dei Trent’Anni,storico
+36,1642,Inizio guerra civile inglese,storico
+37,1648,Pace di Vestfalia,storico
+38,1661,Luigi XIV inizia il suo regno personale in Francia,storico
+39,1683,Assedio di Vienna da parte degli Ottomani,storico
+40,1701,Inizio della Guerra di successione spagnola,storico
+41,1715,Morte di Luigi XIV,storico
+42,1740,Inizio regno di Federico II di Prussia,storico
+43,1756,Guerra dei Sette Anni,storico
+44,1773,Boston Tea Party,storico
+45,1776,Dichiarazione d’Indipendenza degli Stati Uniti,storico
+46,1789,Rivoluzione Francese,storico
+47,1815,"Battaglia di Waterloo, sconfitta di Napoleone",storico
+48,1830,Rivoluzioni in Europa,storico
+49,1848,Primavera dei Popoli,storico
+50,1861,Unità d’Italia,storico
+51,1879,Guerra anglo-zulu,storico
+52,1914,Inizio Prima Guerra Mondiale,storico
+53,1917,Rivoluzione russa,storico
+54,1939,Inizio Seconda Guerra Mondiale,storico
+55,1949,Nascita della Repubblica Popolare Cinese,storico
+56,1969,Primo uomo sulla Luna,storico
+57,1989,Caduta del Muro di Berlino,storico
+58,2001,Attentati dell’11 settembre,storico
+59,2020,Pandemia COVID-19,storico
+60,1026,Costruzione della Cattedrale di San Miniato al Monte (Firenze),artistico
+61,1045,Avvio costruzione della Cattedrale di Spira (Germania),artistico
+62,1050,Sviluppo dello stile romanico in Europa,artistico
+63,1080,Costruzione della Basilica di San Marco a Venezia,artistico
+64,1093,Inizio costruzione della Cattedrale di Durham (Inghilterra),artistico
+65,1100,Diffusione dei mosaici bizantini in Italia meridionale,artistico
+66,1137,Fondazione dell’Abbazia di Saint-Denis (nascita gotico),artistico
+67,1150,Costruzione della Cattedrale di Sens,artistico
+68,1170,Prime vetrate artistiche in Francia settentrionale,artistico
+69,1180,Costruzione della Cattedrale di Chartres,artistico
+70,1200,Sviluppo delle miniature gotiche in Francia,artistico
+71,1211,Inizio costruzione della Cattedrale di Reims,artistico
+72,1248,Fondazione della Cattedrale di Colonia,artistico
+73,1260,Nicola Pisano scolpisce il pulpito del Battistero di Pisa,artistico
+74,1270,Diffusione della pittura bizantina in Italia (Cimabue),artistico
+75,1296,Avvio costruzione del Duomo di Firenze (Arnolfo di Cambio),artistico
+76,1305,Giotto dipinge la Cappella degli Scrovegni a Padova,artistico
+77,1310,Diffusione della pittura gotica in Europa,artistico
+78,1334,Giotto nominato capomastro del Duomo di Firenze,artistico
+79,1350,"Nascita della pittura senese (Simone Martini, Lorenzetti)",artistico
+80,1375,Affreschi del Camposanto di Pisa,artistico
+81,1386,Fondazione del Duomo di Milano,artistico
+82,1401,Concorso per le porte del Battistero di Firenze (Ghiberti vs Brunelleschi),artistico
+83,1420,Brunelleschi avvia la Cupola di Santa Maria del Fiore,artistico
+84,1434,Masaccio dipinge la Trinità in Santa Maria Novella,artistico
+85,1452,Nascita di Leonardo da Vinci,artistico
+86,1475,Nascita di Michelangelo Buonarroti,artistico
+87,1482,Leonardo alla corte di Ludovico il Moro a Milano,artistico
+88,1498,Leonardo completa L’Ultima Cena,artistico
+89,1504,Michelangelo scolpisce il David,artistico
+90,1512,Michelangelo completa la volta della Cappella Sistina,artistico
+91,1519,Morte di Leonardo da Vinci,artistico
+92,1527,Sacco di Roma e fine del Rinascimento romano,artistico
+93,1545,Fondazione della Scuola di San Rocco a Venezia (Tintoretto),artistico
+94,1565,Bruegel il Vecchio dipinge “I mesi”,artistico
+95,1580,El Greco attivo in Spagna,artistico
+96,1600,Caravaggio dipinge le tele di San Luigi dei Francesi,artistico
+97,1623,Bernini scolpisce l’Apollo e Dafne,artistico
+98,1642,Rembrandt dipinge La ronda di notte,artistico
+99,1667,Versailles inizia ad assumere la sua forma definitiva,artistico
+100,1670,Claude Lorrain sviluppa il paesaggio ideale,artistico
+101,1700,Sviluppo del barocco in Italia e Francia,artistico
+102,1720,Canaletto attivo a Venezia,artistico
+103,1750,Diffusione del rococò in Europa,artistico
+104,1770,Giovan Battista Piranesi pubblica le Carceri d’invenzione,artistico
+105,1784,Jacques-Louis David dipinge “Il giuramento degli Orazi”,artistico
+106,1808,Francisco Goya dipinge “Il 3 maggio 1808”,artistico
+107,1827,Ingres dipinge “L’odalisca”,artistico
+108,1830,Delacroix dipinge “La Libertà che guida il popolo”,artistico
+109,1848,Courbet avvia il realismo con “Gli spaccapietre”,artistico
+110,1872,"Monet dipinge “Impression, soleil levant”",artistico
+111,1889,Van Gogh dipinge “Notte stellata”,artistico
+112,1907,Picasso dipinge “Les Demoiselles d’Avignon”,artistico
+113,1910,Kandinsky dipinge la prima opera astratta,artistico
+114,1924,Manifesto surrealista di André Breton,artistico
+115,1937,Picasso dipinge “Guernica”,artistico
+116,1948,Pollock avvia l’action painting,artistico
+117,1960,Andy Warhol e la Pop Art,artistico
+118,1977,Biennale di Venezia dedicata all’arte femminista,artistico
+119,1989,Mostra di Basquiat a Parigi,artistico
+120,2000,Arte digitale e Net Art si diffondono,artistico
+121,2010,Banksy porta la street art a livello globale,artistico
+122,2021,NFT e arte digitale diventano mainstream,artistico
+123,1030,Fondazione della scuola di medicina di Salerno,culturale
+124,1054,Scisma d’Oriente influenza cultura e religione europea,culturale
+125,1070,Prime traduzioni arabe di testi greci in Spagna,culturale
+126,1098,Fondazione dell’ordine cistercense,culturale
+127,1115,Fondazione dell’Università di Bologna (prima università europea),culturale
+128,1120,Diffusione dei poemi cavallereschi in Francia,culturale
+129,1140,Abelardo scrive *Sic et Non*,culturale
+130,1150,Nascita della scuola delle cattedrali gotiche,culturale
+131,1170,Diffusione dei trovatori in Provenza,culturale
+132,1190,Università di Parigi diventa centro culturale europeo,culturale
+133,1210,San Francesco predica e avvia un nuovo movimento spirituale,culturale
+134,1225,Tommaso d’Aquino inizia la sua formazione,culturale
+135,1240,Diffusione della filosofia scolastica,culturale
+136,1265,Nasce Dante Alighieri,culturale
+137,1274,Morte di Tommaso d’Aquino,culturale
+138,1290,Marco Polo diffonde conoscenze dall’Oriente,culturale
+139,1310,Dante inizia a scrivere la *Divina Commedia*,culturale
+140,1320,Diffusione della poesia stilnovista,culturale
+141,1348,La Peste Nera influenza letteratura e pensiero,culturale
+142,1350,Petrarca consolida l’Umanesimo,culturale
+143,1374,Morte di Petrarca,culturale
+144,1387,Chaucer scrive i *Canterbury Tales*,culturale
+145,1400,Nascita di Jan Hus e del movimento riformatore,culturale
+146,1415,Morte al rogo di Jan Hus,culturale
+147,1439,Gutenberg sviluppa la stampa a caratteri mobili,culturale
+148,1453,Intellettuali greci portano testi classici in Italia,culturale
+149,1470,Diffusione della stampa in Europa,culturale
+150,1492,Antonio de Nebrija pubblica la prima grammatica spagnola,culturale
+151,1500,Erasmo da Rotterdam promuove l’Umanesimo cristiano,culturale
+152,1516,Thomas More pubblica *Utopia*,culturale
+153,1530,Machiavelli diffonde *Il Principe*,culturale
+154,1543,Copernico pubblica *De revolutionibus orbium coelestium*,culturale
+155,1564,Nascono Galileo Galilei e Shakespeare,culturale
+156,1580,Montaigne pubblica i suoi *Saggi*,culturale
+157,1605,Cervantes pubblica la prima parte del *Don Chisciotte*,culturale
+158,1616,Morte di Shakespeare e Cervantes,culturale
+159,1637,Cartesio pubblica *Discorso sul metodo*,culturale
+160,1651,Thomas Hobbes pubblica *Leviatano*,culturale
+161,1670,Spinoza pubblica *Trattato teologico-politico*,culturale
+162,1687,Newton pubblica i *Principia Mathematica*,culturale
+163,1704,John Locke pubblica *Saggio sull’intelletto umano*,culturale
+164,1712,Rousseau nasce a Ginevra,culturale
+165,1734,Voltaire pubblica *Lettere filosofiche*,culturale
+166,1751,Diderot e d’Alembert pubblicano l’*Encyclopédie*,culturale
+167,1762,Rousseau pubblica *Il contratto sociale*,culturale
+168,1781,Kant pubblica *Critica della ragion pura*,culturale
+169,1807,Hegel pubblica *Fenomenologia dello spirito*,culturale
+170,1821,"Morte di Napoleone, nuova ondata di romanticismo",culturale
+171,1835,Alexis de Tocqueville pubblica *Democrazia in America*,culturale
+172,1859,Darwin pubblica *L’origine delle specie*,culturale
+173,1871,Rivoluzione culturale del positivismo,culturale
+174,1883,Nietzsche pubblica *Così parlò Zarathustra*,culturale
+175,1900,Freud pubblica *L’interpretazione dei sogni*,culturale
+176,1916,Manifesto dadaista a Zurigo,culturale
+177,1922,Joyce pubblica *Ulisse*,culturale
+178,1945,"Diffusione dell’esistenzialismo (Sartre, Camus)",culturale
+179,1962,Foucault pubblica *Storia della follia*,culturale
+180,1980,Espansione postmodernismo nelle arti e nella filosofia,culturale
+181,1991,Nascita del World Wide Web e nuova cultura digitale,culturale
+182,2016,Diffusione mondiale della cultura social e digitale,culturale
+183,1025,Avicenna pubblica il *Canone della medicina*,scientifico
+184,1040,Alhazen sviluppa la teoria della visione,scientifico
+185,1054,Osservata la supernova del Granchio,scientifico
+186,1088,"Fondazione dell’Università di Bologna, centro per studi scientifici",scientifico
+187,1100,Traduzioni di testi scientifici arabi a Toledo,scientifico
+188,1126,Averroè introduce commenti ad Aristotele,scientifico
+189,1154,Al-Idrisi realizza la Tabula Rogeriana (mappa del mondo),scientifico
+190,1170,Diffusione della medicina araba in Europa,scientifico
+191,1190,Scuola di Salerno produce testi medici influenti,scientifico
+192,1215,Robert Grosseteste sviluppa metodo sperimentale,scientifico
+193,1240,Federico II promuove studi di zoologia,scientifico
+194,1250,Diffusione della numerazione araba in Europa,scientifico
+195,1270,Ruggero Bacone promuove l’osservazione empirica,scientifico
+196,1290,Aristotele riscoperto tramite traduzioni latine,scientifico
+197,1310,Prime descrizioni europee della bussola,scientifico
+198,1330,William of Ockham introduce il rasoio di Ockham,scientifico
+199,1348,Analisi mediche della Peste Nera,scientifico
+200,1377,Guy de Chauliac scrive *Chirurgia Magna*,scientifico
+201,1400,Diffusione dell’astrologia rinascimentale,scientifico
+202,1420,Primi esperimenti sull’ottica prospettica,scientifico
+203,1440,Alberti scrive *De pictura* con basi matematiche,scientifico
+204,1464,Marsilio Ficino traduce testi di Platone,scientifico
+205,1473,Nascita di Copernico,scientifico
+206,1492,Colombo applica tecniche di navigazione astronomica,scientifico
+207,1514,Copernico formula il modello eliocentrico (inedito),scientifico
+208,1543,Copernico pubblica *De revolutionibus*,scientifico
+209,1545,Cardano pubblica *Ars Magna* (algebra),scientifico
+210,1572,Osservata la supernova di Tycho Brahe,scientifico
+211,1600,William Gilbert pubblica *De Magnete*,scientifico
+212,1609,Keplero pubblica le prime due leggi planetarie,scientifico
+213,1610,Galileo osserva i satelliti di Giove,scientifico
+214,1628,Harvey descrive la circolazione sanguigna,scientifico
+215,1637,Cartesio pubblica *La geometria*,scientifico
+216,1665,Hooke osserva le cellule,scientifico
+217,1676,Rømer misura la velocità della luce,scientifico
+218,1687,Newton pubblica *Principia Mathematica*,scientifico
+219,1704,Newton pubblica *Opticks*,scientifico
+220,1735,Linnaeus pubblica *Systema Naturae*,scientifico
+221,1752,Benjamin Franklin scopre l’elettricità atmosferica,scientifico
+222,1774,Priestley isola l’ossigeno,scientifico
+223,1785,Coulomb formula la legge dell’elettrostatica,scientifico
+224,1796,Jenner introduce il vaccino contro il vaiolo,scientifico
+225,1803,Dalton formula la teoria atomica,scientifico
+226,1820,Oersted scopre l’elettromagnetismo,scientifico
+227,1827,Ohm formula la legge di Ohm,scientifico
+228,1859,Darwin pubblica *L’origine delle specie*,scientifico
+229,1869,Mendeleev presenta la tavola periodica,scientifico
+230,1876,Bell inventa il telefono,scientifico
+231,1895,Röntgen scopre i raggi X,scientifico
+232,1905,Einstein pubblica la teoria della relatività ristretta,scientifico
+233,1928,Fleming scopre la penicillina,scientifico
+234,1932,Chadwick scopre il neutrone,scientifico
+235,1953,Watson e Crick scoprono la struttura del DNA,scientifico
+236,1969,Sbarco sulla Luna (Apollo 11),scientifico
+237,1971,Nascita della microprocessore Intel 4004,scientifico
+238,1983,Kary Mullis sviluppa la PCR,scientifico
+239,1997,Clonazione della pecora Dolly,scientifico
+240,2003,Completamento del Progetto Genoma Umano,scientifico
+241,2012,Scoperta del bosone di Higgs,scientifico
+242,2020,Vaccini mRNA contro COVID-19,scientifico
+243,1044,Cina: primo uso documentato della polvere da sparo in armi,tecnologico
+244,1088,Prime migliorie all’aratro pesante in Europa,tecnologico
+245,1120,Diffusione dei mulini ad acqua in Europa,tecnologico
+246,1206,Al-Jazari descrive ingranaggi e macchine idrauliche,tecnologico
+247,1250,Diffusione dell’orologio meccanico in Europa,tecnologico
+248,1286,Invenzione degli occhiali in Italia,tecnologico
+249,1326,Primi documenti sull’uso dei cannoni in Europa,tecnologico
+250,1377,Primi orologi pubblici meccanici in Europa,tecnologico
+251,1400,Diffusione della carta dall’Oriente all’Europa,tecnologico
+252,1450,Gutenberg inventa la stampa a caratteri mobili,tecnologico
+253,1492,Navigazione oceanica con nuove caravelle,tecnologico
+254,1500,Diffusione della bussola magnetica in Europa,tecnologico
+255,1590,Hans e Zacharias Janssen inventano il microscopio composto,tecnologico
+256,1608,Lippershey brevetta il telescopio,tecnologico
+257,1642,Pascal inventa la calcolatrice meccanica,tecnologico
+258,1712,Thomas Newcomen inventa la macchina a vapore,tecnologico
+259,1769,James Watt perfeziona la macchina a vapore,tecnologico
+260,1795,Eli Whitney inventa la sgranatrice di cotone,tecnologico
+261,1804,Prima locomotiva a vapore funzionante,tecnologico
+262,1825,Prima ferrovia pubblica in Inghilterra,tecnologico
+263,1837,Morse sviluppa il telegrafo elettrico,tecnologico
+264,1876,Bell brevetta il telefono,tecnologico
+265,1879,Edison inventa la lampadina elettrica,tecnologico
+266,1886,Benz costruisce la prima automobile,tecnologico
+267,1903,Primo volo aereo dei fratelli Wright,tecnologico
+268,1927,Diffusione della televisione,tecnologico
+269,1942,Primo reattore nucleare a Chicago,tecnologico
+270,1947,Invenzione del transistor ai Bell Labs,tecnologico
+271,1969,"ARPANET, antenato di Internet",tecnologico
+272,1971,Intel rilascia il primo microprocessore (4004),tecnologico
+273,1981,IBM lancia il primo personal computer,tecnologico
+274,1989,Tim Berners-Lee propone il World Wide Web,tecnologico
+275,2007,Apple lancia il primo iPhone,tecnologico
+276,2010,Diffusione dei social media su larga scala,tecnologico
+277,2016,AlphaGo sconfigge un campione mondiale di Go,tecnologico
+278,2023,Diffusione globale dell’IA generativa (es. ChatGPT),tecnologico
+279,1096,Primi tornei cavallereschi documentati in Europa,sportivo
+280,1120,Diffusione del calcio folk in Inghilterra (mob football),sportivo
+281,1280,Gioco del calcio storico fiorentino praticato a Firenze,sportivo
+282,1400,Popolarità del tiro con l’arco come attività militare e sportiva in Inghilterra,sportivo
+283,1460,Primi regolamenti formali dei tornei cavallereschi,sportivo
+284,1530,Calcio fiorentino molto diffuso come intrattenimento popolare,sportivo
+285,1555,Primi giochi popolari con la palla in Francia e Italia,sportivo
+286,1617,Primi regolamenti scritti per il gioco del golf in Scozia,sportivo
+287,1640,Diffusione della scherma come disciplina sportiva,sportivo
+288,1744,Fondazione della prima società di golf documentata a Edimburgo,sportivo
+289,1766,Primi match ufficiali di cricket in Inghilterra,sportivo
+290,1823,"Nascita del rugby a Rugby School, Inghilterra",sportivo
+291,1846,Codificazione delle regole del baseball negli Stati Uniti,sportivo
+292,1863,Fondazione della Football Association e nascita del calcio moderno,sportivo
+293,1896,Prima edizione dei Giochi Olimpici moderni ad Atene,sportivo
+294,1903,Prima edizione del Tour de France,sportivo
+295,1930,Prima Coppa del Mondo FIFA in Uruguay,sportivo
+296,1950,Prima edizione del Campionato Mondiale di Formula 1,sportivo
+297,1960,Prima Olimpiade trasmessa in TV (Roma),sportivo
+298,1971,Incontro di ping pong USA-Cina (Ping Pong Diplomacy),sportivo
+299,1980,Partita di hockey 'Miracle on Ice' alle Olimpiadi di Lake Placid,sportivo
+300,1992,Dream Team USA di basket alle Olimpiadi di Barcellona,sportivo
+301,2008,"Olimpiadi di Pechino, record storici di Usain Bolt e Michael Phelps",sportivo
+302,2016,"Olimpiadi di Rio, prime per il Sud America",sportivo
+303,2021,Italia vince gli Europei di calcio a Wembley,sportivo
+304,2022,Argentina vince i Mondiali di calcio con Messi protagonista,sportivo
