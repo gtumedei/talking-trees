@@ -1,15 +1,13 @@
 "use client";
 
-import React, { createContext, useState } from "react";
+import React, { createContext, useState, useEffect } from "react";
 import "./globals.css";
 
-// Creiamo il contesto e lo esportiamo
 export const UserContext = createContext(null);
 
 export default function RootLayout({ children }) {
   const [userTree, setUserTree] = useState(null);
   const [userSpecies, setUserSpecies] = useState(null);
-  const [chatbotInitialized, setChatbotInitialized] = useState(false);
 
   return (
     <html lang="it">
@@ -17,7 +15,6 @@ export default function RootLayout({ children }) {
         <UserContext.Provider value={{
           userTree, setUserTree,
           userSpecies, setUserSpecies,
-          chatbotInitialized, setChatbotInitialized
         }}>
           {children}
         </UserContext.Provider>
@@ -26,3 +23,50 @@ export default function RootLayout({ children }) {
   );
 }
 
+
+
+
+
+
+
+/*"use client";
+
+import React, { createContext, useState, useEffect } from "react";
+import "./globals.css";
+import { auth } from './services/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+
+export const UserContext = createContext(null);
+
+export default function RootLayout({ children }) {
+  const [userTree, setUserTree] = useState(null);
+  const [userSpecies, setUserSpecies] = useState(null);
+  const [chatbotInitialized, setChatbotInitialized] = useState(false);
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setAuthLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  return (
+    <html lang="it">
+      <body>
+        <UserContext.Provider value={{
+          userTree, setUserTree,
+          userSpecies, setUserSpecies,
+          chatbotInitialized, setChatbotInitialized,
+          user, setUser,
+          authLoading
+        }}>
+          {children}
+        </UserContext.Provider>
+      </body>
+    </html>
+  );
+}*/

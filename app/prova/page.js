@@ -171,5 +171,24 @@ export default function Page() {
     );
   }
 
-  return <>{userTree ? <Tree /> : <NoTree />}</>;
+  return <>
+    <div>
+      {user ? (
+        <div className="d-flex align-items-center gap-3">
+          <span>Ciao, {user.email}</span>
+          <button 
+            onClick={handleLogout}
+            className="btn btn-outline-secondary btn-sm"
+          >
+            Logout
+          </button>
+        </div>
+      ) : (
+        <Link href="/login" className="btn btn-primary btn-sm">
+          Login / Registrati
+        </Link>
+      )}
+    </div>
+    {userTree ? <Tree /> : <NoTree />}
+  </>;
 }
