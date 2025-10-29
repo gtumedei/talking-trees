@@ -98,7 +98,7 @@ html::before {
   left: -2px;
   width: 8px; /* larghezza del gradiente a sinistra */
   height: 100%;
-  background: linear-gradient(to right, var(--dark-green), var(--light));
+  background: linear-gradient(to right, var(--dark-green), #00000000);
 }
 
 /* Gradiente a destra */
@@ -109,7 +109,7 @@ html::after {
   right: -1;
   width: 4px; /* larghezza del gradiente a destra */
   height: 100%;
-  background: linear-gradient(to left, var(--dark-green), var(--light));
+  background: linear-gradient(to left, var(--dark-green), #00000000);
 }
 
 a{color: inherit;}

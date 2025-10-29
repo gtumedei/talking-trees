@@ -1,0 +1,200 @@
+.loginButtonContainer {
+  position: fixed;
+  top: 5px;
+  left: -10px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  background: transparent;
+  border-radius: 10px;
+  box-shadow: 0 8px 25px rgba(44, 111, 123, 0.15);
+  border: 1px solid rgba(44, 111, 123, 0.1);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.loginButtonContainer:hover {
+  box-shadow: 0 12px 35px rgba(44, 111, 123, 0.25);
+  transform: translateY(-2px);
+}
+
+/* Stili comuni per entrambi i bottoni */
+.loginButton, .profileButton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--myrtle);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Effetto di overlay per hover */
+.loginButton::before,
+.profileButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(44, 111, 123, 0.1), transparent);
+  transition: left 0.5s;
+}
+
+.loginButton:hover::before,
+.profileButton:hover::before {
+  left: 100%;
+}
+
+/* Bottone Login */
+.loginButton {
+  background: var(--myrtle);
+  color: white;
+}
+
+.loginButton:hover {
+  background: var(--light-myrtle);
+  color: white;
+  transform: scale(1.02);
+}
+
+/* Bottone Profilo */
+.profileButton {
+  background: var(--myrtle);
+  color: white;
+}
+
+.profileButton:hover {
+  background: var(--light-myrtle);
+  color: white;
+  transform: scale(1.02);
+}
+
+/* Wrapper per le icone */
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
+/* Icone */
+.loginIcon,
+.userIcon {
+  color: white;
+  font-size: 16px;
+  transition: transform 0.3s ease;
+}
+.loginButton:hover .loginIcon,
+.profileButton:hover .userIcon {
+  transform: scale(1.1);
+}
+
+/* Testo */
+.loginText, .userName {
+  white-space: nowrap;
+  font-size: 16px;
+}
+.loginButton .loginText, .profileButton .userName{
+  display: none;
+}
+.loginButton:hover .loginText, .profileButton:hover .userName{
+  display: inline;
+}
+
+
+.userName {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Versione badge per notifiche (opzionale) */
+.notificationBadge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #e74c3c;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+
+/* Versione con dropdown (opzionale) */
+.dropdownContainer {
+  position: relative;
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 8px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(44, 111, 123, 0.1);
+  padding: 8px;
+  min-width: 180px;
+  z-index: 1001;
+  animation: dropdownFade 0.2s ease;
+}
+
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: var(--myrtle);
+  text-decoration: none;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  border: none;
+  background: none;
+  width: 100%;
+  cursor: pointer;
+}
+
+.dropdownItem:hover {
+  background: rgba(44, 111, 123, 0.1);
+}
+
+.dropdownIcon {
+  font-size: 14px;
+  color: var(--myrtle);
+}

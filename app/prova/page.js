@@ -5,6 +5,7 @@ import Tree from "../component/tree/Tree";
 import NoTree from "../component/tree/NoTree";
 import { UserContext } from "../layout";
 import { chatbotAPI } from "../services/chatbotAPI";
+import LoginButton from "../component/ui/LoginButton";
 
 export default function Page() {
   const { userTree, setUserTree, setUserSpecies, setChatbotInitialized } = useContext(UserContext);
@@ -38,13 +39,11 @@ export default function Page() {
     loadDatasets();
   }, []);
 
-  
   // Inizializza il chatbot quando viene trovato un albero
   const initializeChatbotWithTree = async (tree, species) => {
     try {
       console.log("🤖 Inizializzazione chatbot con albero...");
       
-      // Estrai solo i dati essenziali per il debug
       const essentialTreeData = {
         soprannome: tree.soprannome,
         'specie nome volgare': tree['specie nome volgare'],
@@ -115,7 +114,6 @@ export default function Page() {
           if (foundTree) {
             setUserTree(foundTree);
 
-            // cerca specie associata
             let foundSpecies = null;
             if (foundTree.index_specie) {
               const idx = parseInt(foundTree.index_specie);
@@ -125,7 +123,6 @@ export default function Page() {
               setUserSpecies(null);
             }
 
-            // INIZIALIZZA IL CHATBOT QUI!
             await initializeChatbotWithTree(foundTree, foundSpecies);
 
           } else {
@@ -171,24 +168,12 @@ export default function Page() {
     );
   }
 
-  return <>
-    <div>
-      {user ? (
-        <div className="d-flex align-items-center gap-3">
-          <span>Ciao, {user.email}</span>
-          <button 
-            onClick={handleLogout}
-            className="btn btn-outline-secondary btn-sm"
-          >
-            Logout
-          </button>
-        </div>
-      ) : (
-        <Link href="/login" className="btn btn-primary btn-sm">
-          Login / Registrati
-        </Link>
-      )}
-    </div>
-    {userTree ? <Tree /> : <NoTree />}
-  </>;
+  return (
+    <>
+      <main>
+        <LoginButton />
+        {userTree ? <Tree /> : <NoTree />}
+      </main>
+    </>
+  );
 }

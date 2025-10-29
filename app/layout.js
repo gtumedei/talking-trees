@@ -2,39 +2,7 @@
 
 import React, { createContext, useState, useEffect } from "react";
 import "./globals.css";
-
-export const UserContext = createContext(null);
-
-export default function RootLayout({ children }) {
-  const [userTree, setUserTree] = useState(null);
-  const [userSpecies, setUserSpecies] = useState(null);
-
-  return (
-    <html lang="it">
-      <body>
-        <UserContext.Provider value={{
-          userTree, setUserTree,
-          userSpecies, setUserSpecies,
-        }}>
-          {children}
-        </UserContext.Provider>
-      </body>
-    </html>
-  );
-}
-
-
-
-
-
-
-
-/*"use client";
-
-import React, { createContext, useState, useEffect } from "react";
-import "./globals.css";
-import { auth } from './services/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import { checkUserCredentials, getCurrentUser } from './services/userService';
 
 export const UserContext = createContext(null);
 
@@ -46,12 +14,21 @@ export default function RootLayout({ children }) {
   const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setAuthLoading(false);
-    });
+    // Verifica se c'è un utente loggato nel sessionStorage
+    const checkLoggedInUser = async () => {
+      try {
+        const currentUser = getCurrentUser();
+        if (currentUser) {
+          setUser(currentUser);
+        }
+      } catch (error) {
+        console.error('Errore nel controllo utente:', error);
+      } finally {
+        setAuthLoading(false);
+      }
+    };
 
-    return () => unsubscribe();
+    checkLoggedInUser();
   }, []);
 
   return (
@@ -69,4 +46,4 @@ export default function RootLayout({ children }) {
       </body>
     </html>
   );
-}*/
+}

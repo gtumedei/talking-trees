@@ -1,4 +1,4 @@
-.backButton {
+.backButton, .backButtonBg {
   position: fixed;
   top: 0px;
   right: 10px;
@@ -8,7 +8,13 @@
   color: var(--dark-green); /* usa i tuoi colori */
   font-size: 1.5rem;
   z-index: 9999; /* sempre sopra */
+  margin-top: 5px;
   transition: transform 0.2s ease, color 0.2s ease;
+}
+.backButtonBg {
+  background-color: var(--light);
+  border-radius: 100%;
+  padding: 0px 6px !important;
 }
 
 .backButton:hover {
