@@ -1,26 +1,54 @@
 "use client";
 
 import { Container, Row, Col, Button } from "react-bootstrap";
-import { FaBookOpen, FaTree, FaCamera } from "react-icons/fa";
+import { FaBookOpen, FaTree, FaCamera, FaHeart } from "react-icons/fa";
 import Image from "next/image";
 import styles from "./Tree.module.css";
 import Title from "../ui/Title";
 import TimeLine from "../timeline/TimeLine";
 import Link from "next/link";
 import MapLink from "../maps/PositionMap";
-import { useContext } from "react";
+import { useContext, useState, useEffect } from "react";
 import { UserContext } from "../../layout";
+import HealthStatus from "../ui/HealthStatus";
 
 export default function Tree() {
   const { userTree } = useContext(UserContext);
+  const [imageSrc, setImageSrc] = useState("/tree/tree-default.png");
+  const [imageLoaded, setImageLoaded] = useState(false);
   
-  // Se userTree non è disponibile, restituisci null
   if (!userTree) return null;
 
   const currentYear = new Date().getFullYear();
   const startYear = currentYear - 200;
 
-  // Funzione per gestire l'evento di caricamento della foto
+  // Precarica e verifica l'immagine
+  useEffect(() => {
+    const checkImageExists = async () => {
+      const treeId = userTree["id scheda"];
+      if (!treeId) {
+        setImageSrc("/tree/tree-default.png");
+        return;
+      }
+
+      const potentialImageSrc = `/tree/${treeId.replaceAll('/', '.')}.png`;
+      
+      try {
+        const response = await fetch(potentialImageSrc, { method: 'HEAD' });
+        if (response.ok) {
+          setImageSrc(potentialImageSrc);
+        } else {
+          setImageSrc("/tree/tree-default.png");
+        }
+      } catch (error) {
+        console.log("Immagine non trovata, uso default");
+        setImageSrc("/tree/tree-default.png");
+      }
+    };
+
+    checkImageExists();
+  }, [userTree]);
+
   const handlePhoto = (e) => {
     const file = e.target.files && e.target.files[0];
     if (file) {
@@ -28,16 +56,30 @@ export default function Tree() {
     }
   };
 
+  const handleImageError = (e) => {
+    console.log("Errore nel caricamento dell'immagine, uso default");
+    setImageSrc("/tree/tree-default.png");
+  };
+
+  const handleImageLoad = () => {
+    setImageLoaded(true);
+  };
+
+  // Determina la classe CSS in base al tipo di immagine
+  const imageClass = imageSrc === "/tree/tree-default.png" 
+    ? styles.treeImgDef 
+    : styles.treeImg;
+
   return (
     <Container className={styles.page}>
-      {/* Titolo: soprannome se presente, altrimenti specie volgare */}
+      {/* Titolo */}
       <Title
         text={userTree["soprannome"] || userTree["specie nome volgare"]}
         level={1}
         className="text-center mt-3 mb-0 display-6"
       />
 
-      {/* Nome scientifico se disponibile */}
+      {/* Nome scientifico */}
       {userTree["specie nome scientifico"] && (
         <p className="text-center fst-italic">
           {userTree["index_specie"] === "" ? (
@@ -48,29 +90,30 @@ export default function Tree() {
         </p>
       )}
 
-
       <p className="text-muted text-end fst-italic m-0">
         {userTree["comune"]}, {userTree["provincia"]}, {userTree["regione"]}
       </p>
 
       <Row>
-        {/* Immagine albero (se presente nel dataset) */}
+        {/* Immagine albero - MANTENUTO COME ORIGINALE */}
         <Col xs={5} className="m-0 p-0 text-center colInfo">
-          {userTree.image ? (
+          <div className={styles.imageContainer}>
             <Image
-              src={`/${userTree["id scheda"]}.png`}
+              src={imageSrc}
               alt={userTree["soprannome"] || userTree["specie nome volgare"]}
-              fill
-              className={`${styles.treeImg} img-fluid`}
+              width={300}
+              height={400}
+              className={`${imageClass} img-fluid`}
+              onError={handleImageError}
+              onLoad={handleImageLoad}
+              priority
             />
-          ) : (
-            <Image
-              src="/tree-default.png"
-              alt={userTree["soprannome"] || userTree["specie nome volgare"]}
-              fill
-              className={`${styles.treeImgDef} img-fluid`}
-            />
-          )}
+            {!imageLoaded && (
+              <div className={styles.imagePlaceholder}>
+                Caricamento immagine...
+              </div>
+            )}
+          </div>
         </Col>
 
         {/* Info testo */}
@@ -100,6 +143,11 @@ export default function Tree() {
             />
           )}
 
+          {/* Stato di salute attuale */}
+          <div className="d-flex justify-content-between align-items-center mb-2">
+            <p className="mt-2 fw-bold mb-0">Stato di salute {userTree["status_salute"]}</p>
+          </div>
+
           {/* Dimensioni */}
           <p className="mt-2 fw-bold">Dimensioni</p>
           <ul className="list-unstyled">
@@ -127,6 +175,9 @@ export default function Tree() {
           )}
         </Col>
       </Row>
+
+      {/* Bottone salute*/}
+      <HealthStatus />
 
       {/* Timeline */}
       <TimeLine startYear={startYear} endYear={currentYear} />

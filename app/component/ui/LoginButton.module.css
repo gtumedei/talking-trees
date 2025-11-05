@@ -19,7 +19,7 @@
 }
 
 /* Stili comuni per entrambi i bottoni */
-.loginButton, .profileButton {
+.loginButton, .profileButton, .logoutButton {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -50,29 +50,17 @@
 }
 
 .loginButton:hover::before,
-.profileButton:hover::before {
+.profileButton:hover::before,
+.logoutButton:hover::before {
   left: 100%;
 }
 
-/* Bottone Login */
-.loginButton {
+.loginButton, .profileButton, .logoutButton {
   background: var(--myrtle);
   color: white;
 }
 
-.loginButton:hover {
-  background: var(--light-myrtle);
-  color: white;
-  transform: scale(1.02);
-}
-
-/* Bottone Profilo */
-.profileButton {
-  background: var(--myrtle);
-  color: white;
-}
-
-.profileButton:hover {
+.loginButton:hover, .profileButton:hover, .logoutButton:hover {
   background: var(--light-myrtle);
   color: white;
   transform: scale(1.02);
@@ -88,26 +76,30 @@
 }
 
 /* Icone */
-.loginIcon,
-.userIcon {
+.loginIcon, .userIcon, .logoutIcon {
   color: white;
   font-size: 16px;
   transition: transform 0.3s ease;
 }
 .loginButton:hover .loginIcon,
-.profileButton:hover .userIcon {
+.profileButton:hover .userIcon,
+.logoutButton:hover .logoutIcon {
   transform: scale(1.1);
 }
 
 /* Testo */
-.loginText, .userName {
+.loginText, .userName, .logoutText  {
   white-space: nowrap;
   font-size: 16px;
 }
-.loginButton .loginText, .profileButton .userName{
+.loginButton .loginText,
+.profileButton .userName,
+.logoutButton .logoutText{
   display: none;
 }
-.loginButton:hover .loginText, .profileButton:hover .userName{
+.loginButton:hover .loginText,
+.profileButton:hover .userName,
+.logoutButton:hover .logoutText{
   display: inline;
 }
 

@@ -12,6 +12,7 @@ export default function RootLayout({ children }) {
   const [chatbotInitialized, setChatbotInitialized] = useState(false);
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [userCoords, setUserCoords] = useState(null);
 
   useEffect(() => {
     // Verifica se c'è un utente loggato nel sessionStorage
@@ -39,6 +40,7 @@ export default function RootLayout({ children }) {
           userSpecies, setUserSpecies,
           chatbotInitialized, setChatbotInitialized,
           user, setUser,
+          userCoords, setUserCoords,
           authLoading
         }}>
           {children}

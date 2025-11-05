@@ -3,16 +3,29 @@
 import { useContext } from "react";
 import Link from "next/link";
 import { UserContext } from "../../layout";
-import { FaUser, FaSignInAlt, FaUserCircle } from "react-icons/fa";
+import { FaUser, FaSignInAlt, FaUserCircle, FaSignOutAlt } from "react-icons/fa";
+import { logoutUser } from "../../services/userService";
+import { useRouter } from 'next/navigation';
 import styles from './LoginButton.module.css';
 
-export default function LoginButton() {
-  const { user } = useContext(UserContext);
+export default function LoginButton({ logout = false }) {
+  const { user, setUser } = useContext(UserContext);
+  const router = useRouter();
+
+  const handleLogout = () => {
+    logoutUser();
+    setUser(null);
+    router.push('/');
+  };
 
   return (
     <div className={styles.loginButtonContainer}>
       {user ? (
-        <UserProfileButton username={user.username} />
+        logout ? (
+          <LogoutButton onLogout={handleLogout} />
+        ) : (
+          <UserProfileButton username={user.username} />
+        )
       ) : (
         <LoginLinkButton />
       )}
@@ -23,7 +36,7 @@ export default function LoginButton() {
 // Componente per il bottone profilo utente (loggato)
 function UserProfileButton({ username }) {
   return (
-    <Link href="/pages/user" className={styles.profileButton}>
+    <Link href="pages/user" className={styles.profileButton}>
       <div className={styles.iconWrapper}>
         <FaUserCircle className={styles.userIcon} />
       </div>
@@ -32,10 +45,26 @@ function UserProfileButton({ username }) {
   );
 }
 
+// Componente per il bottone logout (variante compatta)
+function LogoutButton({ onLogout }) {
+  return (
+    <button 
+      onClick={onLogout}
+      className={styles.logoutButton}
+      title="Esci dall'account"
+    >
+      <div className={styles.iconWrapper}>
+        <FaSignOutAlt className={styles.logoutIcon} />
+      </div>
+      <span className={styles.logoutText}>Logout</span>
+    </button>
+  );
+}
+
 // Componente per il bottone login (non loggato)
 function LoginLinkButton() {
   return (
-    <Link href="/pages/login" className={styles.loginButton}>
+    <Link href="/login" className={styles.loginButton}>
       <div className={styles.iconWrapper}>
         <FaSignInAlt className={styles.loginIcon} />
       </div>

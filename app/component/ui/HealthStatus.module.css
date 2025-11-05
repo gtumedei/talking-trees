@@ -1,0 +1,194 @@
+/* Bottone salute principale */
+.healthMainButton {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  border: none;
+  border-radius: 25px;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+  transition: all 0.3s ease;
+  color: white;
+}
+
+.healthMainButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+  background: linear-gradient(135deg, #218838, #1ea085);
+  color: white;
+}
+
+/* Stile per quando è già stato inviato */
+.healthMainButton:global(.btn-outline-success) {
+  background: transparent;
+  border: 2px solid #28a745;
+  color: #28a745;
+  box-shadow: none;
+}
+
+.healthMainButton:global(.btn-outline-success):hover {
+  background: #28a745;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+}
+
+/* Stili del Modal */
+.healthModal :global(.modal-content) {
+  border-radius: 15px;
+  border: none;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.modalHeader {
+  border-bottom: 2px solid #e9ecef;
+  padding: 1.5rem 1.5rem 1rem;
+  background: white;
+}
+
+.headerContent {
+  width: 100%;
+  text-align: center;
+}
+
+.modalTitle {
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: #2c5530;
+  margin: 0 0 0.5rem 0;
+}
+
+.modalDescription {
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin: 0;
+  font-weight: 400;
+}
+
+.modalBody {
+  padding: 1.5rem;
+}
+
+.healthButtonsRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.healthCol {
+  padding: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+.healthButton {
+  width: 100%;
+  padding: 1rem 0.5rem;
+  border: 2px solid;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100px;
+  color: white !important;
+  font-weight: 600;
+}
+
+.healthButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  opacity: 0.9 !important;
+}
+
+.healthButton.selected {
+  transform: scale(1.05);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+  opacity: 1 !important;
+  border: 3px solid white !important;
+}
+
+.buttonContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  color: white;
+}
+
+.healthIcon {
+  color: white;
+}
+
+.healthLabel {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-align: center;
+  color: white;
+}
+
+.healthLevel {
+  font-size: 0.75rem;
+  color: white;
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+.modalFooter {
+  border-top: 1px solid #e9ecef;
+  padding: 1rem 1.5rem;
+  justify-content: center;
+  background: #f8f9fa;
+}
+
+.submitButton {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  border: none;
+  border-radius: 25px;
+  padding: 0.75rem 2rem;
+  font-weight: 600;
+  font-size: 1rem;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+  transition: all 0.3s ease;
+  min-width: 200px;
+  color: white;
+}
+
+.submitButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+  background: linear-gradient(135deg, #218838, #1ea085);
+  color: white;
+}
+
+.submitButton:disabled {
+  background: #6c757d;
+  transform: none;
+  box-shadow: none;
+  cursor: not-allowed;
+  color: white;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .healthButtonsRow {
+    gap: 0.3rem;
+  }
+  
+  .healthButton {
+    padding: 0.8rem 0.3rem;
+    min-height: 90px;
+  }
+  
+  .healthLabel {
+    font-size: 0.75rem;
+  }
+  
+  .healthLevel {
+    font-size: 0.7rem;
+  }
+  
+  .modalBody {
+    padding: 1rem;
+  }
+}

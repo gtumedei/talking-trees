@@ -23,7 +23,7 @@ export default function LoginPage() {
   // Usa useEffect per il reindirizzamento invece di farlo durante il render
   useEffect(() => {
     if (user) {
-      router.push('/user'); // Reindirizza alla pagina utente
+      router.push('/pages/user'); // Reindirizza alla pagina utente
     }
   }, [user, router]);
 
