@@ -451,7 +451,7 @@ class AlberoSaggio {
         return Math.max(punteggio, 0);
     }
 
-    _analizza_idratazione(stats_sett, stats_dec) {
+    _analizza_idratazione(stats_sett) {
         const p = stats_sett.precipitation;
         const h = stats_sett.humidity;
         if (p === 0 && h < 40) {
@@ -460,7 +460,7 @@ class AlberoSaggio {
         return `💧 Sto bene, l'umidità è al ${h.toFixed(0)}%.`;
     }
 
-    _analizza_temperatura(stats_sett, stats_dec) {
+    _analizza_temperatura(stats_sett) {
         const t = stats_sett.temperature.mean;
 
         if (t > 35) return `🔥 Sto soffrendo il caldo, ${t.toFixed(1)}°C sono troppi per me.`;

@@ -1,21 +1,17 @@
 "use client";
 
 import { useState, useEffect, useContext } from "react";
-import { getUserProfile, logoutUser } from "@service/userService";
+import { getUserProfile } from "@service/userService";
 import { useRouter } from 'next/navigation';
 import Link from "next/link";
 import { UserContext } from "@/app/layout";
-import { 
-  FaTree, FaComment, FaUser, FaEnvelope, FaMapMarkerAlt, 
-  FaSignOutAlt, FaHome, FaLeaf, FaCalendarAlt, FaExternalLinkAlt,
-  FaDownload 
-} from "react-icons/fa";
-import ButtonBack from "@/component/ui/BackButton";
+import { FaComment, FaEnvelope, FaMapMarkerAlt, FaLeaf, FaDownload } from "react-icons/fa";
+import ButtonBack from "@component/ui/BackButton";
 import styles from './User.module.css';
 import LoginButton from "@component/ui/LoginButton";
 
 export default function UserPage() {
-  const { user, setUser } = useContext(UserContext);
+  const { user } = useContext(UserContext);
   const router = useRouter();
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -157,7 +153,7 @@ function VisitedTreesSection({ userData }) {
 }
 
 // Componente per la card di un albero
-function TreeCard({ treeId, soprannome, specie, luogo, regione, coordinates, comments, index }) {
+function TreeCard({ treeId, soprannome, specie, luogo, regione, coordinates, comments }) {
   // Genera il percorso dell'immagine dell'albero
   const treeImage = `/tree/${treeId.replace(/[\/\\]/g, '-')}.png`;
   const defaultTreeImage = '/tree/tree-default.png';

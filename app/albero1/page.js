@@ -3,7 +3,7 @@
 import { useEffect, useState, useContext } from "react";
 import Tree from "@component/tree/Tree";
 import NoTree from "@component/tree/NoTree";
-import { UserContext } from "@app/layout";
+import { UserContext } from "@/app/layout";
 import { buildTreeContext } from "@service/TreeContextBuilder"; // Importa la funzione
 import LoginButton from "@component/ui/LoginButton";
 
@@ -19,7 +19,6 @@ export default function Page() {
   const [treesDataset, setTreesDataset] = useState([]);
   const [speciesDataset, setSpeciesDataset] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isRandomTree, setIsRandomTree] = useState(true);
   const [error, setError] = useState(null);
   const [chatbotLoading, setChatbotLoading] = useState(false);
 
