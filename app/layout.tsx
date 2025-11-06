@@ -10,14 +10,22 @@ interface UserContextType {
   setUserTree: (tree: any) => void;
   userSpecies: any;
   setUserSpecies: (species: any) => void;
-  chatbotInitialized: boolean;
-  setChatbotInitialized: (initialized: boolean) => void;
   user: any;
   setUser: (user: any) => void;
   userCoords: any;
   setUserCoords: (coords: any) => void;
   authLoading: boolean;
+  history: Event[];
+  setHistory: (events: Event[]) => void;
+  document: any; 
+  setDocument: (doc: any) => void;
 }
+
+type Event = {
+  year: number;
+  text: string;
+  category: string;
+};
 
 // Definisci le props per il layout
 interface RootLayoutProps {
@@ -34,6 +42,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
   const [user, setUser] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [userCoords, setUserCoords] = useState<any>(null);
+  const [history, setHistory] = useState<Event[]>([]);
+  const [document, setDocument] = useState<any>(null);
 
   useEffect(() => {
     const checkLoggedInUser = async () => {
@@ -55,10 +65,11 @@ export default function RootLayout({ children }: RootLayoutProps) {
   const contextValue: UserContextType = {
     userTree, setUserTree,
     userSpecies, setUserSpecies,
-    chatbotInitialized, setChatbotInitialized,
     user, setUser,
     userCoords, setUserCoords,
-    authLoading
+    authLoading,
+    history, setHistory,
+    document, setDocument
   };
 
   return (

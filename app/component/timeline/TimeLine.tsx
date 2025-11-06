@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { OverlayTrigger, Tooltip, Form, Button, DropdownButton } from "react-bootstrap";
-
+import { UserContext } from "@/app/layout";
 import styles from "./TimeLine.module.css";
 
 type Event = {
@@ -17,6 +17,14 @@ interface TimeLineProps {
 }
 
 export default function TimeLine({ startYear, endYear }: TimeLineProps) {
+  const userContext = useContext(UserContext);
+  
+  // Controlla se il context è disponibile
+  if (!userContext) {
+    throw new Error("TimeLine deve essere usato dentro UserContext.Provider");
+  }
+  
+  const { history, setHistory } = userContext;
   const [allEvents, setAllEvents] = useState<Event[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([
     "storico",
@@ -27,20 +35,62 @@ export default function TimeLine({ startYear, endYear }: TimeLineProps) {
     "sportivo",
   ]);
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
+  const [showDropdown, setShowDropdown] = useState(false); // Stato per controllare l'apertura del dropdown
 
   const totalYears = endYear - startYear;
   const getPosition = (year: number) => ((year - startYear) / totalYears) * 100;
 
-  // Carica eventi dal JSON
+  // Funzione per selezionare al massimo 10 eventi distribuiti equamente
+  const selectRandomEvents = (events: Event[], categories: string[]): Event[] => {
+    const filtered = events.filter(e => categories.includes(e.category));
+    
+    if (filtered.length === 0) return [];
+
+    const maxEvents = 10;
+    const yearsPerSlot = Math.ceil(totalYears / maxEvents);
+    
+    const selected: Event[] = [];
+
+    for (let slotStart = startYear; slotStart <= endYear; slotStart += yearsPerSlot) {
+      const slotEnd = Math.min(slotStart + yearsPerSlot - 1, endYear);
+      const slotEvents = filtered.filter(e => e.year >= slotStart && e.year <= slotEnd);
+      
+      if (slotEvents.length > 0) {
+        const randomEvent = slotEvents[Math.floor(Math.random() * slotEvents.length)];
+        selected.push(randomEvent);
+        
+        if (selected.length >= maxEvents) {
+          break;
+        }
+      }
+    }
+
+    return selected;
+  };
+
+  // Carica eventi dal JSON e inizializza history se vuota
   useEffect(() => {
     const loadEvents = async () => {
-      const res = await fetch("/event_catalog.json");
-      const data: Event[] = await res.json();
-      setAllEvents(data);
-      setFilteredEvents(selectRandomEvents(data, selectedCategories));
+      try {
+        const res = await fetch("/event_catalog.json");
+        const data: Event[] = await res.json();
+        setAllEvents(data);
+
+        // Se history è vuota, genera nuovi eventi e salvali in history
+        if (history.length === 0) {
+          const newEvents = selectRandomEvents(data, selectedCategories);
+          setHistory(newEvents);
+          setFilteredEvents(newEvents);
+        } else {
+          // Altrimenti usa gli eventi dalla history
+          setFilteredEvents(history);
+        }
+      } catch (error) {
+        console.error("Errore nel caricamento degli eventi:", error);
+      }
     };
     loadEvents();
-  }, []);
+  }, [history, selectedCategories, setHistory]);
 
   // Gestione toggle categorie
   const handleCategoryChange = (category: string) => {
@@ -51,50 +101,52 @@ export default function TimeLine({ startYear, endYear }: TimeLineProps) {
     );
   };
 
-  // Funzione per scegliere 1 evento random per slot di 50 anni
-  const selectRandomEvents = (events: Event[], categories: string[]) => {
-    const filtered = events.filter(e => categories.includes(e.category));
-    const selected: Event[] = [];
+  // Applica filtro - rigenera eventi e aggiorna history e chiude il dropdown
+  const applyFilter = () => {
+    const newEvents = selectRandomEvents(allEvents, selectedCategories);
+    setHistory(newEvents);
+    setFilteredEvents(newEvents);
+    setShowDropdown(false); // Chiudi il dropdown
+  };
 
-    for (let y = startYear; y <= endYear; y += 50) {
-      const slotEvents = filtered.filter(e => e.year >= y && e.year < y + 50);
-      if (slotEvents.length > 0) {
-        const random = slotEvents[Math.floor(Math.random() * slotEvents.length)];
-        selected.push(random);
+  // Funzione per generare tacche con numeri tondi (che finiscono con 5 o 10)
+  const generateRoundedTicks = (): number[] => {
+    const ticks: number[] = [];
+    
+    const firstTick = Math.ceil(startYear / 5) * 5;
+    const lastTick = Math.floor(endYear / 5) * 5;
+    const tickInterval = 50;
+    
+    for (let year = firstTick; year <= lastTick; year += tickInterval) {
+      if (year % 5 === 0) {
+        ticks.push(year);
       }
     }
-    return selected;
+    
+    if (ticks.length < 2) {
+      ticks.push(Math.ceil(startYear / 5) * 5);
+      ticks.push(Math.floor(endYear / 5) * 5);
+    }
+    
+    return ticks.sort((a, b) => a - b);
   };
 
-  // Applica filtro
-  const applyFilter = () => {
-    setFilteredEvents(selectRandomEvents(allEvents, selectedCategories));
-  };
-
-  // Tacche ogni 50 anni
-  const ticks: number[] = [];
-  for (let y = startYear; y <= endYear; y += 50) {
-    ticks.push(y);
-  }
+  const ticks = generateRoundedTicks();
 
   const parseText = (text: string) => {
     const regex = /\*(.*?)\*/g;
     const parts = [];
     let lastIndex = 0;
 
-    // Cerca tutte le occorrenze di testo tra * *
     let match;
     while ((match = regex.exec(text)) !== null) {
-      // Aggiungi la parte del testo prima dell'asterisco
       if (match.index > lastIndex) {
         parts.push(text.slice(lastIndex, match.index));
       }
-      // Aggiungi il testo in corsivo
       parts.push(<em key={match.index}>{match[1]}</em>);
       lastIndex = regex.lastIndex;
     }
 
-    // Aggiungi la parte finale del testo
     if (lastIndex < text.length) {
       parts.push(text.slice(lastIndex));
     }
@@ -102,7 +154,6 @@ export default function TimeLine({ startYear, endYear }: TimeLineProps) {
     return parts;
   };
 
-  /*Color*/
   function lerpColor(a: string, b: string, amount: number) {
     const ah = parseInt(a.replace(/#/g, ""), 16);
     const bh = parseInt(b.replace(/#/g, ""), 16);
@@ -113,16 +164,12 @@ export default function TimeLine({ startYear, endYear }: TimeLineProps) {
     const rb = ab + amount * (bb - ab);
     return `rgb(${rr|0},${rg|0},${rb|0})`;
   }
-  // Moved percent and color calculation inside the map callback below
-
 
   return (
     <div className="mt-2 mx-2">
-
       <p className="mb-1 text-center">Alcuni eventi successi durante la mia vita</p>
       <div className={styles.timelineContainer}>
         <div className={styles.timelineBar}>
-          {/* Tacche ogni 50 anni */}
           {ticks.map((year, i) => (
             <div
               key={year}
@@ -139,16 +186,13 @@ export default function TimeLine({ startYear, endYear }: TimeLineProps) {
             </div>
           ))}
 
-          {/* Eventi */}
           {filteredEvents.map((event, i) => {
             const percent = (event.year - startYear) / totalYears;
-
-            // Colore dal gradiente timeline
             const hoverColor = lerpColor("#4B301E", "#8BA96E", percent); 
 
             return (
               <OverlayTrigger
-                key={event.year + "-" + i}
+                key={`${event.year}-${i}-${event.text}`}
                 overlay={
                   <Tooltip
                     className={styles.customTooltip}
@@ -167,9 +211,8 @@ export default function TimeLine({ startYear, endYear }: TimeLineProps) {
                   className={styles.eventDot}
                   style={{
                     left: `${getPosition(event.year)}%`, 
-                     boxShadow: `inset 0 0 0 2.5px ${hoverColor}`, // ✅ bordo colorato
+                    boxShadow: `inset 0 0 0 2.5px ${hoverColor}`,
                   }}
-                  // ✅ cambio colore solo on hover
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = hoverColor;
                   }}
@@ -180,13 +223,18 @@ export default function TimeLine({ startYear, endYear }: TimeLineProps) {
               </OverlayTrigger>
             );
           })}
-
         </div>
       </div>
 
-       {/* Menu di filtro dentro combobox/accordion */}
       <div className="mt-3 pt-1 text-end">
-        <DropdownButton id="dropdown-categories" title="Filtra tipologia eventi" drop="start" className={styles.dropdownCustom}>
+        <DropdownButton 
+          id="dropdown-categories" 
+          title="Filtra tipologia eventi" 
+          drop="start" 
+          className={styles.dropdownCustom}
+          show={showDropdown}
+          onToggle={(isOpen) => setShowDropdown(isOpen)}
+        >
           <div className={styles.dropdownMenuCustom}>
             {["storico", "artistico", "culturale", "scientifico", "tecnologico", "sportivo"].map(
               cat => (
@@ -207,9 +255,7 @@ export default function TimeLine({ startYear, endYear }: TimeLineProps) {
             </div>
           </div>
         </DropdownButton>
-
       </div>
-
     </div>
   );
 }

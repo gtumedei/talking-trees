@@ -12,15 +12,14 @@ export default function Page() {
     userTree, 
     setUserTree, 
     setUserSpecies, 
-    setChatbotInitialized,
-    setUserCoords 
+    setUserCoords,
+    setDocument
   } = useContext(UserContext);
 
   const [treesDataset, setTreesDataset] = useState([]);
   const [speciesDataset, setSpeciesDataset] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [chatbotLoading, setChatbotLoading] = useState(false);
 
   // Carico i dataset dall'API
   useEffect(() => {
@@ -51,45 +50,17 @@ export default function Page() {
   // Funzione per inizializzare il chatbot
   const initializeChatbotWithTree = async (tree, species) => {
     if (!tree) return;
-    
-    setChatbotLoading(true);
     try {
-      console.log("🤖 Inizializzazione chatbot RAG...");
-      
       // Costruisci il contesto usando la funzione importata
-      const context = await buildTreeContext(tree, species);
-      console.log("📝 Contesto generato per RAG:", context);
+      const document = await buildTreeContext(tree, species);
       
-      // Inizializza il chatbot con il contesto
-      const response = await fetch('/api/chatbot', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'initialize',
-          tree: tree,
-          species: species,
-          context: context
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to initialize chatbot');
+      // Salva il document nel context
+      if (setDocument) {
+        setDocument(document);
+        console.log("📄 Document salvato nel context:", document);
       }
-
-      const data = await response.json();
-      
-      if (data.success) {
-        console.log("✅ Chatbot RAG inizializzato con successo");
-        setChatbotInitialized(true);
-      } else {
-        throw new Error(data.error || 'Chatbot initialization failed');
-      }
-      
-    } catch (err) {
-      console.error('❌ Errore inizializzazione chatbot:', err);
-      // Non blocchiamo l'app se il chatbot fallisce
-    } finally {
-      setChatbotLoading(false);
+    } catch (error) {
+      console.error("❌ Errore nell'inizializzazione dei documenti:", error);
     }
   };
 
@@ -240,18 +211,6 @@ export default function Page() {
       <main>
         <LoginButton />
         {userTree ? <Tree /> : <NoTree />}
-        
-        {/* Indicatore del caricamento del chatbot che non blocca la pagina */}
-        {chatbotLoading && (
-          <div className="position-fixed bottom-0 end-0 m-3">
-            <div className="alert alert-info d-flex align-items-center">
-              <div className="spinner-border spinner-border-sm me-2" role="status">
-                <span className="visually-hidden">Caricamento chatbot...</span>
-              </div>
-              <span>Inizializzazione chatbot in corso...</span>
-            </div>
-          </div>
-        )}
       </main>
     </>
   );

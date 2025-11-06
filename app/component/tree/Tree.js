@@ -1,7 +1,7 @@
 "use client";
 
 import { Container, Row, Col, Button } from "react-bootstrap";
-import { FaBookOpen, FaTree, FaCamera } from "react-icons/fa";
+import { FaBookOpen, FaTree, FaCamera, FaInfoCircle } from "react-icons/fa";
 import Image from "next/image";
 import styles from "./Tree.module.css";
 import Title from "@component/ui/Title";
@@ -12,7 +12,8 @@ import { useContext, useState, useEffect } from "react";
 import { UserContext } from "@/app/layout";
 import HealthStatus from "@component/ui/HealthStatus";
 
-export default function Tree() {
+
+export default function Tree({ variant = "statico" }) {
   const { userTree } = useContext(UserContext);
   const [imageSrc, setImageSrc] = useState("/tree/tree-default.png");
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -59,10 +60,55 @@ export default function Tree() {
     setImageLoaded(true);
   };
 
+  // Configurazione in base alla variante
+  const getTreeConfig = () => {
+    switch (variant) {
+      case "chatbot":
+        return {
+          treeButtonText: "Parla con l'albero",
+          treeButtonIcon: <FaTree />,
+          treeButtonHref: "/pages/chatbotScientifico",
+          treeButtonClass: "green"
+        };
+      case "chatbot-narrativo":
+        return {
+          treeButtonText: "Parla con l'albero",
+          treeButtonIcon: <FaTree />,
+          treeButtonHref: "/pages/chatbotNarrativo"
+        };
+      case "statico":
+      default:
+        return {
+          treeButtonText: "Informazioni sull'albero",
+          treeButtonIcon: <FaInfoCircle />,
+          treeButtonHref: "/pages/infoTree"
+        };
+    }
+  };
+
+  const treeConfig = getTreeConfig();
+
   if (!userTree) return null;
 
   const currentYear = new Date().getFullYear();
-  const startYear = currentYear - 200;
+  
+  // Estrae il numero dalla stringa "eta" e calcola startYear
+  const calculateStartYear = () => {
+    if (!userTree["eta"]) return null;
+    
+    // Estrae tutti i numeri dalla stringa
+    const numbers = userTree["eta"].match(/\d+/g);
+    if (!numbers || numbers.length === 0) return null;
+    
+    // Prende il primo numero trovato
+    const age = parseInt(numbers[0]);
+    if (isNaN(age)) return null;
+    
+    return currentYear - age;
+  };
+
+  const startYear = calculateStartYear();
+  const hasTimeline = userTree["eta"] && startYear !== null;
 
   // Determina la classe CSS in base al tipo di immagine
   const imageClass = imageSrc === "/tree/tree-default.png" 
@@ -180,8 +226,10 @@ export default function Tree() {
       {/* Bottone salute*/}
       <HealthStatus />
 
-      {/* Timeline */}
-      <TimeLine startYear={startYear} endYear={currentYear} />
+      {/* Timeline - MOSTRATA SOLO SE È PRESENTE IL CAMPO "eta" */}
+      {hasTimeline && (
+        <TimeLine startYear={startYear} endYear={currentYear} />
+      )}
 
       {/* Bottone di navigazione */}
       <div className="w-100 d-flex justify-content-around">
@@ -190,10 +238,10 @@ export default function Tree() {
         >
           <FaBookOpen /> Pezzi di storia
         </Button>
-        <Button as={Link} href="/pages/chatbot" variant="primary"
-          className="mt-3 mb-5 fw-bold d-flex align-items-center gap-2 green"
+        <Button as={Link} href={treeConfig.treeButtonHref} variant="primary"
+          className={`mt-3 mb-5 fw-bold d-flex align-items-center gap-2 green`}
         >
-          <FaTree /> Parla con l'albero
+          {treeConfig.treeButtonIcon} {treeConfig.treeButtonText}
         </Button>
       </div>
 

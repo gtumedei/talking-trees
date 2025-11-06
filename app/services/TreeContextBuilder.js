@@ -348,6 +348,12 @@ export async function buildTreeContext(tree, species = null, weatherData = null)
                 console.warn('Errore nel recuperare la riflessione dell\'albero:', error);
             }
         }
+
+        if (tree.eta) {
+            parts.push("\nDATI STORICI:");
+            parts.push(`- Età: ${tree.eta}`);
+        }
+
         
         const result = parts.join('\n');
         console.log('Contesto generato per l\'albero:\n', result);
