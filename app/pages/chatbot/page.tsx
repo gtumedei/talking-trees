@@ -5,10 +5,7 @@ import styles from './Chatbot.module.css'; // Import del modulo CSS
 import { Button, Badge, Alert, Form } from "react-bootstrap"; 
 import BackButton from "@/app/component/ui/BackButton";
 import { UserContext } from "@/app/layout";
-
-// Definiamo i dati predefiniti all'esterno del componente per assicurarne la stabilità
-const DEFAULT_TREE = { soprannome: "Quercia Millenaria", anni: "1500", posizione: "Piazza del Duomo" };
-const DEFAULT_SPECIES = "Quercus Robur";
+import { buildTreeContext } from "@/app/services/TreeContextBuilder";
 
 type Source = {
     title: string;
@@ -132,28 +129,27 @@ export default function ChatbotContent() {
     const [showSources, setShowSources] = useState<boolean>(false);
     const [isInitialized, setIsInitialized] = useState<boolean>(false);
 
-    const messagesEndRef = useRef<HTMLDivElement>(null);
-
-    const quickReplies = [
-        "Qual è il tuo ricordo più antico?",
-        "Qual messaggio lasceresti a noi umani?",
-        "Cosa hai visto cambiare in questi anni?",
-        "Chi ti ha piantato?",
-        "Come sei sopravvissuto così a lungo?",
-        "Raccontami del clima che hai vissuto",
-        "Qual è la tua specie?",
-        "Dove ti trovi esattamente?",
-        "Quanti anni hai?",
-        "Hai mai avuto paura?",
-        "Cosa provi quando cambiano le stagioni?"
+    const QUICK_REPLIES = [
+      "Qual è il tuo ricordo più antico?",
+      "Qual messaggio lasceresti a noi umani?",
+      "Cosa hai visto cambiare in questi anni?",
+      "Chi ti ha piantato?",
+      "Come sei sopravvissuto così a lungo?",
+      "Raccontami del clima che hai vissuto",
+      "Qual è la tua specie?",
+      "Dove ti trovi esattamente?",
+      "Quanti anni hai?",
+      "Hai mai avuto paura?",
+      "Cosa provi quando cambiano le stagioni?"
     ];
+
+    const messagesEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
     useEffect(() => {
-        // Inizializza il chatbot solo una volta all'avvio
         if (!isInitialized && userContext) {
             initializeRAGChatbot();
             setIsInitialized(true);
@@ -161,7 +157,6 @@ export default function ChatbotContent() {
     }, [userContext, isInitialized]);
 
     const initializeRAGChatbot = async () => {
-        // Accedi al context solo qui, durante l'inizializzazione
         const { userTree, userSpecies } = userContext || {};
         
         if (!userTree) {
@@ -181,7 +176,10 @@ export default function ChatbotContent() {
         chatbotAPI.resetSession();
 
         try {
-            const result = await chatbotAPI.initializeChatbot(userTree, userSpecies);
+            // Usa la funzione importata dal file separato
+            const treeContext ='Attendi e modifica';
+            
+            const result = await chatbotAPI.initializeChatbot(userTree, userSpecies, treeContext);
 
             if (result.success) {
                 setCurrentTree(result.tree_name || userTree.soprannome || "Albero Monumentale");
@@ -211,7 +209,6 @@ export default function ChatbotContent() {
     };
 
     const handleReconnect = async () => {
-        // Ricrea il contesto usando i dati dal context
         const { userTree, userSpecies } = userContext || {};
         if (userTree) {
             await initializeRAGChatbot();
@@ -361,7 +358,7 @@ export default function ChatbotContent() {
 
             <div className={styles.quickReplies}>
                 <div className={styles.quickScroll}>
-                    {quickReplies.map((reply, i) => (
+                    {QUICK_REPLIES.map((reply, i) => (
                         <Button
                             key={i}
                             onClick={() => handleQuickReply(reply)}

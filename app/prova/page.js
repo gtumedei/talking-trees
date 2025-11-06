@@ -1,14 +1,10 @@
-
-//const lat = parseFloat(pos.coords.latitude);
-//const lng = parseFloat(pos.coords.longitude);
-
 "use client";
 
 import { useEffect, useState, useContext } from "react";
 import Tree from "../component/tree/Tree";
 import NoTree from "../component/tree/NoTree";
 import { UserContext } from "../layout";
-import { chatbotAPI } from "../services/chatbotAPI";
+import { buildTreeContext } from "../services/TreeContextBuilder"; // Importa la funzione
 import LoginButton from "../component/ui/LoginButton";
 
 export default function Page() {
@@ -32,7 +28,7 @@ export default function Page() {
     const loadDatasets = async () => {
       try {
         console.log("📡 Iniziando caricamento dataset...");
-        const response = await fetch('/services');
+        const response = await fetch('/api/loadDataset');
         if (!response.ok) {
           throw new Error('Failed to load tree data');
         }
@@ -55,41 +51,44 @@ export default function Page() {
 
   // Funzione per inizializzare il chatbot
   const initializeChatbotWithTree = async (tree, species) => {
+    if (!tree) return;
+    
     setChatbotLoading(true);
     try {
-      console.log("🤖 Inizializzazione chatbot con albero...");
+      console.log("🤖 Inizializzazione chatbot RAG...");
       
-      const essentialTreeData = {
-        soprannome: tree.soprannome,
-        'specie nome volgare': tree['specie nome volgare'],
-        'specie nome scientifico': tree['specie nome scientifico'],
-        eta: tree.eta,
-        'altezza (m)': tree['altezza (m)'],
-        'circonferenza fusto (cm)': tree['circonferenza fusto (cm)'],
-        comune: tree.comune,
-        provincia: tree.provincia,
-        regione: tree.regione,
-        lat: tree.lat,
-        lng: tree.lng
-      };
+      // Costruisci il contesto usando la funzione importata
+      const context = await buildTreeContext(tree, species);
+      console.log("📝 Contesto generato per RAG:", context);
       
-      const essentialSpeciesData = species ? {
-        nome_famiglia: species.nome_famiglia,
-        nome_genere: species.nome_genere
-      } : null;
-      
-      console.log("🌳 Dati essenziali albero:", essentialTreeData);
-      
-      const result = await chatbotAPI.initializeChatbot(essentialTreeData, essentialSpeciesData);
-      
-      if (result.success) {
-        setChatbotInitialized(true);
-        console.log("✅ Chatbot inizializzato:", result.tree_name);
-      } else {
-        console.warn("⚠ Chatbot non inizializzato:", result.error);
+      // Inizializza il chatbot con il contesto
+      const response = await fetch('/api/chatbot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'initialize',
+          tree: tree,
+          species: species,
+          context: context
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to initialize chatbot');
       }
-    } catch (error) {
-      console.error("❌ Errore inizializzazione chatbot:", error);
+
+      const data = await response.json();
+      
+      if (data.success) {
+        console.log("✅ Chatbot RAG inizializzato con successo");
+        setChatbotInitialized(true);
+      } else {
+        throw new Error(data.error || 'Chatbot initialization failed');
+      }
+      
+    } catch (err) {
+      console.error('❌ Errore inizializzazione chatbot:', err);
+      // Non blocchiamo l'app se il chatbot fallisce
     } finally {
       setChatbotLoading(false);
     }
@@ -244,7 +243,7 @@ export default function Page() {
         {userTree ? <Tree /> : <NoTree />}
         
         {/* Indicatore del caricamento del chatbot che non blocca la pagina */}
-        {/*chatbotLoading && (
+        {chatbotLoading && (
           <div className="position-fixed bottom-0 end-0 m-3">
             <div className="alert alert-info d-flex align-items-center">
               <div className="spinner-border spinner-border-sm me-2" role="status">
@@ -253,7 +252,7 @@ export default function Page() {
               <span>Inizializzazione chatbot in corso...</span>
             </div>
           </div>
-        )*/}
+        )}
       </main>
     </>
   );
