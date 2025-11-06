@@ -2,9 +2,9 @@
 
 import { useContext } from "react";
 import Link from "next/link";
-import { UserContext } from "../../layout";
+import { UserContext } from "@/app/layout";
 import { FaUser, FaSignInAlt, FaUserCircle, FaSignOutAlt } from "react-icons/fa";
-import { logoutUser } from "../../services/userService";
+import { logoutUser } from "@service/userService";
 import { useRouter } from 'next/navigation';
 import styles from './LoginButton.module.css';
 

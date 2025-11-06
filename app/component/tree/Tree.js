@@ -1,31 +1,26 @@
 "use client";
 
 import { Container, Row, Col, Button } from "react-bootstrap";
-import { FaBookOpen, FaTree, FaCamera, FaHeart } from "react-icons/fa";
+import { FaBookOpen, FaTree, FaCamera } from "react-icons/fa";
 import Image from "next/image";
 import styles from "./Tree.module.css";
-import Title from "../ui/Title";
-import TimeLine from "../timeline/TimeLine";
+import Title from "@component/ui/Title";
+import TimeLine from "@component/timeline/TimeLine";
 import Link from "next/link";
-import MapLink from "../maps/PositionMap";
+import MapLink from "@component/maps/PositionMap";
 import { useContext, useState, useEffect } from "react";
-import { UserContext } from "../../layout";
-import HealthStatus from "../ui/HealthStatus";
+import { UserContext } from "@/app/layout";
+import HealthStatus from "@component/ui/HealthStatus";
 
 export default function Tree() {
   const { userTree } = useContext(UserContext);
   const [imageSrc, setImageSrc] = useState("/tree/tree-default.png");
   const [imageLoaded, setImageLoaded] = useState(false);
   
-  if (!userTree) return null;
-
-  const currentYear = new Date().getFullYear();
-  const startYear = currentYear - 200;
-
   // Precarica e verifica l'immagine
   useEffect(() => {
     const checkImageExists = async () => {
-      const treeId = userTree["id scheda"];
+      const treeId = userTree?.["id scheda"];
       if (!treeId) {
         setImageSrc("/tree/tree-default.png");
         return;
@@ -40,23 +35,22 @@ export default function Tree() {
         } else {
           setImageSrc("/tree/tree-default.png");
         }
-      } catch (error) {
+      } catch {
         console.log("Immagine non trovata, uso default");
         setImageSrc("/tree/tree-default.png");
       }
     };
 
-    checkImageExists();
+    if (userTree) {
+      checkImageExists();
+    }
   }, [userTree]);
 
-  const handlePhoto = (e) => {
-    const file = e.target.files && e.target.files[0];
-    if (file) {
-      alert(`📸 Foto scattata: ${file.name}`);
-    }
+  const handlePhoto = () => {
+    alert("📸 Funzionalità foto attivata!");
   };
 
-  const handleImageError = (e) => {
+  const handleImageError = () => {
     console.log("Errore nel caricamento dell'immagine, uso default");
     setImageSrc("/tree/tree-default.png");
   };
@@ -64,6 +58,11 @@ export default function Tree() {
   const handleImageLoad = () => {
     setImageLoaded(true);
   };
+
+  if (!userTree) return null;
+
+  const currentYear = new Date().getFullYear();
+  const startYear = currentYear - 200;
 
   // Determina la classe CSS in base al tipo di immagine
   const imageClass = imageSrc === "/tree/tree-default.png" 

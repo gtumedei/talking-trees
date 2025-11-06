@@ -1,4 +1,10 @@
 {
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "firebase": "^12.4.0"

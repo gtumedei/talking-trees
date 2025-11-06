@@ -4,8 +4,8 @@ import { Modal, Button, Row, Col } from "react-bootstrap";
 import { FaHeart, FaHeartbeat, FaSkull, FaLeaf, FaTree } from "react-icons/fa";
 import styles from "./HealthStatus.module.css";
 import { useState, useContext } from "react";
-import { UserContext } from "../../layout";
-import { db } from "@/app/services/firebase";
+import { UserContext } from "@/app/layout";
+import { db } from "@service/firebase";
 import { doc, setDoc, getDoc, updateDoc, arrayUnion } from "firebase/firestore";
 
 const HealthStatus = () => {

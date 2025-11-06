@@ -1,11 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { 
-  initializeFirebaseData, 
-  clearFirebaseData, 
-  checkDatabaseStatus 
-} from '../../services/initFirebaseData';
+import {initializeFirebaseData, clearFirebaseData, checkDatabaseStatus } from '@service/initFirebaseData';
 
 export default function AdminPage() {
   const [loading, setLoading] = useState(false);

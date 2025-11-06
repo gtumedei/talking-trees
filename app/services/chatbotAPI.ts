@@ -1,15 +1,47 @@
 // services/chatbotAPI.ts
+
+// Definizione delle interfacce per i documenti rilevanti
+export interface RelevantDocument {
+  id: string;
+  content: string;
+  metadata?: {
+    source?: string;
+    page?: number;
+    [key: string]: unknown;
+  };
+  score?: number;
+}
+
+// Definizione dell'interfaccia per l'albero
+export interface Tree {
+  id: string;
+  name?: string;
+  age?: number;
+  location?: string;
+  species?: string;
+  [key: string]: unknown;
+}
+
 export interface ChatResponse {
   success: boolean;
   response?: string;
   error?: string;
-  sources?: any[];
+  sources?: RelevantDocument[];
 }
 
 export interface RAGResponse {
   answer: string;
-  relevantDocuments: any[];
+  relevantDocuments: RelevantDocument[];
   contextUsed: string;
+}
+
+export interface InitializeResponse {
+  success: boolean;
+  tree_name?: string;
+  sessionId?: string;
+  treeAge?: number;
+  treeLocation?: string;
+  error?: string;
 }
 
 class ChatbotAPI {
@@ -21,8 +53,7 @@ class ChatbotAPI {
   }
 
   // Inizializza il chatbot con RAG
-  // Nel tuo componente ChatbotContent.tsx - parte del service
-  async initializeChatbot(tree: any, species?: string): Promise<any> {
+  async initializeChatbot(tree: Tree, species?: string): Promise<InitializeResponse> {
     try {
       console.log('📤 Invio richiesta di inizializzazione:', { 
         tree: tree?.id, 

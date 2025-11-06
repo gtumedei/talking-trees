@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState, useContext } from "react";
-import Tree from "../component/tree/Tree";
-import NoTree from "../component/tree/NoTree";
-import { UserContext } from "../layout";
-import { buildTreeContext } from "../services/TreeContextBuilder"; // Importa la funzione
-import LoginButton from "../component/ui/LoginButton";
+import Tree from "@component/tree/Tree";
+import NoTree from "@component/tree/NoTree";
+import { UserContext } from "@app/layout";
+import { buildTreeContext } from "@service/TreeContextBuilder"; // Importa la funzione
+import LoginButton from "@component/ui/LoginButton";
 
 export default function Page() {
   const { 

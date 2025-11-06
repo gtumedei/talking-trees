@@ -81,23 +81,6 @@ export async function buildTreeContext(tree, species = null, weatherData = null)
             weatherContext = await generateWeatherContext(weatherData, tree);
         }
 
-        // Helper functions
-        const safe = (value, prefix = "", suffix = "", defaultVal = "") => {
-            return value ? `${prefix}${value}${suffix}` : defaultVal;
-        };
-
-        const rimuoviZeri = (val) => {
-            try {
-                const num = parseFloat(val);
-                if (!isNaN(num)) {
-                    return Number.isInteger(num) ? num.toString() : num.toString();
-                }
-                return val.toString();
-            } catch {
-                return val.toString();
-            }
-        };
-
         // FUNZIONE generaFrase ORIGINALE CORRETTA
         const generaFrase = (df, typeInquinante, valoreAlbero) => {
     const mappaInquinanti = {
@@ -471,8 +454,6 @@ class AlberoSaggio {
     _analizza_idratazione(stats_sett, stats_dec) {
         const p = stats_sett.precipitation;
         const h = stats_sett.humidity;
-        const p_norm = stats_dec.precipitation;
-
         if (p === 0 && h < 40) {
             return `🌵 Ho sete, non piove da ${this._calcola_giorni_senza_pioggia()} giorni e l'umidità è solo al ${h.toFixed(0)}%.`;
         }
@@ -481,7 +462,6 @@ class AlberoSaggio {
 
     _analizza_temperatura(stats_sett, stats_dec) {
         const t = stats_sett.temperature.mean;
-        const t_norm = stats_dec.temp_mean;
 
         if (t > 35) return `🔥 Sto soffrendo il caldo, ${t.toFixed(1)}°C sono troppi per me.`;
         if (t < 0) return `❄️ Questo gelo mi fa male, ${t.toFixed(1)}°C sono pericolosi.`;

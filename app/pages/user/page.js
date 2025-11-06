@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useContext } from "react";
-import { getUserProfile, logoutUser } from "@/app/services/userService";
+import { getUserProfile, logoutUser } from "@service/userService";
 import { useRouter } from 'next/navigation';
 import Link from "next/link";
 import { UserContext } from "@/app/layout";
@@ -10,9 +10,9 @@ import {
   FaSignOutAlt, FaHome, FaLeaf, FaCalendarAlt, FaExternalLinkAlt,
   FaDownload 
 } from "react-icons/fa";
-import ButtonBack from "@/app/component/ui/BackButton";
+import ButtonBack from "@/component/ui/BackButton";
 import styles from './User.module.css';
-import LoginButton from "../../component/ui/LoginButton";
+import LoginButton from "@component/ui/LoginButton";
 
 export default function UserPage() {
   const { user, setUser } = useContext(UserContext);

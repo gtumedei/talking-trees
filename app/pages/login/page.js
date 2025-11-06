@@ -2,11 +2,11 @@
 
 import { Button } from "react-bootstrap";
 import { useState, useContext, useEffect } from "react";
-import { checkUserCredentials, registerUser } from '../../services/userService';
-import { UserContext } from '../../layout';
+import { checkUserCredentials, registerUser } from '@service/userService';
+import { UserContext } from '@/app/layout';
 import { useRouter } from 'next/navigation';
 import styles from './Login.module.css';
-import BackButton from "../../component/ui/BackButton";
+import BackButton from "@component/ui/BackButton";
 
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);

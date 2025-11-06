@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useContext } from "react";
+import React, { useState, useEffect, useRef, useContext, useCallback } from "react";
 import styles from './Chatbot.module.css'; // Import del modulo CSS
-import { Button, Badge, Alert, Form } from "react-bootstrap"; 
+import { Button, Badge, Form } from "react-bootstrap"; 
 import BackButton from "@/app/component/ui/BackButton";
 import { UserContext } from "@/app/layout";
-import { buildTreeContext } from "@/app/services/TreeContextBuilder";
 
 type Source = {
     title: string;
@@ -21,6 +20,27 @@ type Message = {
     sources?: Source[]; // Tipizzazione corretta
 };
 
+type TreeData = {
+    soprannome?: string;
+    [key: string]: unknown;
+};
+
+type InitializeResponse = {
+    success: boolean;
+    tree_name?: string;
+    sessionId?: string;
+    treeAge?: string;
+    treeLocation?: string;
+    error?: string;
+};
+
+type ChatResponse = {
+    success: boolean;
+    response?: string;
+    error?: string;
+    sources?: Source[];
+};
+
 // ** Service integrato direttamente nel componente (API Client) **
 class ChatbotAPIService {
     private baseURL: string;
@@ -30,7 +50,7 @@ class ChatbotAPIService {
         this.baseURL = '/api'; 
     }
 
-    async initializeChatbot(tree: any, species?: string): Promise<any> {
+    async initializeChatbot(tree: TreeData, species?: string): Promise<InitializeResponse> {
         try {
             const response = await fetch(`${this.baseURL}/chatbot`, {
                 method: 'POST',
@@ -71,7 +91,7 @@ class ChatbotAPIService {
         }
     }
 
-    async sendMessage(message: string): Promise<any> {
+    async sendMessage(message: string): Promise<ChatResponse> {
         if (!this.currentSessionId) {
             return {
                 success: false,
@@ -124,7 +144,6 @@ export default function ChatbotContent() {
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    const [currentTree, setCurrentTree] = useState("Albero Monumentale");
     const [apiStatus, setApiStatus] = useState<"checking" | "online" | "offline">("checking");
     const [showSources, setShowSources] = useState<boolean>(false);
     const [isInitialized, setIsInitialized] = useState<boolean>(false);
@@ -149,14 +168,7 @@ export default function ChatbotContent() {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
-    useEffect(() => {
-        if (!isInitialized && userContext) {
-            initializeRAGChatbot();
-            setIsInitialized(true);
-        }
-    }, [userContext, isInitialized]);
-
-    const initializeRAGChatbot = async () => {
+    const initializeRAGChatbot = useCallback(async () => {
         const { userTree, userSpecies } = userContext || {};
         
         if (!userTree) {
@@ -176,14 +188,9 @@ export default function ChatbotContent() {
         chatbotAPI.resetSession();
 
         try {
-            // Usa la funzione importata dal file separato
-            const treeContext ='Attendi e modifica';
-            
-            const result = await chatbotAPI.initializeChatbot(userTree, userSpecies, treeContext);
+            const result = await chatbotAPI.initializeChatbot(userTree as TreeData, userSpecies);
 
             if (result.success) {
-                setCurrentTree(result.tree_name || userTree.soprannome || "Albero Monumentale");
-
                 setMessages([{
                     id: 'welcome',
                     sender: "bot",
@@ -206,14 +213,14 @@ export default function ChatbotContent() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [userContext]);
 
-    const handleReconnect = async () => {
-        const { userTree, userSpecies } = userContext || {};
-        if (userTree) {
-            await initializeRAGChatbot();
+    useEffect(() => {
+        if (!isInitialized && userContext) {
+            initializeRAGChatbot();
+            setIsInitialized(true);
         }
-    };
+    }, [userContext, isInitialized, initializeRAGChatbot]);
 
     const handleSendMessage = async (text: string) => {
         if (!text.trim() || isLoading || apiStatus !== "online") return;
@@ -249,7 +256,7 @@ export default function ChatbotContent() {
                 };
                 setMessages(prev => [...prev, errorMessage]);
             }
-        } catch (error) {
+        } catch {
             const errorMessage: Message = {
                 id: `error-${Date.now()}`,
                 sender: "bot",
