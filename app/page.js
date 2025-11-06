@@ -61,9 +61,6 @@ export default function Page() {
         nome_genere: species.nome_genere
       } : null;
       
-      console.log("🌳 Dati essenziali albero:", essentialTreeData);
-      console.log("🌿 Dati essenziali specie:", essentialSpeciesData);
-      
       const result = await chatbotAPI.initializeChatbot(essentialTreeData, essentialSpeciesData);
       
       if (result.success) {
@@ -107,6 +104,8 @@ export default function Page() {
             if (foundTree.index_specie) {
               const idx = parseInt(foundTree.index_specie);
               const foundSpecies = speciesDataset[idx];
+              console.log("🌳 Dati essenziali albero:", foundTree);
+              console.log("🌿 Dati essenziali specie:", foundSpecies);
               setUserSpecies(foundSpecies || null);
             } else {
               setUserSpecies(null);

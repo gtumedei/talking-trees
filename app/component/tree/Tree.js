@@ -144,9 +144,11 @@ export default function Tree() {
           )}
 
           {/* Stato di salute attuale */}
-          <div className="d-flex justify-content-between align-items-center mb-2">
-            <p className="mt-2 fw-bold mb-0">Stato di salute {userTree["status_salute"]}</p>
-          </div>
+          {userTree["status_salute"] &&
+            <div className="d-flex justify-content-between align-items-center mb-2">
+              <p className="mt-2 fw-bold mb-0">Stato di salute {userTree["status_salute"]}</p>
+            </div>
+          }
 
           {/* Dimensioni */}
           <p className="mt-2 fw-bold">Dimensioni</p>

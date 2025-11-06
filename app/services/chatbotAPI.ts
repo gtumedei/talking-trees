@@ -1,99 +1,129 @@
-const API_BASE_URL = 'http://localhost:5000/api';
-
+// services/chatbotAPI.ts
 export interface ChatResponse {
   success: boolean;
   response?: string;
-  tree_name?: string;
-  message?: string;
   error?: string;
+  sources?: any[];
 }
 
-export interface InitializeResponse {
-  success: boolean;
-  message?: string;
-  tree_name?: string;
-  error?: string;
+export interface RAGResponse {
+  answer: string;
+  relevantDocuments: any[];
+  contextUsed: string;
 }
 
-export const chatbotAPI = {
-  async initializeChatbot(treeData: any, speciesData?: any): Promise<InitializeResponse> {
+class ChatbotAPI {
+  private baseURL: string;
+  private currentSessionId: string | null = null;
+
+  constructor() {
+    this.baseURL = process.env.NEXT_PUBLIC_API_URL || '/api';
+  }
+
+  // Inizializza il chatbot con RAG
+  // Nel tuo componente ChatbotContent.tsx - parte del service
+  async initializeChatbot(tree: any, species?: string): Promise<any> {
     try {
-      console.log('🚀 Inizializzazione chatbot...');
-      
-      const response = await fetch(`${API_BASE_URL}/initialize-chatbot`, {
+      console.log('📤 Invio richiesta di inizializzazione:', { 
+        tree: tree?.id, 
+        species,
+        treeObject: tree 
+      });
+
+      const requestBody = {
+        action: 'initialize',
+        tree: tree,
+        species: species
+      };
+
+      console.log('📦 Body della richiesta:', JSON.stringify(requestBody, null, 2));
+
+      const response = await fetch(`${this.baseURL}/chatbot`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
-          tree_data: treeData,
-          species_data: speciesData 
-        }),
+        body: JSON.stringify(requestBody),
       });
-      
+
+      console.log('📥 Risposta ricevuta:', response.status, response.statusText);
+
       if (!response.ok) {
-        throw new Error(`HTTP Error: ${response.status}`);
+        const errorText = await response.text();
+        console.error('❌ Errore risposta:', errorText);
+        throw new Error(`Errore HTTP: ${response.status} - ${errorText}`);
       }
-      
+
       const data = await response.json();
-      console.log('✅ Chatbot inizializzato:', data);
-      return data;
+      console.log('✅ Dati ricevuti:', data);
       
+      if (!data.success) {
+        throw new Error(data.error || 'Errore inizializzazione chatbot');
+      }
+
+      this.currentSessionId = data.sessionId;
+      
+      return {
+        success: true,
+        tree_name: data.treeName,
+        sessionId: data.sessionId,
+        treeAge: data.treeAge,
+        treeLocation: data.treeLocation
+      };
     } catch (error) {
-      console.error('❌ Errore inizializzazione chatbot:', error);
+      console.error('💥 Errore inizializzazione:', error);
       return {
         success: false,
-        error: 'Backend non raggiungibile. Assicurati che il server Python sia in esecuzione su localhost:5000'
+        error: error instanceof Error ? error.message : 'Errore di connessione con il servizio'
       };
-    }
-  },
-
-  async getChatbotStatus(): Promise<{success: boolean; initialized?: boolean; tree_name?: string}> {
-    try {
-      const response = await fetch(`${API_BASE_URL}/chatbot-status`);
-      if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
-      return await response.json();
-    } catch (error) {
-      return { success: false };
-    }
-  },
-
-  async sendMessage(message: string): Promise<ChatResponse> {
-    try {
-      console.log('📤 Invio messaggio:', message);
-      
-      const response = await fetch(`${API_BASE_URL}/chat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ message }),
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP Error: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      console.log('📥 Risposta ricevuta:', data);
-      return data;
-      
-    } catch (error) {
-      console.error('❌ Errore API:', error);
-      return {
-        success: false,
-        error: 'Impossibile connettersi al servizio chatbot.'
-      };
-    }
-  },
-
-  async healthCheck(): Promise<boolean> {
-    try {
-      const response = await fetch(`${API_BASE_URL}/health`);
-      return response.ok;
-    } catch (error) {
-      console.error('❌ Health check failed:', error);
-      return false;
     }
   }
-};
+  
+  // Invia messaggio con RAG
+  async sendMessage(message: string): Promise<ChatResponse> {
+    if (!this.currentSessionId) {
+      return {
+        success: false,
+        error: 'Chatbot non inizializzato. Per favore, riconnetti.'
+      };
+    }
+
+    try {
+      const response = await fetch(`${this.baseURL}/rag/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message,
+          sessionId: this.currentSessionId
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Errore HTTP: ${response.status}`);
+      }
+
+      const data: RAGResponse = await response.json();
+      
+      return {
+        success: true,
+        response: data.answer,
+        sources: data.relevantDocuments
+      };
+    } catch (error) {
+      console.error('Errore invio messaggio:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Errore di connessione'
+      };
+    }
+  }
+
+  // Reset sessione
+  resetSession() {
+    this.currentSessionId = null;
+  }
+}
+
+export const chatbotAPI = new ChatbotAPI();
