@@ -1,13 +1,20 @@
 "use client";
 
 import { useEffect, useState, useContext } from "react";
+import { useSearchParams } from "next/navigation";
 import Tree from "@component/tree/Tree";
 import NoTree from "@component/tree/NoTree";
 import { UserContext } from "@/app/layout";
-import { buildTreeContext } from "@service/TreeContextBuilder"; // Importa la funzione
+import { buildTreeContext } from "@service/TreeContextBuilder";
 import LoginButton from "@component/ui/LoginButton";
 
 export default function Page() {
+  const searchParams = useSearchParams();
+  
+  // Prendi i parametri dall'URL
+  const variant = searchParams.get('variant') || 'statico';
+  const test = searchParams.get('test');
+  
   const { 
     userTree, 
     setUserTree, 
@@ -21,11 +28,26 @@ export default function Page() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Coordinate di test
+  const getTestCoordinates = () => {
+    switch(test) {
+      case '1':
+        return { lat: 43.99872834108618, lng: 12.433481099993726 };
+      case '2':
+        return { lat: 44.49197405160085, lng: 11.345286337978994 };
+      default:
+        return null;
+    }
+  };
+
   // Carico i dataset dall'API
   useEffect(() => {
     const loadDatasets = async () => {
       try {
         console.log("📡 Iniziando caricamento dataset...");
+        console.log("🎛️  Variant dall'URL:", variant);
+        console.log("🧪 Test mode:", test || 'disattivato');
+        
         const response = await fetch('/api/loadDataset');
         if (!response.ok) {
           throw new Error('Failed to load tree data');
@@ -45,7 +67,7 @@ export default function Page() {
     };
 
     loadDatasets();
-  }, []);
+  }, [variant, test]);
 
   // Funzione per inizializzare il chatbot
   const initializeChatbotWithTree = async (tree, species) => {
@@ -125,28 +147,15 @@ export default function Page() {
     setLoading(false);
   };
 
-  // Effetto principale per gestire la logica di caricamento
-  useEffect(() => {
-    // SE userTree ESISTE GIÀ, mostra direttamente la pagina
-    if (userTree) {
-      console.log("✅ userTree già presente, mostro direttamente Tree");
-      setLoading(false);
-      return;
-    }
-
-    // ALTRIMENTI procedi con la ricerca
-    console.log("🔄 userTree non trovato, avvio ricerca...");
-
-    // Avvia la geolocalizzazione
+  // Funzione per gestire la geolocalizzazione
+  const handleGeolocation = () => {
     if (navigator.geolocation) {
       console.log("📍 Browser supporta geolocalizzazione");
       navigator.geolocation.getCurrentPosition(
         async (pos) => {
-          console.log("📍 Posizione ottenuta:", pos.coords);
-          
-          // PER TEST - coordinate temporanee
-          const lat = 43.99872834108618;
-          const lng = 12.433481099993726;
+          console.log("📍 Posizione reale ottenuta:", pos.coords);
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
           
           setUserCoords({ lat, lng }); 
           
@@ -166,21 +175,67 @@ export default function Page() {
       setError("Geolocalizzazione non supportata dal browser");
       setLoading(false);
     }
+  };
+
+  // Funzione per gestire le coordinate di test
+  const handleTestCoordinates = () => {
+    const testCoords = getTestCoordinates();
+    if (testCoords) {
+      const { lat, lng } = testCoords;
+      
+      setUserCoords({ lat, lng });
+      
+      // Se i dataset sono già caricati, cerca immediatamente l'albero
+      if (treesDataset.length > 0 && speciesDataset.length > 0) {
+        processTreeSearch(lat, lng);
+      }
+    }
+  };
+
+  // Effetto principale per gestire la logica di caricamento
+  useEffect(() => {
+    // SE userTree ESISTE GIÀ, mostra direttamente la pagina
+    if (userTree) {
+      console.log("✅ userTree già presente, mostro direttamente Tree");
+      setLoading(false);
+      return;
+    }
+
+    // ALTRIMENTI procedi con la ricerca
+    console.log("🔄 userTree non trovato, avvio ricerca...");
+
+    // Se è attiva la modalità test, usa le coordinate di test
+    if (test) {
+      handleTestCoordinates();
+    } else {
+      // Altrimenti usa la geolocalizzazione reale
+      handleGeolocation();
+    }
   }, []); // Eseguito solo al mount
 
   // Effetto per gestire la ricerca quando i dataset sono pronti
   useEffect(() => {
     const handleDatasetReadySearch = async () => {
-      // Solo se userTree non esiste e abbiamo coordinate (simulate per il test)
+      // Solo se userTree non esiste e abbiamo coordinate
       if (!userTree && treesDataset.length > 0 && speciesDataset.length > 0) {
-        const lat = 43.99872834108618;
-        const lng = 12.433481099993726;
-        await processTreeSearch(lat, lng);
+        if (test) {
+          // Modalità test - usa le coordinate di test
+          const testCoords = getTestCoordinates();
+          if (testCoords) {
+            await processTreeSearch(testCoords.lat, testCoords.lng);
+          }
+        } else {
+          // Modalità normale - usa le coordinate simulate (per ora)
+          // Questo verrà sostituito dalla geolocalizzazione reale
+          const lat = 43.99872834108618;
+          const lng = 12.433481099993726;
+          await processTreeSearch(lat, lng);
+        }
       }
     };
 
     handleDatasetReadySearch();
-  }, [treesDataset, speciesDataset]); // Eseguito quando i dataset sono caricati
+  }, [treesDataset, speciesDataset, test]); // Eseguito quando i dataset sono caricati
 
   if (loading) {
     return (
@@ -210,7 +265,7 @@ export default function Page() {
     <>
       <main>
         <LoginButton />
-        {userTree ? <Tree /> : <NoTree />}
+        {userTree ? <Tree variant={variant} /> : <NoTree />}
       </main>
     </>
   );

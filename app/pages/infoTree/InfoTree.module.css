@@ -50,33 +50,13 @@
 }
 
 /* --- COLORI UNIFORMI --- */
-.bg-technical {
-  background-color: var(--noir) !important; /* 🖤 noir */
-}
-
-.bg-characteristics {
-  background-color: var(--green) !important;
-}
-
-.bg-geographic {
-  background-color: var(--light-myrtle) !important; /* 📍 light-myrtle */
-}
-
-.bg-ecological {
-  background-color: var(--light-flame) !important; /* 🌱 light-flame */
-}
-
-.bg-health {
-  background-color: var(--light-green) !important; /* ❤️ light-green */
-}
-
-.bg-historical {
-  background-color: var(--dark-noir) !important;
-}
-
-.bg-description {
-  background-color: var(--light-noir) !important;
-}
+.bg-technical { background-color: var(--dark-green); color: var(--light);}
+.bg-botanical { background-color: var(--green); color: var(--light);}
+.bg-geographic { background-color: var(--myrtle); color: var(--light);}
+.bg-ecological { background-color: var(--light-green); color: var(--light);}
+.bg-health { background-color: var(--flame); color: var(--light);}
+.bg-historical { background-color: var(--noir); color: var(--light);}
+.bg-description { background-color: var(--light-noir); color: var(--light);}
 
 .card-body {
   background-color: #f9f9f9 !important;
