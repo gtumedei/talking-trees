@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Tree from "@component/tree/Tree";
 import NoTree from "@component/tree/NoTree";
@@ -8,7 +8,8 @@ import { UserContext } from "@/app/layout";
 import { buildTreeContext } from "@service/TreeContextBuilder";
 import LoginButton from "@component/ui/LoginButton";
 
-export default function Page() {
+// Componente principale wrappato in Suspense
+function PageContent() {
   const searchParams = useSearchParams();
   
   // Prendi i parametri dall'URL
@@ -268,5 +269,18 @@ export default function Page() {
         {userTree ? <Tree variant={variant} /> : <NoTree />}
       </main>
     </>
+  );
+}
+
+// Componente principale con Suspense boundary
+export default function Page() {
+  return (
+    <Suspense fallback={
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <p className="fw-bold">⏳ Caricamento...</p>
+      </div>
+    }>
+      <PageContent />
+    </Suspense>
   );
 }
