@@ -44,7 +44,7 @@
     ".next/types/**/*.ts",
     "app/component/ui/Title.js",
     "app/layout.tsx",
-    "app/treedetail/page.js",
+    "app/specie/page.js",
     "app/page.js",
     "app/component/tree/NoTree.js",
     "app/component/tree/Tree.tsx",

@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Tree from "@component/tree/Tree";
 import NoTree from "@component/tree/NoTree";
 import { UserContext } from "@/app/layout";
-import { buildTreeContext } from "@service/TreeContextBuilder";
+import { buildRAGStructure, buildTreeContext } from "@service/TreeContextBuilder";
 import LoginButton from "@component/ui/LoginButton";
 
 // Componente principale wrappato in Suspense
@@ -44,18 +44,13 @@ function PageContent() {
   // Carico i dataset dall'API
   useEffect(() => {
     const loadDatasets = async () => {
-      try {
-        console.log("📡 Iniziando caricamento dataset...");
-        console.log("🎛️  Variant dall'URL:", variant);
-        console.log("🧪 Test mode:", test || 'disattivato');
-        
+      try {        
         const response = await fetch('/api/loadDataset');
         if (!response.ok) {
           throw new Error('Failed to load tree data');
         }
         
         const data = await response.json();
-        console.log("📊 Dataset ricevuto:", data);
         
         setTreesDataset(data.trees || []);
         setSpeciesDataset(data.species || []);
@@ -70,31 +65,31 @@ function PageContent() {
     loadDatasets();
   }, [variant, test]);
 
-  // Funzione per inizializzare il chatbot
+  // Funzione per inizializzare il chatbot con la struttura RAG
   const initializeChatbotWithTree = async (tree, species) => {
     if (!tree) return;
     try {
-      // Costruisci il contesto usando la funzione importata
-      const document = await buildTreeContext(tree, species);
+      // Costruisci la struttura RAG usando la nuova funzione
+      const ragStructure = await buildRAGStructure(tree, species);
       
-      // Salva il document nel context
+      console.log("📊 Struttura RAG creata:", {
+        sections: ragStructure.sections.length,
+        totalWords: ragStructure.metadata.totalWords,
+        sources: ragStructure.metadata.sources
+      });
+
+      // Salva la struttura RAG nel context invece della stringa
       if (setDocument) {
-        setDocument(document);
-        console.log("📄 Document salvato nel context:", document);
+        setDocument(ragStructure);
       }
     } catch (error) {
-      console.error("❌ Errore nell'inizializzazione dei documenti:", error);
+      console.error("❌ Errore nell'inizializzazione della struttura RAG:", error);
     }
   };
 
   // Funzione per cercare albero in base alle coordinate
   const findTreeByCoordinates = (lat, lng) => {
-    console.log("🔍 INIZIO RICERCA ALBERO");
-    console.log("Coordinate utente:", { lat, lng });
-    console.log("Numero totale di alberi nel dataset:", treesDataset.length);
-
     if (!treesDataset.length) {
-      console.log("❌ Dataset alberi vuoto!");
       return null;
     }
 
@@ -104,7 +99,6 @@ function PageContent() {
       const treeLng = parseFloat(t.lon);
   
       if (isNaN(treeLat) || isNaN(treeLng)) {
-        console.log(`❌ Coordinate non valide per albero ${index}`);
         return false;
       }
 
@@ -137,10 +131,9 @@ function PageContent() {
         setUserSpecies(null);
       }
 
-      // Inizializza il chatbot in parallelo
+      // Inizializza il chatbot in parallelo con la struttura RAG
       initializeChatbotWithTree(foundTree, foundSpecies);
     } else {
-      console.log("❌ NESSUN ALBERO TROVATO nelle vicinanze");
       setUserTree(null);
       setUserSpecies(null);
     }
@@ -151,7 +144,6 @@ function PageContent() {
   // Funzione per gestire la geolocalizzazione
   const handleGeolocation = () => {
     if (navigator.geolocation) {
-      console.log("📍 Browser supporta geolocalizzazione");
       navigator.geolocation.getCurrentPosition(
         async (pos) => {
           console.log("📍 Posizione reale ottenuta:", pos.coords);
@@ -197,13 +189,11 @@ function PageContent() {
   useEffect(() => {
     // SE userTree ESISTE GIÀ, mostra direttamente la pagina
     if (userTree) {
-      console.log("✅ userTree già presente, mostro direttamente Tree");
       setLoading(false);
       return;
     }
 
     // ALTRIMENTI procedi con la ricerca
-    console.log("🔄 userTree non trovato, avvio ricerca...");
 
     // Se è attiva la modalità test, usa le coordinate di test
     if (test) {

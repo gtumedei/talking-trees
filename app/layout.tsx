@@ -4,6 +4,30 @@ import React, { createContext, useState, useEffect, ReactNode } from "react";
 import "./globals.css";
 import { getCurrentUser } from '@service/userService';
 
+// Definisci l'interfaccia per la struttura RAG
+interface RAGSection {
+  id: string;
+  type: string;
+  content: string;
+  tags: string[];
+  metadata: {
+    source: string;
+    wordCount: number;
+    confidence?: number;
+    temporalContext?: string;
+  };
+}
+
+interface RAGStructure {
+  sections: RAGSection[];
+  metadata: {
+    treeName: string;
+    totalChunks: number;
+    totalWords: number;
+    sources: string[];
+  };
+}
+
 // Definisci l'interfaccia per il contesto
 interface UserContextType {
   userTree: any;
@@ -17,8 +41,8 @@ interface UserContextType {
   authLoading: boolean;
   history: Event[];
   setHistory: (events: Event[]) => void;
-  document: any; 
-  setDocument: (doc: any) => void;
+  document: RAGStructure | null; // Ora è una struttura RAG
+  setDocument: (doc: RAGStructure | null) => void;
 }
 
 type Event = {
@@ -38,12 +62,11 @@ export const UserContext = createContext<UserContextType | undefined>(undefined)
 export default function RootLayout({ children }: RootLayoutProps) {
   const [userTree, setUserTree] = useState<any>(null);
   const [userSpecies, setUserSpecies] = useState<any>(null);
-  const [chatbotInitialized, setChatbotInitialized] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [userCoords, setUserCoords] = useState<any>(null);
   const [history, setHistory] = useState<Event[]>([]);
-  const [document, setDocument] = useState<any>(null);
+  const [document, setDocument] = useState<RAGStructure | null>(null);
 
   useEffect(() => {
     const checkLoggedInUser = async () => {

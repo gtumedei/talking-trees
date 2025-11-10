@@ -3,12 +3,12 @@
 import { useContext } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import Image from "next/image";
-import styles from "./TreeDetail.module.css";
+import styles from "./Specie.module.css";
 import { UserContext } from "@/app/layout";
 import Title from "@component/ui/Title";
 import BackButton from "@component/ui/BackButton";
 
-export default function TreeDetail() {
+export default function Specie() {
   const { userSpecies } = useContext(UserContext);
   if (!userSpecies) return null;
 
@@ -200,7 +200,7 @@ export default function TreeDetail() {
             {userSpecies.info_abbattimento_co2 && (
               <Col xs={6}>
                 <div className={styles.card}>
-                  <Image src="/icon/co2.png" alt="CO2" width={40} height={40} />
+                  <Image src={`/icon/${userSpecies.abbattimento_co2.toLowerCase()}.png`} alt="CO2" width={40} height={40} />
                   <p className="fw-bold">Assorbimento CO₂</p>
                   <p>{userSpecies.info_abbattimento_co2}</p>
                 </div>
@@ -210,7 +210,7 @@ export default function TreeDetail() {
             {userSpecies.info_abbattimento_pm10 && (
               <Col xs={6}>
                 <div className={styles.card}>
-                  <Image src="/icon/pm10.png" alt="PM10" width={40} height={40} />
+                  <Image src={`/icon/${userSpecies.abbattimento_pm10.toLowerCase()}.png`} alt="PM10" width={40} height={40} />
                   <p className="fw-bold">Rimozione PM10</p>
                   <p>{userSpecies.info_abbattimento_pm10}</p>
                 </div>

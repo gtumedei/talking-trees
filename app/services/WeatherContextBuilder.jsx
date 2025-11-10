@@ -1,4 +1,4 @@
-// wise-tree.js
+//./services/WeatherContextBuilder.jsx
 
 class WeatherService {
   constructor() {
@@ -567,6 +567,156 @@ class WiseTree {
   }
 }
 
+
+// =============================================
+// CLASSI DI SUPPORTO (mantenute per compatibilità)
+// =============================================
+
+/**
+ * Versione JavaScript della classe AlberoSaggio (semplificata)
+ */
+class AlberoSaggio {
+    constructor(week_df, lastyear_df, tenyears_df, nome_albero = "Albero Antico", specie = "Quercia") {
+        this.week = week_df;
+        this.lastyear = lastyear_df;
+        this.tenyears = tenyears_df;
+        this.nome = nome_albero;
+        this.specie = specie;
+    }
+
+    _analizza_settimana() {
+        const stats = {
+            temperature: {
+                mean: this._safeMean(this.week.temperature_2m),
+                max: this._safeMax(this.week.temperature_2m),
+                min: this._safeMin(this.week.temperature_2m),
+                std: this._safeStd(this.week.temperature_2m)
+            },
+            humidity: this._safeMean(this.week.relative_humidity_2m),
+            precipitation: this._safeSum(this.week.precipitation),
+            wind: {
+                mean: this._safeMean(this.week.windspeed_10m),
+                max: this._safeMax(this.week.windspeed_10m)
+            },
+            pressure: this._safeMean(this.week.pressure_msl),
+            dewpoint: this._safeMean(this.week.dewpoint_2m)
+        };
+
+        stats.air_quality = this._analizza_qualita_aria_punteggio();
+        stats.uv = this.week.uv_index ? this._safeMean(this.week.uv_index) : null;
+
+        stats.escursione_termica = stats.temperature.max - stats.temperature.min;
+        stats.diff_temp_rugiada = stats.temperature.mean - stats.dewpoint;
+
+        return stats;
+    }
+
+    _analizza_decennio() {
+        try {
+            return {
+                temp_mean: this._safeMean(this.tenyears.temperature_2m_mean),
+                humidity: this._safeMean(this.tenyears.relative_humidity_2m_mean),
+                precipitation: this._safeMean(this.tenyears.precipitation_sum),
+            };
+        } catch (error) {
+            return {
+                temp_mean: this._safeMean(this.tenyears.temperature_2m_mean),
+                humidity: this._safeMean(this.tenyears.relative_humidity_2m_mean),
+                precipitation: this._safeMean(this.tenyears.precipitation_sum),
+            };
+        }
+    }
+
+    _analizza_qualita_aria_punteggio() {
+        const inquinanti = ["pm10", "pm2_5", "carbon_monoxide", "nitrogen_dioxide", "sulphur_dioxide", "ozone"];
+        const inquinanti_disponibili = inquinanti.filter(col => this.week[col]);
+
+        if (inquinanti_disponibili.length === 0) return null;
+
+        let punteggio = 100;
+
+        if (this.week.pm2_5) {
+            const pm25 = this._safeMean(this.week.pm2_5);
+            if (pm25 > 50) punteggio -= 25;
+            else if (pm25 > 35) punteggio -= 20;
+            else if (pm25 > 25) punteggio -= 15;
+            else if (pm25 > 15) punteggio -= 10;
+        }
+
+        return Math.max(punteggio, 0);
+    }
+
+    _analizza_idratazione(stats_sett) {
+        const p = stats_sett.precipitation;
+        const h = stats_sett.humidity;
+        if (p === 0 && h < 40) {
+            return `🌵 Ho sete, non piove da ${this._calcola_giorni_senza_pioggia()} giorni e l'umidità è solo al ${h.toFixed(0)}%.`;
+        }
+        return `💧 Sto bene, l'umidità è al ${h.toFixed(0)}%.`;
+    }
+
+    _analizza_temperatura(stats_sett) {
+        const t = stats_sett.temperature.mean;
+
+        if (t > 35) return `🔥 Sto soffrendo il caldo, ${t.toFixed(1)}°C sono troppi per me.`;
+        if (t < 0) return `❄️ Questo gelo mi fa male, ${t.toFixed(1)}°C sono pericolosi.`;
+        
+        return `🌤️ La temperatura di ${t.toFixed(1)}°C mi sta bene.`;
+    }
+
+    _analizza_qualita_aria(punteggio) {
+        if (punteggio === null) return "🌬️ Non so com'è l'aria oggi.";
+        if (punteggio > 80) return "🌬️ L'aria è buona oggi.";
+        return "😷 L'aria non è delle migliori.";
+    }
+
+    genera_riflessione_completa() {
+        const stats_sett = this._analizza_settimana();
+        const stats_dec = this._analizza_decennio();
+
+        const messaggi = [
+            `• ${this._analizza_idratazione(stats_sett, stats_dec)}`,
+            `• ${this._analizza_temperatura(stats_sett, stats_dec)}`,
+            `• ${this._analizza_qualita_aria(stats_sett.air_quality)}`
+        ];
+
+        return `🌳 **Come sto oggi - ${this.nome}** 🌳\n\n${messaggi.join('\n')}\n\n_Con affetto, ${this.nome}_ 🌿`;
+    }
+
+    // Helper methods
+    _safeMean(arr) {
+        if (!arr || arr.length === 0) return 0;
+        const sum = arr.reduce((a, b) => a + b, 0);
+        return sum / arr.length;
+    }
+
+    _safeMax(arr) {
+        if (!arr || arr.length === 0) return 0;
+        return Math.max(...arr);
+    }
+
+    _safeMin(arr) {
+        if (!arr || arr.length === 0) return 0;
+        return Math.min(...arr);
+    }
+
+    _safeStd(arr) {
+        if (!arr || arr.length === 0) return 0;
+        const mean = this._safeMean(arr);
+        const squareDiffs = arr.map(value => Math.pow(value - mean, 2));
+        return Math.sqrt(this._safeMean(squareDiffs));
+    }
+
+    _safeSum(arr) {
+        if (!arr || arr.length === 0) return 0;
+        return arr.reduce((a, b) => a + b, 0);
+    }
+
+    _calcola_giorni_senza_pioggia() {
+        return 3;
+    }
+}
+
 /**
  * Funzione principale che restituisce una stringa con la riflessione dello stato dell'albero
  * basata sui dati meteorologici della posizione specificata
@@ -592,4 +742,4 @@ async function weatherReflection(latitude, longitude) {
 }
 
 // Esporta SOLO la funzione weatherReflection
-module.exports = { weatherReflection };
+module.exports = { weatherReflection, AlberoSaggio};

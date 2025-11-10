@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useContext, useCallback } from "react";
-import styles from './Chatbot.module.css'; // Import del modulo CSS
+import styles from './Chatbot.module.css';
 import { Button, Badge, Form } from "react-bootstrap"; 
 import BackButton from "@/app/component/ui/BackButton";
 import { UserContext } from "@/app/layout";
@@ -9,7 +9,7 @@ import { UserContext } from "@/app/layout";
 type Source = {
     title: string;
     uri: string;
-    content: string; // Snippet del documento
+    content: string;
 };
 
 type Message = {
@@ -17,126 +17,108 @@ type Message = {
     sender: "bot" | "user";
     text: string;
     timestamp: Date;
-    sources?: Source[]; // Tipizzazione corretta
+    sources?: Source[];
 };
 
 type TreeData = {
     soprannome?: string;
+    anni?: number;
+    posizione?: string;
     [key: string]: unknown;
 };
 
-type InitializeResponse = {
-    success: boolean;
-    tree_name?: string;
-    sessionId?: string;
-    treeAge?: string;
-    treeLocation?: string;
-    error?: string;
+// Funzioni helper separate
+const buildHistoryContent = (history: any[]): string => {
+    if (!history || history.length === 0) return "";
+    
+    const eventsByCategory = groupEventsByCategory(history);
+    let content = "Eventi storici significativi che ho vissuto:\n\n";
+    
+    Object.entries(eventsByCategory).forEach(([category, events]) => {
+        content += `${category}:\n`;
+        (events as any[]).forEach(event => {
+            content += `- ${event.year}: ${event.text}\n`;
+        });
+        content += "\n";
+    });
+
+    return content.trim();
 };
 
-type ChatResponse = {
-    success: boolean;
-    response?: string;
-    error?: string;
-    sources?: Source[];
+const groupEventsByCategory = (history: any[]): { [category: string]: any[] } => {
+    return history.reduce((acc, event) => {
+        const category = event.category || 'Altri Eventi';
+        if (!acc[category]) {
+            acc[category] = [];
+        }
+        acc[category].push(event);
+        return acc;
+    }, {} as { [category: string]: any[] });
 };
 
-// ** Service integrato direttamente nel componente (API Client) **
-class ChatbotAPIService {
-    private baseURL: string;
-    private currentSessionId: string | null = null;
+const calculateHistoryWordCount = (history: any[]): number => {
+    return history.reduce((count, event) => {
+        return count + (event.text?.split(/\s+/).length || 0) + 3; // +3 per l'anno e formattazione
+    }, 0);
+};
 
-    constructor() {
-        this.baseURL = '/api'; 
+
+// Funzioni helper per interagire con api/rag/route.py
+const chatbotAPI = {
+  resetSession: () => {}, // non serve più per ora, ma lasciamo placeholder
+
+  async initializeChatbot(treeData: any, ragStructure: any) {
+    try {
+      const res = await fetch("/api/rag", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "initialize_space",
+          ragStructure: ragStructure
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Errore inizializzazione RAG");
+
+      return {
+        success: data.success,
+        message: data.message,
+        tree_name: treeData?.name || "albero monumentale",
+        treeAge: treeData?.age || null,
+        treeLocation: treeData?.location || null,
+      };
+    } catch (err: any) {
+      return { success: false, error: err.message };
     }
+  },
 
-    async initializeChatbot(tree: TreeData, species?: string): Promise<InitializeResponse> {
-        try {
-            const response = await fetch(`${this.baseURL}/chatbot`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    action: 'initialize',
-                    tree,
-                    species
-                }),
-            });
+  async sendMessage(query: string) {
+    try {
+      const res = await fetch("/api/rag", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "query",
+          query: query
+        }),
+      });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || `Errore HTTP: ${response.status}`);
-            }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Errore query RAG");
 
-            const data = await response.json();
-
-            if (!data.success) {
-                throw new Error(data.error || 'Errore inizializzazione chatbot');
-            }
-
-            this.currentSessionId = data.sessionId;
-
-            return {
-                success: true,
-                tree_name: data.treeName,
-                sessionId: data.sessionId,
-                treeAge: data.treeAge,
-                treeLocation: data.treeLocation
-            };
-        } catch (error) {
-            console.error('Errore inizializzazione:', error);
-            return {
-                success: false,
-                error: error instanceof Error ? error.message : 'Errore di connessione'
-            };
-        }
+      return {
+        success: data.success,
+        response: data.response,
+        sources: data.sources || []
+      };
+    } catch (err: any) {
+      return { success: false, error: err.message };
     }
+  }
+};
 
-    async sendMessage(message: string): Promise<ChatResponse> {
-        if (!this.currentSessionId) {
-            return {
-                success: false,
-                error: 'Chatbot non inizializzato. Prova a riconnetterti.'
-            };
-        }
 
-        try {
-            const response = await fetch(`${this.baseURL}/chatbot`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    action: 'chat',
-                    message,
-                    sessionId: this.currentSessionId
-                }),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || `Errore HTTP: ${response.status}`);
-            }
-
-            const data = await response.json();
-
-            return {
-                success: true,
-                response: data.answer,
-                sources: data.relevantDocuments as Source[]
-            };
-        } catch (error) {
-            console.error('Errore invio messaggio:', error);
-            return {
-                success: false,
-                error: error instanceof Error ? error.message : 'Errore di connessione'
-            };
-        }
-    }
-
-    resetSession() {
-        this.currentSessionId = null;
-    }
-}
-
-const chatbotAPI = new ChatbotAPIService();
 
 export default function ChatbotContent() {
     const userContext = useContext(UserContext);
@@ -147,6 +129,7 @@ export default function ChatbotContent() {
     const [apiStatus, setApiStatus] = useState<"checking" | "online" | "offline">("checking");
     const [showSources, setShowSources] = useState<boolean>(false);
     const [isInitialized, setIsInitialized] = useState<boolean>(false);
+    const [ragStructureDebug, setRagStructureDebug] = useState<string>("");
 
     const QUICK_REPLIES = [
       "Qual è il tuo ricordo più antico?",
@@ -168,8 +151,93 @@ export default function ChatbotContent() {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
+    // Funzione per costruire la struttura RAG con history integrata
+    const buildRAGStructureWithHistory = useCallback((document: any, history?: any[]) => {
+        if (!document || !document.sections) {
+            console.warn("❌ Documento RAG non valido");
+            return document;
+        }
+
+        // Crea una copia profonda della struttura RAG
+        const enhancedRAGStructure = JSON.parse(JSON.stringify(document));
+        
+        // Se abbiamo dati di history, integriamoli nella sezione DATI_STORICI esistente
+        if (history && history.length > 0) {
+            
+            const historyContent = buildHistoryContent(history);
+            const historyWordCount = calculateHistoryWordCount(history);
+            
+            // Cerca la sezione DATI_STORICI esistente
+            const existingHistoricalSectionIndex = enhancedRAGStructure.sections.findIndex(
+                (section: any) => section.type === 'DATI_STORICI'
+            );
+
+            if (existingHistoricalSectionIndex !== -1) {
+                // Se esiste già una sezione DATI_STORICI, aggiungiamo i dati di history                
+                const existingSection = enhancedRAGStructure.sections[existingHistoricalSectionIndex];
+                
+                // Combina il contenuto esistente con i nuovi dati di history
+                const combinedContent = existingSection.content + "\n\n" + historyContent;
+                
+                // Aggiorna la sezione esistente
+                enhancedRAGStructure.sections[existingHistoricalSectionIndex] = {
+                    ...existingSection,
+                    content: combinedContent,
+                    tags: [...new Set([...existingSection.tags, '#EVENTI', '#CRONOLOGIA', '#MEMORIA_STORICA'])],
+                    metadata: {
+                        ...existingSection.metadata,
+                        wordCount: existingSection.metadata.wordCount + historyWordCount,
+                        confidence: Math.max(existingSection.metadata.confidence || 0.8, 0.9)
+                    }
+                };
+            } else {
+                // Se non esiste una sezione DATI_STORICI, creiamone una nuova                
+                const historySection = {
+                    id: 'historical_events',
+                    type: 'DATI_STORICI',
+                    content: historyContent,
+                    tags: ['#STORIA', '#EVENTI', '#CRONOLOGIA', '#MEMORIA_STORICA'],
+                    metadata: {
+                        source: 'historical_timeline',
+                        wordCount: historyWordCount,
+                        confidence: 0.9,
+                        temporalContext: 'storico'
+                    }
+                };
+
+                enhancedRAGStructure.sections.push(historySection);
+            }
+
+            // Aggiorna i metadati globali
+            enhancedRAGStructure.metadata = {
+                ...enhancedRAGStructure.metadata,
+                totalChunks: enhancedRAGStructure.sections.length,
+                totalWords: enhancedRAGStructure.sections.reduce((sum: number, section: any) => 
+                    sum + (section.metadata?.wordCount || 0), 0),
+                sources: [...new Set([...(enhancedRAGStructure.metadata?.sources || []), 'historical_timeline'])]
+            };
+
+            // Salva anche per visualizzazione nell'UI
+            const historicalSection = enhancedRAGStructure.sections.find((s: any) => s.type === 'DATI_STORICI');
+            setRagStructureDebug(`
+STRUTTURA RAG INIZIALIZZATA:
+- Sezioni totali: ${enhancedRAGStructure.sections.length}
+- Parole totali: ${enhancedRAGStructure.metadata.totalWords}
+- Eventi storici integrati: ${history.length}
+- Fonti: ${enhancedRAGStructure.metadata.sources.join(', ')}
+
+SEZIONE DATI_STORICI AGGIORNATA:
+${historicalSection?.content || 'Nessuna sezione storica trovata'}
+            `);
+        } else {
+            setRagStructureDebug("ℹ️  Nessun dato history disponibile per l'integrazione");
+        }
+
+        return enhancedRAGStructure;
+    }, []);
+
     const initializeRAGChatbot = useCallback(async () => {
-        const { userTree, userSpecies } = userContext || {};
+        const { userTree, userSpecies, document, history } = userContext || {};
         
         if (!userTree) {
             setMessages([{
@@ -184,20 +252,44 @@ export default function ChatbotContent() {
 
         setApiStatus("checking");
         setIsLoading(true);
-
         chatbotAPI.resetSession();
 
         try {
-            const result = await chatbotAPI.initializeChatbot(userTree as TreeData, userSpecies);
+            // Costruisci la struttura RAG potenziata con history
+            const enhancedRAGStructure = buildRAGStructureWithHistory(document, history);
+
+            if (!enhancedRAGStructure || !enhancedRAGStructure.sections) {
+                throw new Error("Struttura RAG non valida");
+            }
+
+            const result = await chatbotAPI.initializeChatbot(
+                userTree as TreeData, 
+                enhancedRAGStructure
+            );
 
             if (result.success) {
+                const historicalSection = enhancedRAGStructure.sections.find((s: any) => s.type === 'DATI_STORICI');
+                const hasHistoricalEvents = history && history.length > 0;
+                
+                const historyInfo = hasHistoricalEvents 
+                    ? `, inclusi ${history.length} eventi storici che ho vissuto personalmente` 
+                    : '';
+                    
+                const welcomeMessage = `Ciao! Sono ${result.tree_name || "un albero monumentale"} 🌳\n\n` +
+                    `Ho vissuto per ${result.treeAge || "molti"} anni a ${result.treeLocation || "questo luogo"} ` +
+                    `e ho accumulato tante esperienze e ricordi. ` +
+                    `La mia memoria contiene ${enhancedRAGStructure.sections.length} sezioni di conoscenza` +
+                    `${historyInfo}. ` +
+                    `Chiedimi qualsiasi cosa sulla mia vita, le mie esperienze o i cambiamenti che ho visto!`;
+
                 setMessages([{
                     id: 'welcome',
                     sender: "bot",
-                    text: `Ciao! Sono ${result.tree_name || "un albero monumentale"} 🌳\n\nHo vissuto per ${result.treeAge || "molti"} anni e ho molte storie da raccontare. Chiedimi qualsiasi cosa sulla mia vita, le mie esperienze o i cambiamenti che ho visto!`,
+                    text: welcomeMessage,
                     timestamp: new Date()
                 }]);
                 setApiStatus("online");
+                
             } else {
                 throw new Error(result.error || "Errore inizializzazione RAG");
             }
@@ -213,7 +305,7 @@ export default function ChatbotContent() {
         } finally {
             setIsLoading(false);
         }
-    }, [userContext]);
+    }, [userContext, buildRAGStructureWithHistory]);
 
     useEffect(() => {
         if (!isInitialized && userContext) {
@@ -339,10 +431,6 @@ export default function ChatbotContent() {
                                 ))}
                             </div>
                         )}
-
-                        <div className={styles.timestamp}>
-                            {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </div>
                     </div>
                 ))}
 

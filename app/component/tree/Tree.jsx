@@ -67,7 +67,7 @@ export default function Tree({ variant = "statico" }) {
         return {
           treeButtonText: "Parla con l'albero",
           treeButtonIcon: <FaTree />,
-          treeButtonHref: "/pages/chatbotScientifico",
+          treeButtonHref: "/pages/chatbot",
           treeButtonClass: "green"
         };
       case "chatbot-narrativo":
@@ -130,7 +130,7 @@ export default function Tree({ variant = "statico" }) {
           {userTree["index_specie"] === "" ? (
             <span>userTree["specie nome scientifico"]</span>
           ) : (
-            <Link href="/pages/treedetail" className={styles.nameLink}>{userTree["specie nome scientifico"]}</Link>
+            <Link href="/pages/specie" className={styles.nameLink}>{userTree["specie nome scientifico"]}</Link>
           )}
         </p>
       )}
