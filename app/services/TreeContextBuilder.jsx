@@ -561,94 +561,7 @@ function generatePollutionSentences(pollutionData, typeInquinante, valoreAlbero)
   return frasi;
 }
 
-/**
- * Genera contesto meteorologico
- */
-async function generateWeatherContext(weatherData, tree) {
-  try {
-    const { week, lastyear, tenyears } = weatherData;
-    const albero = new AlberoSaggio(week, lastyear, tenyears, tree.soprannome || "Albero Monumentale");
-    return albero.genera_riflessione_completa();
-  } catch (error) {
-    console.warn('Errore nella generazione del contesto meteorologico:', error);
-    return "Dati meteorologici non disponibili";
-  }
-}
 
-// =============================================
-// CLASSE ALBEROSAGGIO (semplificata)
-// =============================================
-
-class AlberoSaggio {
-  constructor(week_df, lastyear_df, tenyears_df, nome_albero = "Albero Antico") {
-    this.week = week_df;
-    this.lastyear = lastyear_df;
-    this.tenyears = tenyears_df;
-    this.nome = nome_albero;
-  }
-
-  _analizza_settimana() {
-    const stats = {
-      temperature: {
-        mean: this._safeMean(this.week.temperature_2m),
-        max: this._safeMax(this.week.temperature_2m),
-        min: this._safeMin(this.week.temperature_2m)
-      },
-      humidity: this._safeMean(this.week.relative_humidity_2m),
-      precipitation: this._safeSum(this.week.precipitation)
-    };
-    
-    stats.escursione_termica = stats.temperature.max - stats.temperature.min;
-    return stats;
-  }
-
-  _analizza_idratazione(stats_sett) {
-    const p = stats_sett.precipitation;
-    const h = stats_sett.humidity;
-    if (p === 0 && h < 40) {
-      return `🌵 Ho sete, non piove da giorni e l'umidità è solo al ${h.toFixed(0)}%.`;
-    }
-    return `💧 Sto bene, l'umidità è al ${h.toFixed(0)}%.`;
-  }
-
-  _analizza_temperatura(stats_sett) {
-    const t = stats_sett.temperature.mean;
-    if (t > 35) return `🔥 Sto soffrendo il caldo, ${t.toFixed(1)}°C sono troppi per me.`;
-    if (t < 0) return `❄️ Questo gelo mi fa male, ${t.toFixed(1)}°C sono pericolosi.`;
-    return `🌤️ La temperatura di ${t.toFixed(1)}°C mi sta bene.`;
-  }
-
-  genera_riflessione_completa() {
-    const stats_sett = this._analizza_settimana();
-    const messaggi = [
-      `• ${this._analizza_idratazione(stats_sett)}`,
-      `• ${this._analizza_temperatura(stats_sett)}`
-    ];
-
-    return `🌳 **Come sto oggi - ${this.nome}** 🌳\n\n${messaggi.join('\n')}\n\n_Con affetto, ${this.nome}_ 🌿`;
-  }
-
-  // Helper methods
-  _safeMean(arr) {
-    if (!arr || arr.length === 0) return 0;
-    return arr.reduce((a, b) => a + b, 0) / arr.length;
-  }
-
-  _safeMax(arr) {
-    if (!arr || arr.length === 0) return 0;
-    return Math.max(...arr);
-  }
-
-  _safeMin(arr) {
-    if (!arr || arr.length === 0) return 0;
-    return Math.min(...arr);
-  }
-
-  _safeSum(arr) {
-    if (!arr || arr.length === 0) return 0;
-    return arr.reduce((a, b) => a + b, 0);
-  }
-}
 
 // =============================================
 // METODO LEGACY (per compatibilità)
@@ -659,38 +572,45 @@ class AlberoSaggio {
  */
 export async function buildTreeContext(tree, species = null, weatherData = null) {
   // =============================================
-  // 🔥 Chiamata a /api/rag/route.py per inizializzare lo spazio vettoriale
+  // 🌤️ Prepara i dati di contesto (meteo, specie, ecc.)
+  // =============================================
+  const weather = await weatherReflection(tree.lat, tree.lon);
+  const ragStructure = await buildRAGStructure(tree, species, weather);
+  const context = buildContextString(ragStructure);
+
+  // =============================================
+  // 🚀 Chiamata all’endpoint dello Space HuggingFace
   // =============================================
   try {
-    const response = await fetch('/api/rag', {
+    const response = await fetch('https://benny2199-rag-microservice.hf.space/initialize_space', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        action: 'initialize_space',   // ← tipo di azione
-        tree,
-        ragStructure
+        context: context // 👈 il backend ora si aspetta "context" con struttura RAG completa
       })
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = await response.json().catch(() => ({}));
       console.error('Errore backend RAG:', errorData.error || response.statusText);
       throw new Error(errorData.error || `Errore HTTP ${response.status}`);
     }
 
     const data = await response.json();
-    if (!data.success) {
+    if (!data.success && !data.documents) {
       throw new Error(data.error || 'Errore inizializzazione spazio vettoriale');
     }
 
-    console.log('✅ Spazio vettoriale inizializzato correttamente per:', tree?.soprannome || 'albero sconosciuto');
+    console.log(
+      `✅ Spazio vettoriale inizializzato correttamente con ${data.documents || '?'} documenti per:`,
+      tree?.soprannome || 'albero sconosciuto'
+    );
   } catch (err) {
-    console.error('❌ Errore durante la chiamata a /api/rag:', err.message);
+    console.error('❌ Errore durante la chiamata a initialize_space:', err.message);
   }
 
   // =============================================
-  // Ritorna il contesto legacy
+  // 🌿 Ritorna il contesto legacy per compatibilità
   // =============================================
   return context;
 }
-
