@@ -70,7 +70,7 @@ function PageContent() {
     if (!tree) return;
     try {
       // Costruisci la struttura RAG usando la nuova funzione
-      const ragStructure = await buildRAGStructure(tree, species);
+      const ragStructure = await buildTreeContext(tree, species);
       
       console.log("📊 Struttura RAG creata:", {
         sections: ragStructure.sections.length,
