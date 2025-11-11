@@ -8,12 +8,14 @@ export async function GET() {
     
     const pollutionData = fs.readFileSync(path.join(dataDir, 'df_inquinanti.csv'), 'utf8');
     const locationData = fs.readFileSync(path.join(dataDir, 'df_comuni.csv'), 'utf8');
+    const eventData = fs.readFileSync(path.join(dataDir, 'df_event.csv'), 'utf8');
   
     const pollution = parseCSV(pollutionData);
     const locations = parseCSV(locationData);
+    const events = parseCSV(eventData);
     
     // CORREGGI: restituisci 'locations' invece di 'locationData'
-    return NextResponse.json({ pollution, locations });
+    return NextResponse.json({ pollution, locations, events });
   } catch (error) {
     console.error('Error loading CSV files:', error);
     return NextResponse.json(

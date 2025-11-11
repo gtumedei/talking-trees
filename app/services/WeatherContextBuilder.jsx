@@ -723,7 +723,7 @@ class AlberoSaggio {
  */
 async function weatherReflection(latitude, longitude) {
   try {
-    const weatherService = new WeatherService();
+    /*const weatherService = new WeatherService();
     const weatherData = await weatherService.getAllWeatherData(latitude, longitude);
     
     const wiseTree = new WiseTree(
@@ -733,7 +733,8 @@ async function weatherReflection(latitude, longitude) {
     );
 
     const reflection = wiseTree.generateReflection();
-    return reflection;
+    return reflection;*/
+    return "temp"
 
   } catch (error) {
     console.error('Errore nella generazione della riflessione:', error);

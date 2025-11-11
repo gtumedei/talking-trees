@@ -1,307 +1,240 @@
 // ./services/TreeContextBuilder.jsx
 import { weatherReflection } from './WeatherContextBuilder';
 
-// =============================================
-// STRUTTURA DATI PER IL SISTEMA RAG
-// =============================================
-
-// =============================================
-// METODO 1: CREA STRUTTURA RAG PROCESSABILE
-// =============================================
-
 /**
  * Crea una struttura dati direttamente per l'albero
  */
-async function buildRAGStructure(tree, species = null, weatherData = null) {
-  if (!tree) return { sections: [], metadata: { treeName: 'Unknown', totalChunks: 0, totalWords: 0, sources: [] } };
+async function buildTreeStructure(tree, species, luogoData, pollutionData, historicalData, weatherData) {
+  const sections = [];
 
-  try {
-    const sections = [];
-    const treeName = tree.soprannome || 'Albero Monumentale';
-    
-    // Carica dati asincroni in parallelo
-    const [pollutionData, placeData, treeReflection] = await loadAsyncData(tree, species);
+  // Funzioni sincrone
+  const albero = buildDatiAlbero(tree);
+  const descrizione = buildDatiDescrizione(tree);
+  const botanica = buildDatiSpecie(species);
+  const ecologia = buildEcologicalSection(species, pollutionData);
+  const luogo = buildDatiLuogo(tree, luogoData);
+  const storia = buildHistoricalSection(tree, historicalData);
+  const salute = buildHealthSection(tree, weatherData);
 
-    // 1. SEZIONE DATI ALBERO (Identità e caratteristiche fisiche)
-    const treeDataSection = buildTreeDataSection(tree, treeName);
-    if (treeDataSection) sections.push(treeDataSection);
+  [albero, descrizione, botanica, ecologia, luogo, salute, storia].forEach(s => {
+    if (s) sections.push(s);
+  });
 
-    // 2. SEZIONE DATI BOTANICI (Specie e caratteristiche botaniche)
-    const botanicalSections = buildBotanicalSections(tree, species, pollutionData);
-    sections.push(...botanicalSections);
-
-    // 3. SEZIONE DATI LUOGO (Contesto geografico e culturale)
-    const locationSections = buildLocationSections(tree, placeData);
-    sections.push(...locationSections);
-
-    // 4. SEZIONE DATI METEOROLOGICI (Contesto ambientale attuale)
-    if (weatherData) {
-      const weatherSection = await buildWeatherSection(weatherData, tree, treeReflection);
-      if (weatherSection) sections.push(weatherSection);
-    }
-
-    // 5. SEZIONE DATI STORICI (Contesto temporale)
-    const historicalSection = buildHistoricalSection(tree);
-    if (historicalSection) sections.push(historicalSection);
-
-    return {
-      sections,
-      metadata: {
-        treeName,
-        totalChunks: sections.length,
-        totalWords: sections.reduce((sum, section) => sum + section.metadata.wordCount, 0),
-        sources: [...new Set(sections.map(s => s.metadata.source))]
-      }
-    };
-
-  } catch (error) {
-    console.error('Errore nella costruzione della struttura RAG:', error);
-    return { sections: [], metadata: { treeName: 'Error', totalChunks: 0, totalWords: 0, sources: [] } };
-  }
-}
-
-// =============================================
-// METODO 2: CREA STRINGA COMPLETA DALLA STRUTTURA
-// =============================================
-
-/**
- * Trasforma la struttura in una stringa di contesto completa
- */
-function buildContextString(ragStructure) {
-  if (!ragStructure || !ragStructure.sections.length) {
-    return "Contesto non disponibile per questo albero.";
-  }
-
-  const sectionsByType = ragStructure.sections.reduce((acc, section) => {
-    if (!acc[section.type]) acc[section.type] = [];
-    acc[section.type].push(section.content);
-    return acc;
-  }, {});
-
-  const s = sectionsByType; // alias per leggibilità
-  const textParts = [];
-
-  // =========================================================
-  // DATI ALBERO
-  // =========================================================
-  if (s.DATI_ALBERO) {
-    textParts.push("DATI ALBERO:");
-    const baseData = s.DATI_ALBERO.join("\n");
-    textParts.push(baseData.trim());
-  }
-
-  // =========================================================
-  // DATI DESCRIZIONE (deriva da eventuale campo 'desc')
-  // =========================================================
-  const descSection = ragStructure.sections.find(sec => 
-    sec.type === "DATI_ALBERO" && sec.content.toLowerCase().includes("descrizione:")
-  );
-  if (descSection) {
-    const descText = descSection.content
-      .split("\n")
-      .filter(line => line.toLowerCase().startsWith("descrizione:"))
-      .map(line => line.replace(/^descrizione:\s*/i, ""))
-      .join(" ");
-    if (descText) {
-      textParts.push("\nDATI DESCRIZIONE:");
-      textParts.push(descText.trim());
-    }
-  }
-
-  // =========================================================
-  // DATI SPECIE BOTANICHE
-  // =========================================================
-  if (s.DATI_BOTANICI) {
-    textParts.push("\nDATI SPECIE BOTANICHE:");
-    textParts.push(s.DATI_BOTANICI.join("\n").trim());
-  }
-
-  // =========================================================
-  // DATI ECOLOGICI/AMBIENTALI
-  // =========================================================
-  if (s.DATI_ECOLOGICI) {
-    textParts.push("\nDATI ECOLOGICI/AMBIENTALI:");
-    textParts.push(s.DATI_ECOLOGICI.join("\n").trim());
-  }
-
-  // =========================================================
-  // DATI LUOGO
-  // =========================================================
-  if (s.DATI_LUOGO) {
-    textParts.push("\nDATI LUOGO:");
-    const luogoText = s.DATI_LUOGO.join("\n").trim();
-
-    // Aggiunge automaticamente descrizione e contesto se presenti
-    textParts.push(luogoText);
-  }
-
-  // =========================================================
-  // DATI SALUTE (meteorologici e stato fisico)
-  // =========================================================
-  if (s.DATI_METEOROLOGICI || s.DATI_SALUTE) {
-    textParts.push("\nDATI SALUTE:");
-    const weatherPart = (s.DATI_METEOROLOGICI || []).concat(s.DATI_SALUTE || []).join("\n");
-    textParts.push(weatherPart.trim());
-  }
-
-  // =========================================================
-  // DATI STORICI
-  // =========================================================
-  if (s.DATI_STORICI) {
-    textParts.push("\nDATI STORICI:");
-    textParts.push(s.DATI_STORICI.join("\n").trim());
-  }
-
-  return textParts.join("\n").trim();
-}
-
-// =============================================
-// FUNZIONI DI SUPPORTO PER IL METODO 1
-// =============================================
-
-/**
- * Carica tutti i dati asincroni in parallelo
- */
-async function loadAsyncData(tree, species) {
-  const promises = [];
-  
-  // Dati inquinanti (se necessari)
-  if (species && hasPollutionData(species)) {
-    promises.push(loadPollutionData());
-  } else {
-    promises.push(Promise.resolve(null));
-  }
-  
-  // Dati luogo
-  promises.push(loadPlaceData());
-  
-  // Riflessione albero (se coordinate disponibili)
-  if (tree.lat && tree.lon) {
-    promises.push(loadTreeReflection(tree));
-  } else {
-    promises.push(Promise.resolve(null));
-  }
-  
-  return Promise.all(promises);
-}
-
-/**
- * Costruisce la sezione dati albero
- */
-function buildTreeDataSection(tree, treeName) {
-  const contentParts = [];
-  
-  // Identità
-  contentParts.push(`Nome: ${treeName}`);
-  
-  // Dimensioni e caratteristiche fisiche
-  const dimensions = [];
-  if (tree.altezza_m) dimensions.push(`Altezza ${tree.altezza_m} metri`);
-  if (tree.circonferenza_fusto_cm) dimensions.push(`Circonferenza fusto ${tree.circonferenza_fusto_cm} cm`);
-  if (dimensions.length > 0) {
-    contentParts.push(`Dimensioni: ${dimensions.join(', ')}`);
-  }
-  
-  if (tree.criteri_monumentalita) {
-    contentParts.push(`Criteri di monumentalità: ${tree.criteri_monumentalita}`);
-  }
-  
-  if (tree.desc) {
-    contentParts.push(`Descrizione: ${tree.desc}`);
-  }
-  
-  if (contentParts.length <= 1) return null; // Solo nome, sezione non significativa
-  
   return {
-    id: 'tree_identity',
-    type: 'DATI_ALBERO',
-    content: contentParts.join('\n'),
-    tags: ['#IDENTITA', '#MORFOLOGIA', '#MONUMENTALITA'],
-    metadata: {
-      source: 'tree_data',
-      wordCount: contentParts.join(' ').split(/\s+/).length,
-      confidence: 0.9,
-      temporalContext: 'presente'
-    }
+    treeId: tree["id scheda"] || tree.id || null,
+    name: tree.soprannome || tree["specie nome volgare"],
+    sections
   };
 }
 
-/**
- * Costruisce le sezioni botaniche
- */
-function buildBotanicalSections(tree, species, pollutionData) {
-  const sections = [];
-  
-  if (!species) return sections;
-  
-  // Sezione principale botanica
-  const botanicalParts = [];
-  const nomeSpecie = [];
-  
-  if (tree.specie_nome_volgare) nomeSpecie.push(tree.specie_nome_volgare);
-  if (tree.specie_nome_scientifico) nomeSpecie.push(tree.specie_nome_scientifico);
-  if (nomeSpecie.length > 0) {
-    botanicalParts.push(`Nome specie: ${nomeSpecie.join(' - ')}`);
-  }
-  
-  if (species.portamento) botanicalParts.push(`Portamento: ${species.portamento}`);
-  if (species.info_tipologia) botanicalParts.push(`Tipologia: ${species.info_tipologia}`);
-  
-  // Chioma
-  const chiomaDetails = [];
-  if (species.forma_chioma) chiomaDetails.push(`Forma: ${species.forma_chioma}`);
-  if (species.info_densita_chioma) chiomaDetails.push(`Densità: ${species.info_densita_chioma}`);
-  if (chiomaDetails.length > 0) {
-    botanicalParts.push(`Chioma: ${chiomaDetails.join(', ')}`);
-  }
-  
-  // Caratteristiche stagionali
-  const seasonalFeatures = [];
-  if (species.info_colori_autunnali) seasonalFeatures.push(`Colori autunnali: ${species.info_colori_autunnali}`);
-  if (species.info_frutti) seasonalFeatures.push(`Frutti: ${species.info_frutti}`);
-  if (species.info_fioritura) {
-    const epoca = species.epoca_di_fioritura ? ` (${species.epoca_di_fioritura})` : '';
-    seasonalFeatures.push(`Fioritura: ${species.info_fioritura}${epoca}`);
-  }
-  if (seasonalFeatures.length > 0) {
-    botanicalParts.push(seasonalFeatures.join(', '));
-  }
-  
-  if (species.habitat) botanicalParts.push(`Habitat: ${species.habitat}`);
-  
-  // Dimensioni specie
-  const speciesSize = [];
-  if (species.size_altezza) speciesSize.push(`Altezza: ${species.size_altezza}`);
-  if (species.size_chioma) speciesSize.push(`Chioma: ${species.size_chioma}`);
-  if (speciesSize.length > 0) {
-    botanicalParts.push(`Dimensioni tipiche: ${speciesSize.join(', ')}`);
-  }
-  
-  if (botanicalParts.length > 0) {
-    sections.push({
-      id: 'botanical_data',
-      type: 'DATI_BOTANICI',
-      content: botanicalParts.join('\n'),
-      tags: ['#BOTANICA', '#SPECIE', '#MORFOLOGIA', '#FENOLOGIA'],
-      metadata: {
-        source: 'species_data',
-        wordCount: botanicalParts.join(' ').split(/\s+/).length,
-        confidence: 0.8,
-        temporalContext: 'presente'
-      }
-    });
-  }
-  
-  // Sezione ecologica (inquinanti)
-  const ecologicalSection = buildEcologicalSection(species, pollutionData);
-  if (ecologicalSection) sections.push(ecologicalSection);
-  
-  return sections;
-}
 
 /**
- * Costruisce la sezione dati ecologici
+ * Trasforma la struttura in una stringa di contesto completa,
+ * includendo solo i dati effettivamente presenti.
  */
+function buildContextString(treeStructure) {
+  if (!treeStructure?.sections?.length) return "";
+
+  const s = Object.fromEntries(
+    treeStructure.sections.map(sec => [sec.type, sec.content])
+  );
+
+  const parts = [];
+
+  // 🌳 DATI ALBERO
+  if (s["DATI_ALBERO"]) {
+    const d = s["DATI_ALBERO"];
+    const datiAlbero = [];
+
+    if (d.nome) datiAlbero.push(`- Nome: ${d.nome}`);
+    if (d.altezza || d.circonferenza)
+      datiAlbero.push(
+        `- Dimensioni: ${d.altezza ? `altezza ${d.altezza}` : ""}${
+          d.altezza && d.circonferenza ? ", " : ""
+        }${d.circonferenza ? `circonferenza fusto ${d.circonferenza}` : ""}`
+      );
+    if (d.criteri) datiAlbero.push(`- Criteri monumentalità: "${d.criteri.trim()}"`);
+
+    if (datiAlbero.length) {
+      parts.push("DATI ALBERO:");
+      parts.push(...datiAlbero);
+    }
+  }
+
+  // 📝 DESCRIZIONE
+  if (s["DATI_DESCRIZIONE"]?.trim()) {
+    parts.push("\nDATI DESCRIZIONE:");
+    parts.push(s["DATI_DESCRIZIONE"].trim());
+  }
+
+  // 🌱 SPECIE
+  if (s["DATI_SPECIE_BOTANICHE"]) {
+    const sp = s["DATI_SPECIE_BOTANICHE"];
+    const specie = [];
+
+    if (sp.nome_comune || sp.nome_scientifico)
+      specie.push(`- Specie: ${sp.nome_comune || ""}${sp.nome_comune && sp.nome_scientifico ? " - " : ""}${sp.nome_scientifico ? `(nome scientifico: ${sp.nome_scientifico})` : ""}`);
+
+    const caratteristiche = [];
+    if (sp.portamento) caratteristiche.push(`portamento ${sp.portamento}`);
+    if (sp.tipologia) caratteristiche.push(sp.tipologia);
+    if (sp.info_densita_chioma)
+      caratteristiche.push(
+        `chioma ${sp.info_densita_chioma.toLowerCase() === "densa" ? "densa" : sp.info_densita_chioma.toLowerCase()}`
+      );
+    if (sp.info_forma_chioma) caratteristiche.push(sp.info_forma_chioma.toLowerCase());
+    if (sp.info_colori_autunnali) caratteristiche.push(`colori autunnali: ${sp.info_colori_autunnali}`);
+    if (sp.info_frutti) caratteristiche.push(`frutti: ${sp.info_frutti}`);
+    if (sp.info_fioritura) caratteristiche.push(`fioritura: ${sp.info_fioritura}`);
+
+    if (caratteristiche.length)
+      specie.push(`- Caratteristiche specie: ${caratteristiche.join(", ")}`);
+    if (sp.habitat) specie.push(`- Habitat specie: ${sp.habitat}`);
+    if (sp.size_altezza || sp.size_chioma)
+      specie.push(
+        `- Dimensioni (specie):${
+          sp.size_altezza ? ` Altezza: ${sp.size_altezza}` : ""
+        }${sp.size_chioma ? `, Chioma: ${sp.size_chioma}` : ""}`
+      );
+
+    if (specie.length) {
+      parts.push("\nDATI SPECIE BOTANICHE:");
+      parts.push(...specie);
+    }
+  }
+
+  // 🌿 ECOLOGIA
+  if (s["DATI_ECOLOGICI/AMBIENTALI"]) {
+    const ecoData = s["DATI_ECOLOGICI/AMBIENTALI"];
+    const eco = Object.entries(ecoData).filter(([nome, obj]) => obj?.valore?.trim());
+
+    if (eco.length) {
+      parts.push("\nDATI ECOLOGICI/AMBIENTALI:");
+      eco.forEach(([nome, obj]) => {
+        const valore = obj.valore;
+        const descrizione = obj.descrizione?.descrizione || "";
+        parts.push(`- ${valore}`);
+        if (descrizione) parts.push(`  Descrizione: ${descrizione}`);
+      });
+    }
+  }
+
+
+  // 🩺 SALUTE
+  if (s["DATI_SALUTE"]) {
+    const h = s["DATI_SALUTE"];
+    const salute = [];
+    if (h.stato_salute && h.stato_salute != 'Non specificato') salute.push(`- Stato di salute: ${h.stato_salute}`);
+    if (h.condizioni_meteo) salute.push(`${h.condizioni_meteo}`);
+
+    if (salute.length) {
+      parts.push("\nDATI SALUTE:");
+      parts.push(...salute);
+    }
+  }
+
+  // 🕰️ STORIA
+  if (s["DATI_STORICI"]) {
+    const hs = s["DATI_STORICI"];
+    const storia = [];
+    if (hs.eta) storia.push(`- Età: ${hs.eta}`);
+    if (hs.eventi) storia.push(`- Eventi avvenuti durante la vita: ${hs.eventi}`);
+
+    if (storia.length) {
+      parts.push("\nDATI STORICI:");
+      parts.push(...storia);
+    }
+  }
+
+  // 📍 LUOGO
+  if (s["DATI_LUOGO"]) {
+    const l = s["DATI_LUOGO"];
+    const luogo = [];
+    if (l.comune || l.provincia || l.regione || l.popolazione || l.superficie) {
+      luogo.push(
+        `- Luogo: ${
+          l.comune ? `(comune: ${l.comune})` : ""
+        }${l.provincia ? `, (provincia: ${l.provincia})` : ""}${
+          l.regione ? `, (regione: ${l.regione})` : ""
+        }${l.popolazione ? `, (popolazione: ${l.popolazione})` : ""}${
+          l.superficie ? `, (superficie: ${l.superficie})` : ""
+        }`
+      );
+    }
+    if (l.desc) luogo.push(`- Descrizione territorio: ${l.desc}`);
+    if (l.contesto_storico) luogo.push(`- Contesto storico: ${l.contesto_storico}`);
+    if (l.contesto_culturale) luogo.push(`- Contesto culturale: ${l.contesto_culturale}`);
+
+    if (luogo.length) {
+      parts.push("\nDATI LUOGO:");
+      parts.push(...luogo);
+    }
+  }
+
+  return parts.join("\n").trim();
+}
+
+
+// =============================================
+// FUNZIONI DI SUPPORTO
+// =============================================
+
+/**DATI ALBERO */
+function buildDatiAlbero(tree) {
+  if (!tree) return null;
+
+  return {
+    id: 'tree_data',
+    type: 'DATI_ALBERO',
+    content: {
+      nome: tree.soprannome || tree["specie nome volgare"] || "Albero monumentale",
+      altezza: tree["altezza_clear"] ? `${tree["altezza_clear"]}m` : null,
+      circonferenza: tree["circonferenza_clear"] ? `${tree["circonferenza_clear"]}cm` : null,
+      criteri: tree["criteri di monumentalità"] || null
+    },
+    metadata: { source: 'tree_dataset' }
+  };
+}
+
+/**DATI DESCRIZIONE */
+function buildDatiDescrizione(tree) {
+  if (!tree?.desc) return null;
+
+  return {
+    id: 'tree_description',
+    type: 'DATI_DESCRIZIONE',
+    content: tree.desc.trim(),
+    metadata: { source: 'tree_dataset' }
+  };
+}
+
+
+/**DATI SPECIE*/
+function buildDatiSpecie(species) {
+  if (!species) return null;
+
+  return {
+    id: 'species_data',
+    type: 'DATI_SPECIE_BOTANICHE',
+    content: {
+      nome_comune: species.nome_comune,
+      nome_scientifico: species.nome_specie,
+      portamento: species.info_portamento || species.portamento,
+      tipologia: species.info_tipologia,
+      chioma_forma: species.info_forma_chioma || species.forma_chioma,
+      chioma_densita: species.info_densita_chioma,
+      colori_autunnali: species.info_colori_autunnali,
+      frutti: species.info_frutti,
+      fioritura: species.info_fioritura,
+      habitat: species.habitat,
+      size_altezza: species.size_altezza,
+      size_chioma: species.size_chioma
+    },
+    metadata: { source: 'species_dataset' }
+  };
+}
+
+/**DATI_ECOLOGICI/AMBIENTALI */
 function buildEcologicalSection(species, pollutionData) {
   const inquinanti = {
     "CO₂": species.info_abbattimento_co2,
@@ -310,226 +243,167 @@ function buildEcologicalSection(species, pollutionData) {
     "PM10": species.info_abbattimento_pm10,
     "SO₂": species.info_abbattimento_so2,
   };
-  
-  const ecologicalParts = [];
-  
-  Object.entries(inquinanti).forEach(([nome, valore]) => {
-    if (valore) {
-      let info = `Abbattimento ${nome}: ${valore}`;
-      
-      // Aggiungi dettagli specifici
-      if (nome === "CO₂" && species.abbattimento_co2) {
-        info += ` (${species.abbattimento_co2})`;
-      } else if (nome === "PM10" && species.abbattimento_pm10) {
-        info += ` (${species.abbattimento_pm10})`;
-      }
-      
-      // Aggiungi frasi contestuali se disponibili
-      if (pollutionData) {
-        const frasiExtra = generatePollutionSentences(pollutionData, nome, valore);
-        if (frasiExtra.length > 0) {
-          info += ` → ${frasiExtra.join(', ')}`;
-        }
-      }
-      
-      ecologicalParts.push(info);
+
+  const pollutantInfo = {
+    "CO₂": {descrizione: "La CO₂ è l'anidride carbonica, un gas serra che contribuisce al riscaldamento globale."}, //🌱
+    "PM10": {descrizione: "Il PM10 è un insieme di particelle sottili sospese nell'aria, dannose per l'apparato respiratorio."},//💨
+    "O₃": {descrizione: "L'O₃ (ozono troposferico) è un inquinante secondario che si forma in presenza di sole e smog."},//☀️
+    "NO₂": {descrizione: "Il NO₂ (biossido di azoto) deriva dai gas di scarico e influisce sulla salute dei polmoni."}, //🌫️
+    "SO₂": {descrizione: "Il SO₂ (biossido di zolfo) è prodotto da combustioni industriali e può causare piogge acide."} //🏭
+  };
+
+  const ecologicalParts = {};
+
+  for (const [nome, valore] of Object.entries(inquinanti)) {
+    if (!valore) continue; // salta inquinanti senza dati
+
+    // costruisce la stringa base di abbattimento
+    let info = `Abbattimento ${nome}: ${valore}`;
+
+    // aggiunge eventuali dettagli numerici se presenti
+    if (nome === "CO₂" && species.abbattimento_co2) {
+      info += ` (${species.abbattimento_co2})`;
+    } else if (nome === "PM10" && species.abbattimento_pm10) {
+      info += ` (${species.abbattimento_pm10})`;
     }
-  });
-  
-  if (ecologicalParts.length === 0) return null;
-  
+
+    // aggiunge eventuali frasi extra generate dai dati esterni
+    if (pollutionData) {
+      const frasiExtra = generatePollutionSentences(pollutionData, nome, valore);
+      if (frasiExtra?.length) {
+        info += ` → ${frasiExtra.join(', ')}`;
+      }
+    }
+
+    ecologicalParts[nome] = {
+      valore: info,
+      descrizione: pollutantInfo[nome] || ""
+    };
+  }
+
+  if (Object.keys(ecologicalParts).length === 0) return null;
+
   return {
-    id: 'ecological_data',
-    type: 'DATI_ECOLOGICI',
-    content: ecologicalParts.join('\n'),
-    tags: ['#ECOLOGIA', '#INQUINAMENTO', '#SOSTENIBILITA', '#BENEFICI_AMBIENTALI'],
+    id: "ecological_data",
+    type: "DATI_ECOLOGICI/AMBIENTALI",
+    content: ecologicalParts,
+    metadata: { source: "pollution_data" },
+  };
+}
+
+
+/**DATI LUOGO*/
+function buildDatiLuogo(tree, placeData = {}) {
+  const luogo = Array.isArray(placeData)
+    ? placeData.find(p => p.comune === tree.comune)
+    : placeData.comune === tree.comune
+      ? placeData
+      : null;
+  return {
+    id: 'place_data',
+    type: 'DATI_LUOGO',
+    content: {
+      comune: tree.comune,
+      provincia: tree.provincia,
+      regione: tree.regione,
+      popolazione: luogo.num_residenti,
+      superficie: luogo.superficie,
+      descrizione: luogo.desc,
+      contesto_storico: luogo.storia,
+      contesto_culturale: luogo.culturale
+    },
+    metadata: { source: 'geo_dataset' }
+  };
+}
+
+
+/**DATI SALUTE */
+function buildHealthSection(tree, weatherString) {
+  const statoSalute = tree.stato_salute || 'Non specificato';
+  const descrizioneMeteo = weatherString || 'Nessuna informazione meteorologica disponibile.';
+
+  return {
+    id: 'health_data',
+    type: 'DATI_SALUTE',
+    content: {
+      stato_salute: statoSalute,
+      condizioni_meteo: descrizioneMeteo
+    },
+    tags: ['#SALUTE', '#AMBIENTE', '#CONDIZIONI_METEO'],
     metadata: {
-      source: 'pollution_data',
-      wordCount: ecologicalParts.join(' ').split(/\s+/).length,
+      source: 'tree_health',
       confidence: 0.7,
       temporalContext: 'presente'
     }
   };
 }
 
-/**
- * Costruisce le sezioni relative al luogo
- */
-function buildLocationSections(tree, placeData) {
-  const sections = [];
-  
-  // Sezione base luogo
-  const locationParts = [];
-  const luogoParts = [];
-  
-  if (tree.comune) luogoParts.push(tree.comune);
-  if (tree.provincia) luogoParts.push(`(${tree.provincia})`);
-  if (tree.regione) luogoParts.push(tree.regione);
-  
-  if (luogoParts.length > 0) {
-    locationParts.push(`Luogo: ${luogoParts.join(', ')}`);
-  }
-  
-  if (locationParts.length > 0) {
-    sections.push({
-      id: 'basic_location',
-      type: 'DATI_LUOGO',
-      content: locationParts.join('\n'),
-      tags: ['#GEOGRAFIA', '#TERRITORIO', '#LOCALIZZAZIONE'],
-      metadata: {
-        source: 'tree_location',
-        wordCount: locationParts.join(' ').split(/\s+/).length,
-        confidence: 0.9,
-        temporalContext: 'presente'
-      }
-    });
-  }
-  
-  // Sezione dati culturali approfonditi
-  const culturalSection = buildCulturalSection(tree, placeData);
-  if (culturalSection) sections.push(culturalSection);
-  
-  return sections;
-}
-
-/**
- * Costruisce la sezione dati culturali
- */
-function buildCulturalSection(tree, placeData) {
-  if (!placeData || !Array.isArray(placeData) || !tree.comune) return null;
-  
-  try {
-    const datiComune = placeData.filter(item => 
-      item && item.comune && 
-      item.comune.toString().toLowerCase().trim() === tree.comune.toString().toLowerCase().trim()
-    );
-    
-    if (datiComune.length === 0) return null;
-    
-    const datoComune = datiComune[0];
-    const culturalParts = [];
-    
-    // Dati demografici e territoriali
-    if (datoComune.num_residenti) {
-      culturalParts.push(`Popolazione: ${datoComune.num_residenti} abitanti`);
-    }
-    if (datoComune.superficie) {
-      culturalParts.push(`Superficie: ${datoComune.superficie} km²`);
-    }
-    
-    // Dati culturali e storici
-    if (datoComune.desc) {
-      culturalParts.push(`Descrizione territorio: ${datoComune.desc}`);
-    }
-    if (datoComune.storia) {
-      culturalParts.push(`Contesto storico: ${datoComune.storia}`);
-    }
-    if (datoComune.culturale) {
-      culturalParts.push(`Contesto culturale: ${datoComune.culturale}`);
-    }
-    
-    if (culturalParts.length === 0) return null;
-    
-    return {
-      id: 'cultural_data',
-      type: 'DATI_LUOGO',
-      content: culturalParts.join('\n'),
-      tags: ['#CULTURA', '#STORIA', '#DEMOGRAFIA', '#TERRITORIO'],
-      metadata: {
-        source: 'place_data',
-        wordCount: culturalParts.join(' ').split(/\s+/).length,
-        confidence: 0.7,
-        temporalContext: 'storico'
-      }
-    };
-    
-  } catch (error) {
-    console.warn('Errore nel processare dati culturali:', error);
-    return null;
-  }
-}
-
-/**
- * Costruisce la sezione meteorologica
- */
-async function buildWeatherSection(weatherData, tree, treeReflection) {
-  try {
-    let content = '';
-    
-    if (treeReflection) {
-      content = treeReflection;
-    } else {
-      const weatherContext = await generateWeatherContext(weatherData, tree);
-      content = weatherContext;
-    }
-    
-    if (!content || content.includes('❌ Errore')) return null;
-    
-    // Aggiungi stato salute se disponibile
-    let fullContent = '';
-    if (tree.stato_salute) {
-      fullContent += `Stato salute: ${tree.stato_salute}\n\n`;
-    }
-    fullContent += content;
-    
-    return {
-      id: 'weather_health',
-      type: 'DATI_METEOROLOGICI',
-      content: fullContent,
-      tags: ['#METEOROLOGIA', '#SALUTE', '#CLIMA', '#AMBIENTE'],
-      metadata: {
-        source: 'weather_data',
-        wordCount: fullContent.split(/\s+/).length,
-        confidence: 0.6,
-        temporalContext: 'presente'
-      }
-    };
-    
-  } catch (error) {
-    console.warn('Errore nella costruzione sezione meteorologica:', error);
-    return null;
-  }
-}
-
-/**
- * Costruisce la sezione storica
- */
-function buildHistoricalSection(tree) {
+/**DATI STORICI */
+function buildHistoricalSection(tree, historicalData) { 
   if (!tree.eta) return null;
-  
+
+  const currentYear = new Date().getFullYear();
+  const age = parseInt(tree.eta.match(/\d+/));
+  if (isNaN(age)) return null;
+
+  const yearMin = currentYear - age;
+  const filteredEvents = historicalData.filter(
+    e => e.year >= yearMin && e.year <= currentYear
+  );
+
+  // Prendi fino a 3 eventi casuali
+  const sampled = filteredEvents
+    .sort(() => 0.5 - Math.random())
+    .slice(0, 3)
+    .map(e => `(${e.year} ${e.text})`);
+
+  const eventiString = sampled.join(', ');
+
   return {
     id: 'historical_data',
     type: 'DATI_STORICI',
-    content: `Età: ${tree.eta}`,
+    content: {eta: tree.eta,
+              eventi: eventiString},
     tags: ['#STORIA', '#TEMPO', '#LONGEVITA', '#CRONOLOGIA'],
     metadata: {
       source: 'tree_age',
-      wordCount: tree.eta.split(/\s+/).length,
+      wordCount: (tree.eta + ' ' + eventiString).split(/\s+/).length,
       confidence: 0.8,
       temporalContext: 'storico'
     }
   };
 }
 
+
 // =============================================
 // FUNZIONI DI SUPPORTO GENERALI
 // =============================================
 
-/**
- * Header per le sezioni
- */
-function getSectionHeader(sectionType) {
-  const headers = {
-    'DATI_ALBERO': 'DATI ALBERO:',
-    'DATI_BOTANICI': 'DATI SPECIE BOTANICHE:',
-    'DATI_ECOLOGICI': 'DATI ECOLOGICI:',
-    'DATI_LUOGO': 'DATI LUOGO:',
-    'DATI_METEOROLOGICI': 'DATI METEOROLOGICI E SALUTE:',
-    'DATI_SALUTE': 'DATI SALUTE:',
-    'DATI_STORICI': 'DATI STORICI:'
-  };
-  
-  return headers[sectionType] || `${sectionType.replace('_', ' ')}:`;
+/** Carica tutti i dataset asincroni in parallelo */
+async function loadAsyncData(tree, species) {
+  const promises = [];
+
+  // Dati inquinanti
+  const pollutionPromise = (species && hasPollutionData(species))
+    ? loadPollutionData()
+    : Promise.resolve(null);
+  promises.push(pollutionPromise);
+
+  // Dati luogo
+  promises.push(loadPlaceData());
+
+  // Dati storici
+  promises.push(loadHistoricalData());
+
+  // Condizioni meteo
+  const weatherPromise = (tree.lat && tree.lon)
+    ? weatherReflection(tree.lat, tree.lon)
+    : Promise.resolve(null);
+  promises.push(weatherPromise);
+
+  // Ritorna i risultati come oggetto strutturato
+  const [pollutionData, placeData, historicalData, weatherData] = await Promise.all(promises);
+  return { pollutionData, placeData, historicalData, weatherData };
 }
 
 /**
@@ -567,49 +441,122 @@ async function loadPlaceData() {
   }
 }
 
-/**
- * Verifica se ci sono dati sugli inquinanti
- */
-function hasPollutionData(species) {
-  return species.info_abbattimento_co2 ||
-         species.info_abbattimento_no2 ||
-         species.info_abbattimento_o3 ||
-         species.info_abbattimento_pm10 ||
-         species.info_abbattimento_so2;
+async function loadHistoricalData() {
+  try {
+    const response = await fetch('/api/addDataset');
+    if (!response.ok) return null;
+
+    const rawData = await response.json();
+    // dataset tipo CSV convertito in JSON
+    if (Array.isArray(rawData)) return rawData;
+    if (rawData.events && Array.isArray(rawData.events)) return rawData.events;
+    return null;
+  } catch (error) {
+    console.warn('Impossibile caricare dataset storico:', error);
+    return null;
+  }
 }
 
-/**
- * Genera frasi sugli inquinanti (versione semplificata)
- */
+/** * Verifica se ci sono dati sugli inquinanti */ 
+function hasPollutionData(species) { 
+  return species.info_abbattimento_co2 || species.info_abbattimento_no2 || 
+    species.info_abbattimento_o3 || species.info_abbattimento_pm10 || species.info_abbattimento_so2; 
+}
+
+/** Genera frasi sugli inquinanti (versione semplificata)*/
 function generatePollutionSentences(pollutionData, typeInquinante, valoreAlbero) {
-  // Implementazione semplificata - mantenere la logica originale se necessaria
-  const frasi = [];
+  if (!pollutionData) return [`Dati non disponibili per ${typeInquinante}`];
+
+  const mappaInquinanti = {
+    "CO₂": "CO2",
+    "NO₂": "NO2",
+    "O₃": "O3",
+    "SO₂": "SO2",
+    "PM10": "PM10"
+  };
+  typeInquinante = mappaInquinanti[typeInquinante] || typeInquinante;
+
+  // Normalizza il dataset
+  let dataArray =
+    Array.isArray(pollutionData) && Array.isArray(pollutionData[0])
+      ? pollutionData[0]
+      : pollutionData.pollution && Array.isArray(pollutionData.pollution)
+      ? pollutionData.pollution
+      : Array.isArray(pollutionData)
+      ? pollutionData
+      : null;
+
+  if (!dataArray) return [`Dati non disponibili per ${typeInquinante}`];
+
+  // Filtra le righe per inquinante
+  const subset = dataArray.filter(item => item && item.inquinante === typeInquinante);
+  if (subset.length === 0) return [`Nessuna informazione per ${typeInquinante}`];
+
+  // Scegli quante frasi generare (1 o 2)
   const nFrasi = Math.random() > 0.5 ? 2 : 1;
-  
+  const frasi = [];
+
   for (let i = 0; i < nFrasi; i++) {
-    // Qui puoi integrare la tua logica generaFrase originale
-    frasi.push(`Contributo significativo all'abbattimento del ${typeInquinante}`);
+    const row = subset[Math.floor(Math.random() * subset.length)];
+
+    try {
+      // 🔢 Parsing numeri e unità
+      const parseValore = (str) => {
+        const match = String(str).trim().match(/^([\d.,]+)\s*([a-zA-Zµμ²³%/]+)?$/);
+        if (!match) return { num: NaN, unit: "" };
+        return { num: parseFloat(match[1].replace(",", ".")), unit: match[2] || "" };
+      };
+
+      const { num: valoreNum, unit: unitValore } = parseValore(row.valore);
+      const valoreAlberoNum = parseFloat(valoreAlbero);
+      if (isNaN(valoreNum) || isNaN(valoreAlberoNum)) {
+        frasi.push(`Abbattimento ${typeInquinante}: ${valoreAlbero}`);
+        continue;
+      }
+
+      // ⚖️ Calcola rapporto
+      const fattore = valoreNum !== 0 ? valoreAlberoNum / valoreNum : 1.0;
+
+      // Scala la dipendenza mantenendo unità
+      let nuovaDip = row.dipendenza || "";
+      const { num: dipNum, unit: dipUnit } = parseValore(nuovaDip);
+      if (!isNaN(dipNum)) {
+        const nuovoNum = Math.round(dipNum * fattore * 100) / 100;
+        nuovaDip = `${nuovoNum} ${dipUnit}`.trim();
+      }
+
+      // ✏️ Costruzione frase
+      let frase = row.desc || "";
+      frase = frase.replace(/^"|"$/g, "");
+      frase = frase.replace(/\{\$valore\}/g, `${valoreAlberoNum} ${unitValore}`.trim());
+      frase = frase.replace(/\{\$dipendenza\}/g, nuovaDip);
+      frase = frase.replace(/\{\$tempo\}/g, row.tempo || "1 anno");
+
+      // Aggiungi frase generata
+      frasi.push(frase);
+    } catch (err) {
+      console.warn(`Errore in generatePollutionSentences(${typeInquinante}):`, err);
+      frasi.push(`Abbattimento ${typeInquinante}: ${valoreAlbero}`);
+    }
   }
-  
+
   return frasi;
 }
 
 
-
 // =============================================
-// METODO LEGACY (per compatibilità)
+// METODO PER API
 // =============================================
-
-/**
- * Metodo legacy che mantiene la compatibilità con il codice esistente
- */
-export async function buildTreeContext(tree, species = null) {
-  // =============================================
-  // 🌤️ Prepara i dati di contesto (meteo, specie, ecc.)
-  // =============================================
-  const weather = await weatherReflection(tree.lat, tree.lon);
-  const ragStructure = await buildRAGStructure(tree, species, weather);
+export async function buildTreeContext(tree, species = null, variant="statico") {
+  
+  const { pollutionData, placeData, historicalData, weatherData } = await loadAsyncData(tree, species);
+  const ragStructure = await buildTreeStructure(tree, species, placeData, pollutionData, historicalData, weatherData);
   const context = buildContextString(ragStructure);
+
+  console.log(ragStructure)
+
+  if(variant == "statico")
+    return {ragStructure: ragStructure, id_spacevector: ''};
 
   // =============================================
   // 🚀 Chiamata all’endpoint dello Space HuggingFace

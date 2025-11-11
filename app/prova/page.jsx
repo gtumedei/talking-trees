@@ -71,7 +71,7 @@ function PageContent() {
     if (!tree) return;
     try {
       // Costruisci la struttura RAG usando la nuova funzione
-      const result = await buildTreeContext(tree, species);
+      const result = await buildTreeContext(tree, species, variant);
       setDocument(result.ragStructure);
       setIdSpacevector(result.id_spacevector)
     } catch (error) {

@@ -9,9 +9,10 @@ import Title from "@/app/component/ui/Title";
 import BackButton from "@component/ui/BackButton";
 
 export default function InfoTree() {
-  const { userTree, userSpecies, document, history } = useContext(UserContext);
+  const { document } = useContext(UserContext);
+  console.log(document)
 
-  if (!userTree || !document) {
+  if (!document) {
     return (
       <Container className="text-center mt-5">
         <h2>Dati non disponibili</h2>
@@ -20,319 +21,111 @@ export default function InfoTree() {
     );
   }
 
-  // --- PARSER DELLA NUOVA STRUTTURA RAG ---
-  const parseRAGStructure = (ragStructure) => {
-    const result = {};
-    
-    if (!ragStructure.sections || !Array.isArray(ragStructure.sections)) {
-      return result;
-    }
+  // Estrae i contenuti delle varie sezioni
+  const getSection = (id) => document.sections?.find((s) => s.id === id)?.content || {};
 
-    // Raggruppa le sezioni per tipo
-    ragStructure.sections.forEach(section => {
-      const sectionType = section.type;
-      
-      if (!result[sectionType]) {
-        result[sectionType] = {};
-      }
+  const albero = getSection("tree_data");
+  const descrizione = document.sections?.find((s) => s.id === "tree_description")?.content || "";
+  const specie = getSection("species_data");
+  const ecologia = getSection("ecological_data");
+  const luogo = getSection("place_data");
+  const salute = getSection("health_data");
+  const storia = getSection("historical_data");
 
-      // Processa il contenuto della sezione in base al tipo
-      switch(sectionType) {
-        case 'DATI_ALBERO':
-          result[sectionType] = parseTreeSection(section.content);
-          break;
-        case 'DATI_BOTANICI':
-          result[sectionType] = parseBotanicalSection(section.content);
-          break;
-        case 'DATI_ECOLOGICI':
-          result[sectionType] = parseEcologicalSection(section.content);
-          break;
-        case 'DATI_LUOGO':
-          result[sectionType] = parseLocationSection(section.content);
-          break;
-        case 'DATI_METEOROLOGICI':
-          result[sectionType] = parseWeatherSection(section.content);
-          break;
-        case 'DATI_STORICI':
-          result[sectionType] = parseHistoricalSection(section.content);
-          break;
-        default:
-          result[sectionType] = { "Contenuto": section.content };
-      }
-    });
+  // Dati formattati
+  const criteri = albero?.criteri || "N/D";
+  const circonferenza = albero?.circonferenza ? albero.circonferenza : "N/D";
+  const altezza = albero?.altezza ? albero.altezza : "N/D";
 
-    return result;
-  };
+  const chioma =
+    specie?.chioma?.forma || specie?.chioma?.densità
+      ? `${specie.chioma.forma || ""} (${specie.chioma.densità || ""})`
+      : "N/D";
 
-  // Funzioni di parsing per ogni tipo di sezione
-  const parseTreeSection = (content) => {
-    const lines = content.split('\n');
-    const data = {};
-    
-    lines.forEach(line => {
-      if (line.includes(':')) {
-        const [key, ...valueParts] = line.split(':');
-        data[key.trim()] = valueParts.join(':').trim();
-      }
-    });
-    
-    return data;
-  };
+  const dimensioniSpecie = specie?.dimensioni_specie
+    ? `(Altezza: ${specie.dimensioni_specie.altezza_m}, Chioma: ${specie.dimensioni_specie.chioma})`
+    : "N/D";
 
-  const parseBotanicalSection = (content) => {
-    const lines = content.split('\n');
-    const data = {};
-    
-    lines.forEach(line => {
-      if (line.includes(':')) {
-        const [key, ...valueParts] = line.split(':');
-        data[key.trim()] = valueParts.join(':').trim();
-      }
-    });
-    
-    return data;
-  };
+  const ecologicalEntries = Object.entries(ecologia || {}).filter(([_, v]) => v);
+  const eventiStorici = storia?.eventi?.length ? storia.eventi : [];
 
-  const parseEcologicalSection = (content) => {
-    const lines = content.split('\n');
-    const data = {};
-    
-    lines.forEach(line => {
-      if (line.startsWith('Abbattimento')) {
-        const [key, ...valueParts] = line.split(':');
-        if (key && valueParts.length > 0) {
-          data[key.trim()] = valueParts.join(':').trim();
-        }
-      }
-    });
-    
-    return data;
-  };
-
-  const parseLocationSection = (content) => {
-    const lines = content.split('\n');
-    const data = {};
-    
-    lines.forEach(line => {
-      if (line.includes(':')) {
-        const [key, ...valueParts] = line.split(':');
-        data[key.trim()] = valueParts.join(':').trim();
-      }
-    });
-    
-    return data;
-  };
-
-  const parseWeatherSection = (content) => {
-    return { "Testo": content };
-  };
-
-  const parseHistoricalSection = (content) => {
-    const data = {};
-    if (content.includes(':')) {
-      const [key, value] = content.split(':');
-      data[key.trim()] = value.trim();
-    } else {
-      data["Età"] = content;
-    }
-    return data;
-  };
-
-  // --- MAPPING DELLE SEZIONI PER COMPATIBILITÀ ---
-  const mapRAGSectionsToLegacyFormat = (parsedData) => {
-    return {
-      "DATI ALBERO": parsedData["DATI_ALBERO"] || {},
-      "DATI SPECIE BOTANICHE": parsedData["DATI_BOTANICI"] || {},
-      "DATI ECOLOGICI": parsedData["DATI_ECOLOGICI"] || {},
-      "DATI LUOGO": parsedData["DATI_LUOGO"] || {},
-      "DATI SALUTE": parsedData["DATI_METEOROLOGICI"] || {},
-      "DATI STORICI": parsedData["DATI_STORICI"] || {}
-    };
-  };
-
-  // Parsing della struttura RAG
-  const parsedRAG = parseRAGStructure(document);
-  const parsed = mapRAGSectionsToLegacyFormat(parsedRAG);
-
-  // Estrazione dati per compatibilità
-  const treeData = parsed["DATI ALBERO"] || {};
-  const speciesData = parsed["DATI SPECIE BOTANICHE"] || {};
-  const ecologicalData = parsed["DATI ECOLOGICI"] || {};
-  const locationData = parsed["DATI LUOGO"] || {};
-  const healthData = parsed["DATI SALUTE"] || {};
-  const historicalData = parsed["DATI STORICI"] || {};
-
-  // --- STORIA + ETÀ ---
-  const enhancedHistoricalData = { ...historicalData };
-  if (history && history.length > 0) {
-    enhancedHistoricalData["Eventi Storici"] = history.map((e) => `${e.year}: ${e.text}`).join("; ");
-  }
-
-  // --- FUNZIONI ABBATTIMENTO ---
-  const getCleanAbbattimentoValue = (value) => value?.split("→")[0].trim() || "";
-  const getAbbattimentoComparisons = (value) =>
-    value?.includes("→") ? value.split("→").slice(1).join("→").trim() : "";
-
-  // --- EMOJI E DESCRIZIONI PER INQUINANTI ---
+  // --- Info inquinanti ---
   const pollutantInfo = {
-    "Abbattimento CO₂": {
-      emoji: "🌱",
-      descrizione: "La CO₂ è l'anidride carbonica, un gas serra che contribuisce al riscaldamento globale.",
-    },
-    "Abbattimento PM10": {
-      emoji: "💨",
-      descrizione: "Il PM10 è un insieme di particelle sottili sospese nell'aria, dannose per l'apparato respiratorio.",
-    },
-    "Abbattimento O₃": {
-      emoji: "☀️",
-      descrizione: "L'O₃ (ozono troposferico) è un inquinante secondario che si forma in presenza di sole e smog.",
-    },
-    "Abbattimento NO₂": {
-      emoji: "🌫️",
-      descrizione: "Il NO₂ (biossido di azoto) deriva dai gas di scarico e influisce sulla salute dei polmoni.",
-    },
-    "Abbattimento SO₂": {
-      emoji: "🏭",
-      descrizione: "Il SO₂ (biossido di zolfo) è prodotto da combustioni industriali e può causare piogge acide.",
-    },
-  };
-
-  // --- RENDER DELLE SEZIONI DINAMICHE ---
-  const renderSectionIfData = (sectionData, renderFunction) => {
-    if (!sectionData || Object.keys(sectionData).length === 0) return null;
-    return renderFunction();
+    "CO₂": { emoji: "🌱", descrizione: "Riduce la concentrazione di anidride carbonica (gas serra)." },
+    "PM10": { emoji: "💨", descrizione: "Filtra le polveri sottili sospese nell’aria." },
+    "O₃": { emoji: "☀️", descrizione: "Contribuisce a ridurre l’ozono troposferico." },
+    "NO₂": { emoji: "🌫️", descrizione: "Assorbe biossido di azoto, migliorando la qualità dell’aria." },
+    "SO₂": { emoji: "🏭", descrizione: "Contrasta il biossido di zolfo derivante dalle attività industriali." }
   };
 
   return (
     <Container className={styles.page}>
       <BackButton />
       <Title text="Info aggiuntive sul" level={1} className="text-center m-0" />
-      <Title
-        text={userTree["soprannome"] || userTree["specie nome volgare"]}
-        level={2}
-        className="text-center mb-3"
-      />
+      <Title text={document.name} level={2} className="text-center mb-3" />
 
       <Row className="g-3">
-        {/* INFORMAZIONI TECNICHE */}
+
+        {/* DATI TECNICI */}
         <Col md={12}>
           <Card className={styles.card}>
-            <Card.Header className={`${styles["bg-technical"]}`}>
+            <Card.Header className={styles["bg-technical"]}>
               <strong>Informazioni Tecniche</strong>
             </Card.Header>
             <Card.Body>
               <Row>
-                <Col md={6}>
-                  <strong>Circonferenza:</strong> {userTree["circonferenza fusto (cm)"]} cm
+                <Col md={6}><strong>Altezza:</strong> {altezza}</Col>
+                <Col md={6}><strong>Circonferenza:</strong> {circonferenza}</Col>
+                <Col md={12} className="mt-2">
+                  <strong>Criteri di monumentalità:</strong> {criteri}
                 </Col>
-                <Col md={6}>
-                  <strong>Altezza:</strong> {userTree["altezza (m)"]} m
-                </Col>
-                {userTree["altitudine (m s.l.m.)"] && (
-                  <Col md={6}>
-                    <strong>Altitudine:</strong> {userTree["altitudine (m s.l.m.)"]} m s.l.m.
-                  </Col>
-                )}
-                {userTree["eta_descrizione"] && (
-                  <Col md={6}>
-                    <strong>Età stimata:</strong> {userTree["eta_descrizione"]}
-                  </Col>
-                )}
-                {treeData["Nome"] && (
-                  <Col md={6}>
-                    <strong>Nome:</strong> {treeData["Nome"]}
-                  </Col>
-                )}
-                {treeData["Dimensioni"] && (
-                  <Col md={6}>
-                    <strong>Dimensioni:</strong> {treeData["Dimensioni"]}
-                  </Col>
-                )}
-                {treeData["Criteri di monumentalità"] && (
-                  <Col md={12}>
-                    <strong>Criteri di monumentalità:</strong> {treeData["Criteri di monumentalità"]}
-                  </Col>
-                )}
               </Row>
             </Card.Body>
           </Card>
         </Col>
 
         {/* SPECIE BOTANICA */}
-        {renderSectionIfData(speciesData, () => (
-          <Col md={6}>
-            <Card className={styles.card}>
-              <Card.Header className={`${styles["bg-botanical"]} d-flex align-items-center`}>
-                <FaLeaf className="me-2" />
-                <strong>Specie Botanica</strong>
-              </Card.Header>
-              <Card.Body>
-                <p>
-                  <strong>Nome scientifico:</strong> {userSpecies?.nome_specie}
-                </p>
-                <p>
-                  <strong>Nome comune:</strong> {userSpecies?.nome_comune}
-                </p>
-                <p>
-                  <strong>Famiglia:</strong> {userSpecies?.nome_famiglia}
-                </p>
-                {speciesData["Portamento"] && (
-                  <p>
-                    <strong>Portamento:</strong> {speciesData["Portamento"]}
-                  </p>
-                )}
-                {speciesData["Tipologia"] && (
-                  <p>
-                    <strong>Tipologia:</strong> {speciesData["Tipologia"]}
-                  </p>
-                )}
-                {speciesData["Chioma"] && (
-                  <p>
-                    <strong>Chioma:</strong> {speciesData["Chioma"]}
-                  </p>
-                )}
-                {speciesData["Colori autunnali"] && (
-                  <p>
-                    <strong>Colori e fioritura:</strong> {speciesData["Colori autunnali"]}
-                  </p>
-                )}
-                {speciesData["Habitat"] && (
-                  <p>
-                    <strong>Habitat:</strong> {speciesData["Habitat"]}
-                  </p>
-                )}
-                {speciesData["Dimensioni tipiche"] && (
-                  <p>
-                    <strong>Dimensioni tipiche:</strong> {speciesData["Dimensioni tipiche"]}
-                  </p>
-                )}
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
+        <Col md={6}>
+          <Card className={styles.card}>
+            <Card.Header className={`${styles["bg-botanical"]} d-flex align-items-center`}>
+              <FaLeaf className="me-2" />
+              <strong>Specie Botanica</strong>
+            </Card.Header>
+            <Card.Body>
+              <p><strong>Specie:</strong> {specie.nome_comune} - (<i>{specie.nome_scientifico}</i>)</p>
+              <p><strong>Caratteristiche specie:</strong> portamento {specie.portamento}, {specie.tipologia}, Chioma: {chioma}</p>
+              <p><strong>Colori autunnali:</strong> {specie.colori_autunnali}</p>
+              <p><strong>Frutti:</strong> {specie.frutti}</p>
+              <p><strong>Fioritura:</strong> {specie.fioritura}</p>
+              <p><strong>Habitat specie:</strong> {specie.habitat}</p>
+              <p><strong>Dimensioni (specie):</strong> {dimensioniSpecie}</p>
+            </Card.Body>
+          </Card>
+        </Col>
 
-        {/* DATI GEOGRAFICI */}
-        {renderSectionIfData(locationData, () => (
-          <Col md={6}>
-            <Card className={styles.card}>
-              <Card.Header className={`${styles["bg-geographic"]} d-flex align-items-center`}>
-                <FaMapMarkerAlt className="me-2" />
-                <strong>Dati Geografici</strong>
-              </Card.Header>
-              <Card.Body>
-                {locationData["Luogo"] && <p><strong>Località:</strong> {locationData["Luogo"]}</p>}
-                {locationData["Popolazione"] && <p><strong>Popolazione:</strong> {locationData["Popolazione"]} abitanti</p>}
-                {locationData["Superficie"] && <p><strong>Superficie:</strong> {locationData["Superficie"]} km²</p>}
-                {locationData["Descrizione territorio"] && <p><strong>Territorio:</strong> {locationData["Descrizione territorio"]}</p>}
-                {locationData["Contesto storico"] && <p><strong>Contesto storico:</strong> {locationData["Contesto storico"]}</p>}
-                {locationData["Contesto culturale"] && <p><strong>Contesto culturale:</strong> {locationData["Contesto culturale"]}</p>}
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
+        {/* DATI LUOGO */}
+        <Col md={6}>
+          <Card className={styles.card}>
+            <Card.Header className={`${styles["bg-geographic"]} d-flex align-items-center`}>
+              <FaMapMarkerAlt className="me-2" />
+              <strong>Dati Luogo</strong>
+            </Card.Header>
+            <Card.Body>
+              <p>
+                <strong>Luogo:</strong> (comune: {luogo.comune}), (Provincia: {luogo.provincia}), (Regione: {luogo.regione})
+                {luogo.popolazione && luogo.superficie_km2 && (
+                  <> (Popolazione: {luogo.popolazione} abitanti, Superficie: {luogo.superficie_km2} km²)</>
+                )}
+              </p>
+              <p><strong>Descrizione luogo territorio:</strong> {luogo.descrizione}</p>
+              <p><strong>Contesto storico luogo:</strong> {luogo.contesto_storico}</p>
+              <p><strong>Contesto culturale luogo:</strong> {luogo.contesto_culturale}</p>
+            </Card.Body>
+          </Card>
+        </Col>
 
-        {/* IMPATTO ECOLOGICO */}
-        {renderSectionIfData(ecologicalData, () => (
+        {/* DATI ECOLOGICI */}
+        {ecologicalEntries.length > 0 && (
           <Col md={12}>
             <Card className={styles.card}>
               <Card.Header className={`${styles["bg-ecological"]} d-flex align-items-center`}>
@@ -340,91 +133,61 @@ export default function InfoTree() {
                 <strong>Impatto Ecologico</strong>
               </Card.Header>
               <Card.Body>
-                {Object.entries(ecologicalData).map(([key, value]) => (
-                  <div key={key} className="mb-3">
-                    <strong>{pollutantInfo[key]?.emoji || "🌿"} {key}:</strong>{" "}
-                    {getCleanAbbattimentoValue(value)}
-                    {getAbbattimentoComparisons(value) && (
-                      <div className="small text-muted">
-                        {getAbbattimentoComparisons(value)}
-                      </div>
-                    )}
-                    {pollutantInfo[key] && (
-                      <div className="small text-secondary">
-                        {pollutantInfo[key].descrizione}
-                      </div>
-                    )}
-                  </div>
-                ))}
+                {ecologicalEntries.map(([key, value]) => {
+                  const base = key.replace("Abbattimento ", "");
+                  const info = pollutantInfo[base] || {};
+                  return (
+                    <div key={key} className="mb-2">
+                      <strong>{info.emoji || "🌿"} Abbattimento {key}:</strong> {value.valore.replace("Abbattimento ", "").replace(key, "")}
+                      {value.descrizione?.descrizione && (
+                        <div className="small text-secondary text-center">{value.descrizione.descrizione}</div>
+                      )}
+                    </div>
+                  );
+                })}
               </Card.Body>
             </Card>
           </Col>
-        ))}
+        )}
 
-        {/* STATO DI SALUTE */}
-        {renderSectionIfData(healthData, () => (
-          <Col md={12}>
-            <Card className={styles.card}>
-              <Card.Header className={`${styles["bg-health"]} d-flex align-items-center`}>
-                <FaHeart className="me-2" />
-                <strong>Stato di Salute</strong>
-              </Card.Header>
-              <Card.Body>
-                {healthData["Testo"] ? (
-                  <p className="text-center">{healthData["Testo"]}</p>
-                ) : (
-                  <p className="text-muted text-center fst-italic">Dati non disponibili</p>
-                )}
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
+        {/* SALUTE */}
+        <Col md={12}>
+          <Card className={styles.card}>
+            <Card.Header className={`${styles["bg-health"]} d-flex align-items-center`}>
+              <FaHeart className="me-2" />
+              <strong>Stato di Salute</strong>
+            </Card.Header>
+            <Card.Body>
+              <p><strong>Stato:</strong> {salute.stato || "Non specificato"}</p>
+              <p><strong>Condizioni meteorologiche:</strong> {salute.condizioni_meteo || "N/D"}</p>
+            </Card.Body>
+          </Card>
+        </Col>
 
-        {/* STORIA E EVENTI */}
-        {(history && history.length > 0) || Object.keys(historicalData).length > 0 ? (
-          <Col md={12}>
-            <Card className={styles.card}>
-              <Card.Header className={`${styles["bg-historical"]} d-flex align-items-center`}>
-                <FaHistory className="me-2" />
-                <strong>Storia ed Eventi</strong>
-              </Card.Header>
-              <Card.Body>
-                {historicalData["Età"] && (
-                  <div className="mb-3">
-                    <strong>📅 Età stimata:</strong> {historicalData["Età"]}
-                  </div>
-                )}
-                {enhancedHistoricalData["Eventi Storici"] && (
-                  <div className="mb-3">
-                    <strong>Eventi storici:</strong> {enhancedHistoricalData["Eventi Storici"]}
-                  </div>
-                )}
-                {history && history.length > 0 && (
-                  <ListGroup variant="flush">
-                    {history.map((event, index) => (
-                      <ListGroup.Item key={index} className="px-0">
-                        <Badge bg="secondary" className="me-2">{event.year}</Badge>
-                        <strong>{event.text}</strong>
-                        <div className="text-muted small">Categoria: {event.category}</div>
-                      </ListGroup.Item>
-                    ))}
-                  </ListGroup>
-                )}
-              </Card.Body>
-            </Card>
-          </Col>
-        ) : null}
+        {/* STORIA */}
+        <Col md={12}>
+          <Card className={styles.card}>
+            <Card.Header className={`${styles["bg-historical"]} d-flex align-items-center`}>
+              <FaHistory className="me-2" />
+              <strong>Storia ed Eventi</strong>
+            </Card.Header>
+            <Card.Body>
+              <p><strong>Età stimata:</strong> {storia.eta}</p>
+              
+            </Card.Body>
+          </Card>
+        </Col>
 
-        {/* DESCRIZIONE */}
-        {treeData["Descrizione"] && (
+        {/* DESCRIZIONE ALBERO */}
+        {descrizione && (
           <Col md={12}>
             <Card className={styles.card}>
               <Card.Header className={`${styles["bg-description"]}`}>
-                <strong>Descrizione e Storia</strong>
+                <strong>Descrizione</strong>
               </Card.Header>
               <Card.Body>
                 <Card.Text className="fst-italic text-dark" style={{ whiteSpace: "pre-line" }}>
-                  {treeData["Descrizione"]}
+                  {descrizione}
                 </Card.Text>
               </Card.Body>
             </Card>
