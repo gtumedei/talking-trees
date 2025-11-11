@@ -10,9 +10,9 @@ import { weatherReflection } from './WeatherContextBuilder';
 // =============================================
 
 /**
- * Crea una struttura dati direttamente processabile dal sistema RAG
+ * Crea una struttura dati direttamente per l'albero
  */
-export async function buildRAGStructure(tree, species = null, weatherData = null) {
+async function buildRAGStructure(tree, species = null, weatherData = null) {
   if (!tree) return { sections: [], metadata: { treeName: 'Unknown', totalChunks: 0, totalWords: 0, sources: [] } };
 
   try {
@@ -65,49 +65,94 @@ export async function buildRAGStructure(tree, species = null, weatherData = null
 // =============================================
 
 /**
- * Trasforma la struttura RAG in una stringa di contesto completa
+ * Trasforma la struttura in una stringa di contesto completa
  */
-export function buildContextString(ragStructure) {
+function buildContextString(ragStructure) {
   if (!ragStructure || !ragStructure.sections.length) {
     return "Contesto non disponibile per questo albero.";
   }
 
-  const parts = [];
-  
-  // Raggruppa le sezioni per tipo per organizzazione logica
   const sectionsByType = ragStructure.sections.reduce((acc, section) => {
     if (!acc[section.type]) acc[section.type] = [];
-    acc[section.type].push(section);
+    acc[section.type].push(section.content);
     return acc;
   }, {});
 
-  // Costruisci la stringa in ordine logico
-  const sectionOrder = [
-    'DATI_ALBERO',
-    'DATI_BOTANICI', 
-    'DATI_ECOLOGICI',
-    'DATI_LUOGO',
-    'DATI_METEOROLOGICI',
-    'DATI_SALUTE',
-    'DATI_STORICI'
-  ];
+  const s = sectionsByType; // alias per leggibilità
+  const textParts = [];
 
-  sectionOrder.forEach(sectionType => {
-    if (sectionsByType[sectionType]) {
-      // Aggiungi header della sezione
-      const header = getSectionHeader(sectionType);
-      parts.push(header);
-      
-      // Aggiungi contenuti
-      sectionsByType[sectionType].forEach(section => {
-        parts.push(section.content);
-      });
-      
-      parts.push(''); // Linea vuota per separazione
+  // =========================================================
+  // DATI ALBERO
+  // =========================================================
+  if (s.DATI_ALBERO) {
+    textParts.push("DATI ALBERO:");
+    const baseData = s.DATI_ALBERO.join("\n");
+    textParts.push(baseData.trim());
+  }
+
+  // =========================================================
+  // DATI DESCRIZIONE (deriva da eventuale campo 'desc')
+  // =========================================================
+  const descSection = ragStructure.sections.find(sec => 
+    sec.type === "DATI_ALBERO" && sec.content.toLowerCase().includes("descrizione:")
+  );
+  if (descSection) {
+    const descText = descSection.content
+      .split("\n")
+      .filter(line => line.toLowerCase().startsWith("descrizione:"))
+      .map(line => line.replace(/^descrizione:\s*/i, ""))
+      .join(" ");
+    if (descText) {
+      textParts.push("\nDATI DESCRIZIONE:");
+      textParts.push(descText.trim());
     }
-  });
+  }
 
-  return parts.join('\n').trim();
+  // =========================================================
+  // DATI SPECIE BOTANICHE
+  // =========================================================
+  if (s.DATI_BOTANICI) {
+    textParts.push("\nDATI SPECIE BOTANICHE:");
+    textParts.push(s.DATI_BOTANICI.join("\n").trim());
+  }
+
+  // =========================================================
+  // DATI ECOLOGICI/AMBIENTALI
+  // =========================================================
+  if (s.DATI_ECOLOGICI) {
+    textParts.push("\nDATI ECOLOGICI/AMBIENTALI:");
+    textParts.push(s.DATI_ECOLOGICI.join("\n").trim());
+  }
+
+  // =========================================================
+  // DATI LUOGO
+  // =========================================================
+  if (s.DATI_LUOGO) {
+    textParts.push("\nDATI LUOGO:");
+    const luogoText = s.DATI_LUOGO.join("\n").trim();
+
+    // Aggiunge automaticamente descrizione e contesto se presenti
+    textParts.push(luogoText);
+  }
+
+  // =========================================================
+  // DATI SALUTE (meteorologici e stato fisico)
+  // =========================================================
+  if (s.DATI_METEOROLOGICI || s.DATI_SALUTE) {
+    textParts.push("\nDATI SALUTE:");
+    const weatherPart = (s.DATI_METEOROLOGICI || []).concat(s.DATI_SALUTE || []).join("\n");
+    textParts.push(weatherPart.trim());
+  }
+
+  // =========================================================
+  // DATI STORICI
+  // =========================================================
+  if (s.DATI_STORICI) {
+    textParts.push("\nDATI STORICI:");
+    textParts.push(s.DATI_STORICI.join("\n").trim());
+  }
+
+  return textParts.join("\n").trim();
 }
 
 // =============================================
@@ -523,18 +568,6 @@ async function loadPlaceData() {
 }
 
 /**
- * Carica riflessione albero
- */
-async function loadTreeReflection(tree) {
-  try {
-    return await weatherReflection(tree.lat, tree.lon);
-  } catch (error) {
-    console.warn('Impossibile caricare riflessione albero:', error);
-    return null;
-  }
-}
-
-/**
  * Verifica se ci sono dati sugli inquinanti
  */
 function hasPollutionData(species) {
@@ -570,7 +603,7 @@ function generatePollutionSentences(pollutionData, typeInquinante, valoreAlbero)
 /**
  * Metodo legacy che mantiene la compatibilità con il codice esistente
  */
-export async function buildTreeContext(tree, species = null, weatherData = null) {
+export async function buildTreeContext(tree, species = null) {
   // =============================================
   // 🌤️ Prepara i dati di contesto (meteo, specie, ecc.)
   // =============================================
@@ -581,6 +614,7 @@ export async function buildTreeContext(tree, species = null, weatherData = null)
   // =============================================
   // 🚀 Chiamata all’endpoint dello Space HuggingFace
   // =============================================
+  let id = ''
   try {
     const response = await fetch('https://benny2199-rag-microservice.hf.space/initialize_space', {
       method: 'POST',
@@ -597,20 +631,18 @@ export async function buildTreeContext(tree, species = null, weatherData = null)
     }
 
     const data = await response.json();
+    id = data.index_id
     if (!data.success && !data.documents) {
       throw new Error(data.error || 'Errore inizializzazione spazio vettoriale');
     }
 
-    console.log(
-      `✅ Spazio vettoriale inizializzato correttamente con ${data.documents || '?'} documenti per:`,
-      tree?.soprannome || 'albero sconosciuto'
-    );
+    console.log(`✅ Spazio vettoriale inizializzato`);
   } catch (err) {
+    console.log('❌ Errore durante la chiamata a initialize_space:');
     console.error('❌ Errore durante la chiamata a initialize_space:', err.message);
   }
-
   // =============================================
   // 🌿 Ritorna il contesto legacy per compatibilità
   // =============================================
-  return context;
+  return {ragStructure: ragStructure, id_spacevector: id};
 }

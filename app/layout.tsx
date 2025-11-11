@@ -43,6 +43,8 @@ interface UserContextType {
   setHistory: (events: Event[]) => void;
   document: RAGStructure | null; // Ora è una struttura RAG
   setDocument: (doc: RAGStructure | null) => void;
+  idSpacevector: string;
+  setIdSpacevector:(id: string)=> void
 }
 
 type Event = {
@@ -67,6 +69,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
   const [userCoords, setUserCoords] = useState<any>(null);
   const [history, setHistory] = useState<Event[]>([]);
   const [document, setDocument] = useState<RAGStructure | null>(null);
+  const [idSpacevector, setIdSpacevector] = useState<string>('');
 
   useEffect(() => {
     const checkLoggedInUser = async () => {
@@ -92,7 +95,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
     userCoords, setUserCoords,
     authLoading,
     history, setHistory,
-    document, setDocument
+    document, setDocument,
+    idSpacevector, setIdSpacevector,
   };
 
   return (

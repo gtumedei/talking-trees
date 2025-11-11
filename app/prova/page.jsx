@@ -21,7 +21,8 @@ function PageContent() {
     setUserTree, 
     setUserSpecies, 
     setUserCoords,
-    setDocument
+    setDocument,
+    setIdSpacevector
   } = useContext(UserContext);
 
   const [treesDataset, setTreesDataset] = useState([]);
@@ -70,18 +71,9 @@ function PageContent() {
     if (!tree) return;
     try {
       // Costruisci la struttura RAG usando la nuova funzione
-      const ragStructure = await buildTreeContext(tree, species);
-      
-      console.log("📊 Struttura RAG creata:", {
-        sections: ragStructure.sections.length,
-        totalWords: ragStructure.metadata.totalWords,
-        sources: ragStructure.metadata.sources
-      });
-
-      // Salva la struttura RAG nel context invece della stringa
-      if (setDocument) {
-        setDocument(ragStructure);
-      }
+      const result = await buildTreeContext(tree, species);
+      setDocument(result.ragStructure);
+      setIdSpacevector(result.id_spacevector)
     } catch (error) {
       console.error("❌ Errore nell'inizializzazione della struttura RAG:", error);
     }
