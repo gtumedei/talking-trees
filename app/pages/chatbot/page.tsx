@@ -5,7 +5,6 @@ import styles from './Chatbot.module.css';
 import { Button, Badge, Form } from "react-bootstrap"; 
 import BackButton from "@/app/component/ui/BackButton";
 import { UserContext } from "@/app/layout";
-import { useSearchParams } from "next/navigation";
 
 type Source = {
     title: string;
@@ -21,11 +20,12 @@ type Message = {
     sources?: Source[];
 };
 
-export default function ChatbotContent() {
-    const searchParams = useSearchParams();
-      
-    // Prendi i parametri dall'URL
-    const variant = searchParams.get('variant') || 'narrativo';
+export default function ChatbotPage({ searchParams }: { searchParams: { variant?: string } }) {
+  const variant = searchParams.variant || "narrativo";
+  return <ChatbotContent variant={variant} />;
+}
+
+function ChatbotContent({ variant }: { variant: string }) {
 
     const userContext = useContext(UserContext) || {userTree: "", idSpacevector: ""};
     const userTree = userContext.userTree

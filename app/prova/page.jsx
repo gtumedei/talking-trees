@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Tree from "@component/tree/Tree";
 import NoTree from "@component/tree/NoTree";
 import { UserContext } from "@/app/layout";
-import { buildRAGStructure, buildTreeContext } from "@service/TreeContextBuilder";
+import { buildTreeContext } from "@service/TreeContextBuilder";
 import LoginButton from "@component/ui/LoginButton";
 
 // Componente principale wrappato in Suspense
