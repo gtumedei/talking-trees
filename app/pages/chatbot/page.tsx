@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useContext, useCallback } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import styles from './Chatbot.module.css';
 import { Button, Badge, Form } from "react-bootstrap"; 
 import BackButton from "@/app/component/ui/BackButton";
 import { UserContext } from "@/app/layout";
+import { useSearchParams } from "next/navigation";
 
 type Source = {
     title: string;
@@ -20,390 +21,135 @@ type Message = {
     sources?: Source[];
 };
 
-type TreeData = {
-    soprannome?: string;
-    anni?: number;
-    posizione?: string;
-    [key: string]: unknown;
-};
-
-// Funzioni helper separate
-const buildHistoryContent = (history: any[]): string => {
-    if (!history || history.length === 0) return "";
-    
-    const eventsByCategory = groupEventsByCategory(history);
-    let content = "Eventi storici significativi che ho vissuto:\n\n";
-    
-    Object.entries(eventsByCategory).forEach(([category, events]) => {
-        content += `${category}:\n`;
-        (events as any[]).forEach(event => {
-            content += `- ${event.year}: ${event.text}\n`;
-        });
-        content += "\n";
-    });
-
-    return content.trim();
-};
-
-const groupEventsByCategory = (history: any[]): { [category: string]: any[] } => {
-    return history.reduce((acc, event) => {
-        const category = event.category || 'Altri Eventi';
-        if (!acc[category]) {
-            acc[category] = [];
-        }
-        acc[category].push(event);
-        return acc;
-    }, {} as { [category: string]: any[] });
-};
-
-const calculateHistoryWordCount = (history: any[]): number => {
-    return history.reduce((count, event) => {
-        return count + (event.text?.split(/\s+/).length || 0) + 3; // +3 per l'anno e formattazione
-    }, 0);
-};
-
-
-// Funzioni helper per interagire con api/rag/route.py
-const chatbotAPI = {
-  resetSession: () => {}, // non serve più per ora, ma lasciamo placeholder
-
-  async initializeChatbot(treeData: any, ragStructure: any) {
-    try {
-      const res = await fetch("/api/rag", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "initialize_space",
-          ragStructure: ragStructure
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Errore inizializzazione RAG");
-
-      return {
-        success: data.success,
-        message: data.message,
-        tree_name: treeData?.name || "albero monumentale",
-        treeAge: treeData?.age || null,
-        treeLocation: treeData?.location || null,
-      };
-    } catch (err: any) {
-      return { success: false, error: err.message };
-    }
-  },
-
-  async sendMessage(query: string) {
-    try {
-      const res = await fetch("/api/rag", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "query",
-          query: query
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Errore query RAG");
-
-      return {
-        success: data.success,
-        response: data.response,
-        sources: data.sources || []
-      };
-    } catch (err: any) {
-      return { success: false, error: err.message };
-    }
-  }
-};
-
-
-
 export default function ChatbotContent() {
-    const userContext = useContext(UserContext);
+    const searchParams = useSearchParams();
+      
+    // Prendi i parametri dall'URL
+    const variant = searchParams.get('variant') || 'narrativo';
 
+    const userContext = useContext(UserContext) || {userTree: "", idSpacevector: ""};
+    const userTree = userContext.userTree
+    const idSpacevector = userContext.idSpacevector
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    const [apiStatus, setApiStatus] = useState<"checking" | "online" | "offline">("checking");
-    const [showSources, setShowSources] = useState<boolean>(false);
-    const [isInitialized, setIsInitialized] = useState<boolean>(false);
-    const [ragStructureDebug, setRagStructureDebug] = useState<string>("");
-
-    const QUICK_REPLIES = [
-      "Qual è il tuo ricordo più antico?",
-      "Qual messaggio lasceresti a noi umani?",
-      "Cosa hai visto cambiare in questi anni?",
-      "Chi ti ha piantato?",
-      "Come sei sopravvissuto così a lungo?",
-      "Raccontami del clima che hai vissuto",
-      "Qual è la tua specie?",
-      "Dove ti trovi esattamente?",
-      "Quanti anni hai?",
-      "Hai mai avuto paura?",
-      "Cosa provi quando cambiano le stagioni?"
-    ];
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
+    // Versione narrativa (prima persona, tono saggio)
+    const QUICK_REPLIES =
+    variant === "narrativo"
+        ? [
+            "Chi sei?",
+            "Quanti anni hai?",
+            "Qual messaggio lasceresti a noi umani?",
+            "Cosa hai visto cambiare in questi anni?",
+            "Che benefici porti all'ambiente?",
+            "Come ti senti?",
+            "Qual è la tua specie?",
+            "Dove ti trovi?"
+        ]:[
+            "Che albero è?",
+            "Quanti anni ha?",
+            "Qual è il suo significato storico o culturale?",
+            "Quali cambiamenti ha vissuto?",
+            "Che benefici l'albero porta all'ambiente?",
+            "Qual è lo stato di salute dell'albero",
+            "A quale specie botanica appartiene?",
+            "Dove si trova?"
+        ];
+
+
+    // 👋 Messaggio iniziale
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages]);
-
-    // Funzione per costruire la struttura RAG con history integrata
-    const buildRAGStructureWithHistory = useCallback((document: any, history?: any[]) => {
-        if (!document || !document.sections) {
-            console.warn("❌ Documento RAG non valido");
-            return document;
-        }
-
-        // Crea una copia profonda della struttura RAG
-        const enhancedRAGStructure = JSON.parse(JSON.stringify(document));
-        
-        // Se abbiamo dati di history, integriamoli nella sezione DATI_STORICI esistente
-        if (history && history.length > 0) {
-            
-            const historyContent = buildHistoryContent(history);
-            const historyWordCount = calculateHistoryWordCount(history);
-            
-            // Cerca la sezione DATI_STORICI esistente
-            const existingHistoricalSectionIndex = enhancedRAGStructure.sections.findIndex(
-                (section: any) => section.type === 'DATI_STORICI'
-            );
-
-            if (existingHistoricalSectionIndex !== -1) {
-                // Se esiste già una sezione DATI_STORICI, aggiungiamo i dati di history                
-                const existingSection = enhancedRAGStructure.sections[existingHistoricalSectionIndex];
-                
-                // Combina il contenuto esistente con i nuovi dati di history
-                const combinedContent = existingSection.content + "\n\n" + historyContent;
-                
-                // Aggiorna la sezione esistente
-                enhancedRAGStructure.sections[existingHistoricalSectionIndex] = {
-                    ...existingSection,
-                    content: combinedContent,
-                    tags: [...new Set([...existingSection.tags, '#EVENTI', '#CRONOLOGIA', '#MEMORIA_STORICA'])],
-                    metadata: {
-                        ...existingSection.metadata,
-                        wordCount: existingSection.metadata.wordCount + historyWordCount,
-                        confidence: Math.max(existingSection.metadata.confidence || 0.8, 0.9)
-                    }
-                };
-            } else {
-                // Se non esiste una sezione DATI_STORICI, creiamone una nuova                
-                const historySection = {
-                    id: 'historical_events',
-                    type: 'DATI_STORICI',
-                    content: historyContent,
-                    tags: ['#STORIA', '#EVENTI', '#CRONOLOGIA', '#MEMORIA_STORICA'],
-                    metadata: {
-                        source: 'historical_timeline',
-                        wordCount: historyWordCount,
-                        confidence: 0.9,
-                        temporalContext: 'storico'
-                    }
-                };
-
-                enhancedRAGStructure.sections.push(historySection);
-            }
-
-            // Aggiorna i metadati globali
-            enhancedRAGStructure.metadata = {
-                ...enhancedRAGStructure.metadata,
-                totalChunks: enhancedRAGStructure.sections.length,
-                totalWords: enhancedRAGStructure.sections.reduce((sum: number, section: any) => 
-                    sum + (section.metadata?.wordCount || 0), 0),
-                sources: [...new Set([...(enhancedRAGStructure.metadata?.sources || []), 'historical_timeline'])]
-            };
-
-            // Salva anche per visualizzazione nell'UI
-            const historicalSection = enhancedRAGStructure.sections.find((s: any) => s.type === 'DATI_STORICI');
-            setRagStructureDebug(`
-STRUTTURA RAG INIZIALIZZATA:
-- Sezioni totali: ${enhancedRAGStructure.sections.length}
-- Parole totali: ${enhancedRAGStructure.metadata.totalWords}
-- Eventi storici integrati: ${history.length}
-- Fonti: ${enhancedRAGStructure.metadata.sources.join(', ')}
-
-SEZIONE DATI_STORICI AGGIORNATA:
-${historicalSection?.content || 'Nessuna sezione storica trovata'}
-            `);
-        } else {
-            setRagStructureDebug("ℹ️  Nessun dato history disponibile per l'integrazione");
-        }
-
-        return enhancedRAGStructure;
+        const welcomeMsg: Message = {
+            id: "welcome",
+            sender: "bot",
+            text: "Piacere di conoscerti! Cosa vuoi che ti racconti?",
+            timestamp: new Date(),
+        };
+        setMessages([welcomeMsg]);
     }, []);
 
-    const initializeRAGChatbot = useCallback(async () => {
-        const { userTree, userSpecies, document, history } = userContext || {};
-        
-        if (!userTree) {
-            setMessages([{
-                id: 'error',
-                sender: "bot",
-                text: "❌ Nessun albero selezionato. Torna alla mappa per trovare un albero.",
-                timestamp: new Date()
-            }]);
-            setApiStatus("offline");
-            return;
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+
+    useEffect(scrollToBottom, [messages]);
+
+    // ✉️ Invio messaggio
+    const handleSend = async () => {
+        if (!input.trim()) return;
+
+        // Se c'è il soprannome, aggiungilo prima del punto interrogativo
+        let queryText = input;
+        if (userTree?.soprannome) {
+            const nickname = userTree.soprannome;
+            // Aggiungi il soprannome solo prima del primo "?" se esiste
+            queryText = input.replace(/\?/, ` ${nickname}?`);
         }
-
-        setApiStatus("checking");
-        setIsLoading(true);
-        chatbotAPI.resetSession();
-
-        try {
-            // Costruisci la struttura RAG potenziata con history
-            const enhancedRAGStructure = buildRAGStructureWithHistory(document, history);
-
-            if (!enhancedRAGStructure || !enhancedRAGStructure.sections) {
-                throw new Error("Struttura RAG non valida");
-            }
-
-            const result = await chatbotAPI.initializeChatbot(
-                userTree as TreeData, 
-                enhancedRAGStructure
-            );
-
-            if (result.success) {
-                const historicalSection = enhancedRAGStructure.sections.find((s: any) => s.type === 'DATI_STORICI');
-                const hasHistoricalEvents = history && history.length > 0;
-                
-                const historyInfo = hasHistoricalEvents 
-                    ? `, inclusi ${history.length} eventi storici che ho vissuto personalmente` 
-                    : '';
-                    
-                const welcomeMessage = `Ciao! Sono ${result.tree_name || "un albero monumentale"} 🌳\n\n` +
-                    `Ho vissuto per ${result.treeAge || "molti"} anni a ${result.treeLocation || "questo luogo"} ` +
-                    `e ho accumulato tante esperienze e ricordi. ` +
-                    `La mia memoria contiene ${enhancedRAGStructure.sections.length} sezioni di conoscenza` +
-                    `${historyInfo}. ` +
-                    `Chiedimi qualsiasi cosa sulla mia vita, le mie esperienze o i cambiamenti che ho visto!`;
-
-                setMessages([{
-                    id: 'welcome',
-                    sender: "bot",
-                    text: welcomeMessage,
-                    timestamp: new Date()
-                }]);
-                setApiStatus("online");
-                
-            } else {
-                throw new Error(result.error || "Errore inizializzazione RAG");
-            }
-        } catch (error) {
-            console.error("❌ Errore inizializzazione chatbot RAG:", error);
-            setMessages([{
-                id: 'error',
-                sender: "bot",
-                text: `❌ Impossibile connettersi al servizio RAG. Dettagli: ${error instanceof Error ? error.message : "Errore Sconosciuto"}`,
-                timestamp: new Date()
-            }]);
-            setApiStatus("offline");
-        } finally {
-            setIsLoading(false);
-        }
-    }, [userContext, buildRAGStructureWithHistory]);
-
-    useEffect(() => {
-        if (!isInitialized && userContext) {
-            initializeRAGChatbot();
-            setIsInitialized(true);
-        }
-    }, [userContext, isInitialized, initializeRAGChatbot]);
-
-    const handleSendMessage = async (text: string) => {
-        if (!text.trim() || isLoading || apiStatus !== "online") return;
 
         const userMessage: Message = {
-            id: `user-${Date.now()}`,
+            id: Date.now().toString(),
             sender: "user",
-            text: text,
-            timestamp: new Date()
+            text: input, // Mostriamo all'utente la query con il soprannome
+            timestamp: new Date(),
         };
-        setMessages(prev => [...prev, userMessage]);
+
+        setMessages((prev) => [...prev, userMessage]);
         setInput("");
         setIsLoading(true);
 
         try {
-            const result = await chatbotAPI.sendMessage(text);
+            const response = await fetch("https://benny2199-rag-microservice.hf.space/query", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    index_id: idSpacevector,
+                    query: input, // invio con soprannome
+                    version: variant,
+                    tree_name: userTree.soprannome,
+                }),
+            });
 
-            if (result.success && result.response) {
-                const botMessage: Message = {
-                    id: `bot-${Date.now()}`,
-                    sender: "bot",
-                    text: result.response,
-                    timestamp: new Date(),
-                    sources: result.sources || []
-                };
-                setMessages(prev => [...prev, botMessage]);
-            } else {
-                const errorMessage: Message = {
-                    id: `error-${Date.now()}`,
-                    sender: "bot",
-                    text: `❌ ${result.error || "Errore nella generazione della risposta"}`,
-                    timestamp: new Date()
-                };
-                setMessages(prev => [...prev, errorMessage]);
-            }
-        } catch {
-            const errorMessage: Message = {
-                id: `error-${Date.now()}`,
+            const data = await response.json();
+
+            console.log(data)
+
+            const botMessage: Message = {
+                id: Date.now().toString() + "_bot",
                 sender: "bot",
-                text: "❌ Errore di connessione con il servizio RAG.",
-                timestamp: new Date()
+                text: data?.result?.response || "Non ho trovato nulla di rilevante 😔",
+                timestamp: new Date(),
+                sources: data?.sources || [],
             };
-            setMessages(prev => [...prev, errorMessage]);
+
+            setMessages((prev) => [...prev, botMessage]);
+        } catch (error) {
+            console.error("Errore API:", error);
+            setMessages((prev) => [
+                ...prev,
+                {
+                    id: Date.now().toString() + "_error",
+                    sender: "bot",
+                    text: "⚠️ C'è stato un problema nel contattare l'albero. Riprova più tardi.",
+                    timestamp: new Date(),
+                },
+            ]);
         } finally {
             setIsLoading(false);
         }
     };
 
-    const handleQuickReply = (text: string) => {
-        handleSendMessage(text);
-    };
 
-    const handleSend = () => {
-        if (!input.trim() || isLoading || apiStatus !== "online") return;
-        handleSendMessage(input);
-    };
-
-    const toggleSources = () => {
-        setShowSources(!showSources);
+    const handleQuickReply = (reply: string) => {
+        setInput(reply);
+        handleSend();
     };
 
     return (
         <div className={styles.content}>
             <BackButton />
-
-            <div className={styles.chatHeader}>
-                <div className="d-flex align-items-center gap-3">
-                    <div>
-                        <div className="d-flex align-items-center gap-2">
-                            <Badge
-                                bg={apiStatus === "online" ? "success" : apiStatus === "checking" ? "warning" : "danger"}
-                                className="text-white"
-                            >
-                                {apiStatus === "online" && "✅ L'albero ti ascolta"}
-                                {apiStatus === "offline" && "❌ L'albero non è raggiungibile"}
-                                {apiStatus === "checking" && "🔍 Connessione..."}
-                            </Badge>
-                            {apiStatus === "online" && (
-                                <Button
-                                    variant="outline-info"
-                                    size="sm"
-                                    onClick={toggleSources}
-                                    className="ms-2"
-                                >
-                                    {showSources ? "Nascondi Fonti" : "Mostra Fonti"}
-                                </Button>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <div className={styles.chat}>
                 {messages.map((msg) => (
@@ -415,7 +161,7 @@ ${historicalSection?.content || 'Nessuna sezione storica trovata'}
                     >
                         <div className={styles.messageText}>{msg.text}</div>
 
-                        {msg.sender === "bot" && msg.sources && msg.sources.length > 0 && showSources && (
+                        {msg.sender === "bot" && msg.sources && msg.sources.length > 0 && (
                             <div className={styles.sourcesSection}>
                                 <hr className="my-2" />
                                 <small className="text-muted d-block mb-1">
@@ -457,10 +203,10 @@ ${historicalSection?.content || 'Nessuna sezione storica trovata'}
                         <Button
                             key={i}
                             onClick={() => handleQuickReply(reply)}
-                            variant="outline-primary"
+                            variant="primary"
                             size="sm"
-                            disabled={isLoading || apiStatus !== "online"}
-                            className="me-2 mb-2"
+                            disabled={isLoading}
+                            className="me-2 mb-2 green"
                         >
                             {reply}
                         </Button>
@@ -475,12 +221,12 @@ ${historicalSection?.content || 'Nessuna sezione storica trovata'}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => e.key === "Enter" && handleSend()}
-                    disabled={isLoading || apiStatus !== "online"}
+                    disabled={isLoading}
                 />
                 <Button
                     variant="primary"
                     onClick={handleSend}
-                    disabled={!input.trim() || isLoading || apiStatus !== "online"}
+                    disabled={!input.trim() || isLoading}
                     className={styles.sendButton}
                 >
                     {isLoading ? (

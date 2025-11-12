@@ -63,18 +63,18 @@ export default function Tree({ variant = "statico" }) {
   // Configurazione in base alla variante
   const getTreeConfig = () => {
     switch (variant) {
-      case "chatbot":
+      case "chatbot-scientifico":
         return {
           treeButtonText: "Parla con l'albero",
           treeButtonIcon: <FaTree />,
-          treeButtonHref: "/pages/chatbot",
+          treeButtonHref: "/pages/chatbot?variant=scientifico",
           treeButtonClass: "green"
         };
       case "chatbot-narrativo":
         return {
           treeButtonText: "Parla con l'albero",
           treeButtonIcon: <FaTree />,
-          treeButtonHref: "/pages/chatbotNarrativo"
+          treeButtonHref: "/pages/chatbot?variant=narrativo"
         };
       case "statico":
       default:
