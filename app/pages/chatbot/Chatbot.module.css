@@ -54,12 +54,15 @@
 }
 
 /* Bot message - typing effect */
-.bot {
+.bot, .typingIndicator {
   align-self: center;
-  animation: typingAppear 1s steps(20, end) forwards;
   overflow: hidden;
   white-space: pre-wrap;
   color: var(--dark);
+}
+
+.bot {
+  animation: typingAppear 1s steps(20, end) forwards;
 }
 
 /* Typing animation for bot text */
@@ -84,11 +87,8 @@
 .typingIndicator {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
   align-self: center;
   background: none;
-  font-family: 'Reenie Beanie', cursive;
-  font-size: 1.3rem;
   color: #6c757d;
 }
 

@@ -64,7 +64,7 @@ function LogoutButton({ onLogout }) {
 // Componente per il bottone login (non loggato)
 function LoginLinkButton() {
   return (
-    <Link href="/login" className={styles.loginButton}>
+    <Link href="pages/login" className={styles.loginButton}>
       <div className={styles.iconWrapper}>
         <FaSignInAlt className={styles.loginIcon} />
       </div>
