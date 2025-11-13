@@ -6,6 +6,10 @@ import { Button, Badge, Form } from "react-bootstrap";
 import BackButton from "@/app/component/ui/BackButton";
 import { UserContext } from "@/app/layout";
 
+import { db } from "@/app/services/firebase"; // o il path corretto al tuo file firebase.js
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+
+
 type Source = {
     title: string;
     uri: string;
@@ -122,7 +126,9 @@ export default function ChatbotContent({ variant }: Props){
                 timestamp: new Date(),
                 sources: data?.sources || [],
             };
-
+            
+            await saveChatToFirebase(input, botMessage.text, botMessage.sources);
+            
             setMessages((prev) => [...prev, botMessage]);
         } catch (error) {
             console.error("Errore API:", error);
@@ -139,6 +145,21 @@ export default function ChatbotContent({ variant }: Props){
             setIsLoading(false);
         }
     };
+
+    // 💾 Salva query e risposta in Firestore
+    const saveChatToFirebase = async (userMessage: string, botMessage: string | null, sources?: Source[]) => {
+    try {
+        await addDoc(collection(db, "chat_queries"), {
+        treeName: userTree?.soprannome || null,
+        query: userMessage,
+        version: variant
+        });
+        console.log("✅ Chat salvata su Firestore");
+    } catch (error) {
+        console.error("❌ Errore nel salvataggio su Firestore:", error);
+    }
+    };
+
 
 
     const handleQuickReply = (reply: string) => {

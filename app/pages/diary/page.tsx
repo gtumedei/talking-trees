@@ -1,10 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState, useEffect, useContext } from "react";
 import styles from "./Diary.module.css";
 import Title from "@component/ui/Title";
 import { Modal, Button, Form } from "react-bootstrap";
 import BackButton from "@component/ui/BackButton";
+import { db } from "@/app/services/firebase";
+import {collection, doc, getDoc, getDocs, setDoc, updateDoc, addDoc, arrayUnion, serverTimestamp,
+  query, where, orderBy} from "firebase/firestore";
+import { UserContext } from "@/app/layout";
 
 // ---------- tipi ----------
 type Entry = {
@@ -12,46 +16,6 @@ type Entry = {
   text: string;
   author?: string;
 };
-
-// ---------- dati iniziali ----------
-const initialEntries: Entry[] = [
-  {
-    date: "12/03/2018",
-    text: "Ero in viaggio con la mia famiglia quando ci siamo fermati qui. I bambini sembravano vivere un’avventura meravigliosa, mentre io e mia moglie ci tenevamo per mano in silenzio. Per qualche minuto, il tempo sembrava essersi fermato."
-  },
-  {
-    date: "21/06/2023",
-    text: "Dopo mesi chiusa in casa per il COVID, sono venuto qui per la prima volta. Avevo bisogno di respirare aria vera, e sentire che il mondo esisteva ancora. Toccare questo albero, così antico e immutabile, mi ha dato una strana sensazione di pace."
-  },
-  {
-    date: "08/11/2024",
-    text: "Ho sempre amato l’idea di dover fare tutto in fretta, di dover correre per raggiungere qualcosa. Poi ho visto questo albero vecchio di quasi 800 anni, e ho pensato: lui non ha fretta. Ho rallentato, ho respirato e per la prima volta dopo tanto tempo mi sono sentito davvero presente. Come se il tempo si fosse fermato per un attimo."
-  },
-  {
-    date: "12/03/2018",
-    text: "Ero in viaggio con la mia famiglia quando ci siamo fermati qui. I bambini sembravano vivere un’avventura meravigliosa, mentre io e mia moglie ci tenevamo per mano in silenzio. Per qualche minuto, il tempo sembrava essersi fermato."
-  },
-  {
-    date: "21/06/2023",
-    text: "Dopo mesi chiusa in casa per il COVID, sono venuto qui per la prima volta. Avevo bisogno di respirare aria vera, e sentire che il mondo esisteva ancora. Toccare questo albero, così antico e immutabile, mi ha dato una strana sensazione di pace."
-  },
-  {
-    date: "08/11/2024",
-    text: "Ho sempre amato l’idea di dover fare tutto in fretta, di dover correre per raggiungere qualcosa. Poi ho visto questo albero vecchio di quasi 800 anni, e ho pensato: lui non ha fretta. Ho rallentato, ho respirato e per la prima volta dopo tanto tempo mi sono sentito davvero presente. Come se il tempo si fosse fermato per un attimo."
-  },
-  {
-    date: "12/03/2018",
-    text: "Ero in viaggio con la mia famiglia quando ci siamo fermati qui. I bambini sembravano vivere un’avventura meravigliosa, mentre io e mia moglie ci tenevamo per mano in silenzio. Per qualche minuto, il tempo sembrava essersi fermato."
-  },
-  {
-    date: "21/06/2023",
-    text: "Dopo mesi chiusa in casa per il COVID, sono venuto qui per la prima volta. Avevo bisogno di respirare aria vera, e sentire che il mondo esisteva ancora. Toccare questo albero, così antico e immutabile, mi ha dato una strana sensazione di pace."
-  },
-  {
-    date: "08/11/2024",
-    text: "Ho sempre amato l’idea di dover fare tutto in fretta, di dover correre per raggiungere qualcosa. Poi ho visto questo albero vecchio di quasi 800 anni, e ho pensato: lui non ha fretta. Ho rallentato, ho respirato e per la prima volta dopo tanto tempo mi sono sentito davvero presente. Come se il tempo si fosse fermato per un attimo."
-  }
-];
 
 // ---------- lista font con dimensione base ----------
 const fonts = [
@@ -70,34 +34,150 @@ function seededRandom(seed: number) {
   return x - Math.floor(x);
 }
 
-// ---------- DiaryPage ----------
+// ---------- COMPONENTE ----------
 export default function DiaryPage() {
-  const [entries, setEntries] = useState<Entry[]>(initialEntries);
+  const userContext = useContext(UserContext) || ({} as { userTree?: { ["id scheda"]?: string } | null; user?: boolean });
+  const { userTree, user } = userContext;
+
+  const [entries, setEntries] = useState<Entry[]>([]); // ✅ inizializzato come array vuoto
   const [showModal, setShowModal] = useState(false);
   const [newText, setNewText] = useState("");
   const [newAuthor, setNewAuthor] = useState("");
 
-  const seed = 42; // fisso → da sostituire con "id" albero
+  const seed = 42;
 
-  // funzione per aggiungere un nuovo commento
-  const handleAddEntry = () => {
+  // 🔥 Funzione per salvare un commento
+  const saveCommentToFirebase = async (text: string, signature: string) => {
+    try {
+      // 🔥 Forza userValue a essere una STRINGA
+      const userValue =
+        user
+          ? user.username
+          : signature.trim() !== ""
+          ? signature.trim()
+          : null;
+
+      const idScheda = String(userTree?.["id scheda"] || "");
+      if (!idScheda) {
+        console.error("⚠️ Nessun id scheda trovato in userTree");
+        return;
+      }
+
+      // 💾 1️⃣ Salva sempre il commento in "comments"
+      await addDoc(collection(db, "comments"), {
+        date: serverTimestamp(),
+        id_tree: idScheda,
+        text: text.trim(),
+        user: userValue, // ora è una stringa
+      });
+      console.log("✅ Commento aggiunto a Firestore (collezione comments)");
+
+      // 💾 2️⃣ Se esiste un utente loggato, aggiorna anche la struttura user-tree
+      if (userValue) {
+        const safeTreeId = idScheda.replace(/\//g, ".");
+        const userTreeDocRef = doc(db, "user-tree", userValue);
+
+        const userDocSnap = await getDoc(userTreeDocRef);
+        if (!userDocSnap.exists()) {
+          await setDoc(userTreeDocRef, {});
+          console.log("🆕 Creato nuovo documento per utente:", userValue);
+        }
+
+        const treeDocRef = doc(collection(userTreeDocRef, "tree"), safeTreeId);
+        const treeDocSnap = await getDoc(treeDocRef);
+
+        if (!treeDocSnap.exists()) {
+          const lat = userTree.lat || "";
+          const lon = userTree.lon || "";
+          const coordinates = `${lat},${lon}`;
+
+          await setDoc(treeDocRef, {
+            soprannome: userTree.soprannome || "Senza nome",
+            specie: userTree["specie nome scientifico"] || "Specie sconosciuta",
+            luogo: userTree.comune || "Comune sconosciuto",
+            regione: userTree.regione || "Regione sconosciuta",
+            coordinates,
+            comments: [],
+          });
+          console.log("🌳 Creato nuovo documento tree per", safeTreeId);
+        }
+
+        await updateDoc(treeDocRef, {
+          comments: arrayUnion(text.trim()),
+        });
+        console.log("💬 Commento aggiunto anche in user-tree → tree → comments");
+      }
+    } catch (error) {
+      console.error("❌ Errore nel salvataggio del commento:", error);
+    }
+  };
+
+
+
+  // 🌿 Funzione per caricare i commenti da Firestore
+  const loadCommentsFromFirebase = async () => {
+    if (!userTree?.["id scheda"]) {
+      console.warn("⚠️ Nessun id scheda disponibile per l'albero");
+      return;
+    }
+
+    try {
+      const q = query(
+        collection(db, "comments"),
+        where("id_tree", "==", userTree?.["id scheda"]),
+        orderBy("date", "asc")
+      );
+
+      const snapshot = await getDocs(q);
+
+      const loadedEntries: Entry[] = snapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          date: data.date?.toDate?.().toLocaleDateString("it-IT") || "—",
+          text: data.text || "",
+          author: data.user || undefined,
+        };
+      });
+
+      setEntries(loadedEntries);
+      console.log("✅ Commenti caricati da Firestore:", loadedEntries);
+    } catch (error) {
+      console.error("❌ Errore nel caricamento dei commenti:", error);
+    }
+  };
+
+  // ⚙️ Carica i commenti una sola volta al montaggio del componente
+  useEffect(() => {
+    loadCommentsFromFirebase();
+  }, []); // ✅ solo al mount
+
+  // ✏️ Aggiungi un nuovo commento
+  const handleAddEntry = async () => {
     if (!newText.trim()) return;
 
     const today = new Date().toLocaleDateString("it-IT");
     const newEntry: Entry = {
       date: today,
       text: newText,
-      author: newAuthor.trim() || undefined
+      author: newAuthor.trim() || undefined,
     };
-    setEntries([...entries, newEntry]);
+
+    // Aggiorna lo stato locale subito
+    setEntries((prev) => [...prev, newEntry]);
     setNewText("");
     setNewAuthor("");
     setShowModal(false);
+
+    // 💾 Salvataggio nel database Firebase
+    await saveCommentToFirebase(newText, newAuthor);
+
+    // 🔄 Ricarica i commenti aggiornati
+    await loadCommentsFromFirebase();
   };
 
   return (
     <main className="p-2">
-      <BackButton/>
+      <BackButton />
       <Title
         text="Pezzi di Storia"
         level={1}
@@ -119,39 +199,50 @@ export default function DiaryPage() {
       </div>
 
       <div className={styles.entries}>
-        {entries.map((entry, i) => {
-          // font casuale deterministico
-          const fontIndex = Math.floor(seededRandom(seed + i) * fonts.length);
-          const { family, baseSize, fontBold } = fonts[fontIndex];
+        {entries.length === 0 ? (
+          <p className="text-center text-muted mt-3">
+            Nessun ricordo ancora presente 🌱
+          </p>
+        ) : (
+          entries.map((entry, i) => {
+            const fontIndex = Math.floor(seededRandom(seed + i) * fonts.length);
+            const { family, baseSize, fontBold } = fonts[fontIndex];
+            const variation =
+              Math.floor(seededRandom(seed * (i + 1)) * 3) - 1;
+            const fontSize = baseSize + variation;
 
-          // variazione deterministica tra -1 e +1
-          const variation = Math.floor(seededRandom(seed * (i + 1)) * 3) - 1;
-          const fontSize = baseSize + variation;
+            console.log(entry)
 
-          return (
-            <div key={i} className={styles.entry}>
-              
-              {/* data in font normale */}
-              <p className={styles.date}><i>{entry.date}</i></p>
-              {/* testo + autore con font random */}
-              <p
-                className={`${styles.text} ${fontBold ? 'fw-bold' : ''}`}
-                style={{ fontFamily: family, fontSize: `${fontSize}px` }}
-              >
-                {entry.text}
-              </p>
-              {entry.author && (
-                <p
-                  className={styles.author}
-                  style={{ fontFamily: family, fontSize: `${fontSize - 1}px` }}
-                >
-                  — {entry.author}
+            return (
+              <div key={i} className={styles.entry}>
+                <p className={styles.date}>
+                  <i>{entry.date}</i>
                 </p>
-              )}
-              <hr className="my-2" /> {/* linea di separazione */}
-            </div>
-          );
-        })}
+                <p
+                  className={`${styles.text} ${
+                    fontBold ? "fw-bold" : ""
+                  }`}
+                  style={{ fontFamily: family, fontSize: `${fontSize}px` }}
+                >
+                  {entry.text}
+                </p>
+                {entry.author && (
+                  <p
+                    className={styles.author}
+                    style={{
+                      fontFamily: family,
+                      fontSize: `${fontSize - 1}px`,
+                    }}
+                  >
+                    — {entry.author}
+                  </p>
+                )}
+
+                <hr className="my-2" />
+              </div>
+            );
+          })
+        )}
       </div>
 
       {/* modal per aggiungere nuovo commento */}
@@ -183,7 +274,10 @@ export default function DiaryPage() {
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
+          <Button
+            variant="secondary"
+            onClick={() => setShowModal(false)}
+          >
             Annulla
           </Button>
           <Button variant="primary" onClick={handleAddEntry}>

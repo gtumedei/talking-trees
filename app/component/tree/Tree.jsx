@@ -15,7 +15,7 @@ import HealthStatus from "@component/ui/HealthStatus";
 
 export default function Tree({ variant = "statico" }) {
   const { userTree } = useContext(UserContext);
-  const [imageSrc, setImageSrc] = useState("/tree/tree-default.png");
+  const [imageSrc, setImageSrc] = useState("/tree/empty.png");
   const [imageLoaded, setImageLoaded] = useState(false);
   
   // Precarica e verifica l'immagine
@@ -40,6 +40,7 @@ export default function Tree({ variant = "statico" }) {
         console.log("Immagine non trovata, uso default");
         setImageSrc("/tree/tree-default.png");
       }
+      setImageLoaded(true)
     };
 
     if (userTree) {
@@ -49,15 +50,6 @@ export default function Tree({ variant = "statico" }) {
 
   const handlePhoto = () => {
     alert("📸 Funzionalità foto attivata!");
-  };
-
-  const handleImageError = () => {
-    console.log("Errore nel caricamento dell'immagine, uso default");
-    setImageSrc("/tree/tree-default.png");
-  };
-
-  const handleImageLoad = () => {
-    setImageLoaded(true);
   };
 
   // Configurazione in base alla variante
@@ -148,16 +140,9 @@ export default function Tree({ variant = "statico" }) {
               alt={userTree["soprannome"] || userTree["specie nome volgare"]}
               width={300}
               height={400}
-              className={`${imageClass} img-fluid`}
-              onError={handleImageError}
-              onLoad={handleImageLoad}
+              className={`${imageClass} img-fluid ${!imageLoaded ? styles.treeImgBlur : styles.treeImgLoaded}`}
               priority
             />
-            {!imageLoaded && (
-              <div className={styles.imagePlaceholder}>
-                Caricamento immagine...
-              </div>
-            )}
           </div>
         </Col>
 

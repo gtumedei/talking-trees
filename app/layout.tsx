@@ -1,8 +1,8 @@
 "use client";
 
-import React, { createContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useState, useEffect, ReactNode } from "react";
 import "./globals.css";
-import { getCurrentUser } from '@service/userService';
+import { getCurrentUser } from '@/app/services/userServices';
 
 // Definisci l'interfaccia per la struttura RAG
 interface RAGSection {
@@ -44,7 +44,8 @@ interface UserContextType {
   document: RAGStructure | null; // Ora è una struttura RAG
   setDocument: (doc: RAGStructure | null) => void;
   idSpacevector: string;
-  setIdSpacevector:(id: string)=> void
+  setIdSpacevector:(id: string)=> void;
+  mainroute: string;  // Aggiunto tipo per mainroute
 }
 
 type Event = {
@@ -70,6 +71,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
   const [history, setHistory] = useState<Event[]>([]);
   const [document, setDocument] = useState<RAGStructure | null>(null);
   const [idSpacevector, setIdSpacevector] = useState<string>('');
+  const [mainroute, setMainroute] = useState<string>(''); // inizializza come stringa vuota
 
   useEffect(() => {
     const checkLoggedInUser = async () => {
@@ -86,7 +88,13 @@ export default function RootLayout({ children }: RootLayoutProps) {
     };
 
     checkLoggedInUser();
-  }, []);
+
+    // Setta la mainroute usando window.location
+    if (typeof window !== "undefined") {
+      setMainroute(window.location.pathname); // Ottieni il percorso corrente
+    }
+
+  }, []); // Usa il router quando cambia la path
 
   const contextValue: UserContextType = {
     userTree, setUserTree,
@@ -97,6 +105,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
     history, setHistory,
     document, setDocument,
     idSpacevector, setIdSpacevector,
+    mainroute // Passiamo la mainroute al contesto
   };
 
   return (

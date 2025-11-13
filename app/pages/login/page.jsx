@@ -2,11 +2,12 @@
 
 import { Button } from "react-bootstrap";
 import { useState, useContext, useEffect } from "react";
-import { checkUserCredentials, registerUser } from '@service/userService';
-import { UserContext } from '@/app/layout';
-import { useRouter } from 'next/navigation';
-import styles from './Login.module.css';
+import { UserContext } from "@/app/layout";
+import { useRouter } from "next/navigation";
+import styles from "./Login.module.css";
 import BackButton from "@component/ui/BackButton";
+import { checkUserCredentials, registerUser } from "@/app/services/userServices";
+
 
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -16,45 +17,15 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  
-  const { user, setUser } = useContext(UserContext);
+
+  const { user, setUser, userTree } = useContext(UserContext); // 🔥 includiamo userTree
   const router = useRouter();
 
-  // Usa useEffect per il reindirizzamento invece di farlo durante il render
   useEffect(() => {
     if (user) {
-      router.push('/pages/user'); // Reindirizza alla pagina utente
+      router.push("/pages/user");
     }
   }, [user, router]);
-
-  const validateForm = () => {
-    // Validazione username
-    if (username.length < 3) {
-      setError('Username deve essere di almeno 3 caratteri');
-      return false;
-    }
-
-    // Validazione caratteri speciali username
-    const usernameRegex = /^[a-zA-Z0-9_]+$/;
-    if (!usernameRegex.test(username)) {
-      setError('Username può contenere solo lettere, numeri e underscore');
-      return false;
-    }
-
-    // Validazione password
-    if (password.length < 4) {
-      setError('Password deve essere di almeno 4 caratteri');
-      return false;
-    }
-
-    // Validazione conferma password (solo per registrazione)
-    if (!isLogin && password !== confirmPassword) {
-      setError('Le password non corrispondono');
-      return false;
-    }
-
-    return true;
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -62,42 +33,87 @@ export default function LoginPage() {
     setError("");
 
     try {
-      // Validazione lato client
-      if (!validateForm()) {
-        setLoading(false);
-        return;
-      }
-
-      let result;
-      
       if (isLogin) {
-        // Login - controlla se l'utente è nel database
-        result = await checkUserCredentials(username, password);
-        
+        const result = await checkUserCredentials(username, password);
         if (result.success) {
-          // Utente trovato e password corretta
           setUser(result.user);
-          // Il reindirizzamento avverrà tramite useEffect
+          await addTreeToUser(username, userTree);
         } else {
-          // Utente non trovato o password errata
-          setError(result.error || 'Credenziali non valide');
+          setError(result.error);
         }
       } else {
-        // Registrazione - controlla che l'username non sia già presente
-        result = await registerUser(username, password, email || null);
-        
+        const result = await registerUser(username, password, email);
         if (result.success) {
-          // Registrazione completata
           setUser(result.user);
-          // Il reindirizzamento avverrà tramite useEffect
+          await addTreeToUser(username, userTree);
         } else {
-          setError(result.error || 'Errore durante la registrazione');
+          setError(result.error);
         }
       }
-    } catch (error) {
-      setError(error.message || 'Si è verificato un errore imprevisto');
+    } catch (err) {
+      setError("Errore durante il login/registrazione");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const validateForm = () => {
+    if (username.length < 3) {
+      setError("Username deve essere di almeno 3 caratteri");
+      return false;
+    }
+    const usernameRegex = /^[a-zA-Z0-9_]+$/;
+    if (!usernameRegex.test(username)) {
+      setError("Username può contenere solo lettere, numeri e underscore");
+      return false;
+    }
+    if (password.length < 4) {
+      setError("Password deve essere di almeno 4 caratteri");
+      return false;
+    }
+    if (!isLogin && password !== confirmPassword) {
+      setError("Le password non corrispondono");
+      return false;
+    }
+    return true;
+  };
+
+  // 🔥 funzione per creare la struttura user-tree in Firebase
+  const ensureUserTreeInFirebase = async (username, userTree) => {
+    try {
+      if (!userTree) return;
+
+      const safeTreeId = userTree["id scheda"].replace(/\//g, ".");
+      const userDocRef = doc(db, "user-tree", username);
+
+      // verifica se esiste il documento utente
+      const userSnap = await getDoc(userDocRef);
+      if (!userSnap.exists()) {
+        await setDoc(userDocRef, {}); // crea documento utente
+        console.log("🆕 Creato documento utente:", username);
+      }
+
+      // documento dell'albero nella subcollection tree
+      const treeDocRef = doc(collection(userDocRef, "tree"), safeTreeId);
+      const treeSnap = await getDoc(treeDocRef);
+
+      if (!treeSnap.exists()) {
+        const lat = userTree.lat || "";
+        const lon = userTree.lon || "";
+        const coordinates = `${lat},${lon}`;
+
+        await setDoc(treeDocRef, {
+          soprannome: userTree.soprannome || "Senza nome",
+          specie: userTree["specie nome scientifico"] || "Specie sconosciuta",
+          luogo: userTree.comune || "Comune sconosciuto",
+          regione: userTree.regione || "Regione sconosciuta",
+          coordinates,
+          comments: [],
+        });
+        console.log("🌳 Creato nuovo documento tree per", safeTreeId);
+      }
+    } catch (error) {
+      console.error("❌ Errore nella creazione di user-tree:", error);
     }
   };
 
@@ -108,39 +124,32 @@ export default function LoginPage() {
     setConfirmPassword("");
   };
 
-  // Se l'utente è già loggato, mostra null mentre useEffect gestisce il reindirizzamento
-  if (user) {
-    return null;
-  }
+  if (user) return null;
 
   return (
     <div className={styles.container}>
-      <BackButton bg={true} /> 
+      <BackButton bg={true} />
       <div className={styles.loginCard}>
-        {/* Header con switch */}
         <div className={styles.header}>
           <div className={styles.switchContainer}>
             <button
-              className={`${styles.switchButton} ${isLogin ? styles.active : ''}`}
+              className={`${styles.switchButton} ${isLogin ? styles.active : ""}`}
               onClick={() => !isLogin && switchMode()}
               type="button"
             >
               Accedi
             </button>
             <button
-              className={`${styles.switchButton} ${!isLogin ? styles.active : ''}`}
+              className={`${styles.switchButton} ${!isLogin ? styles.active : ""}`}
               onClick={() => isLogin && switchMode()}
               type="button"
             >
               Registrati
             </button>
           </div>
-          <h2 className={styles.title}>
-            {isLogin ? 'Accedi!' : 'Crea Account'}
-          </h2>
+          <h2 className={styles.title}>{isLogin ? "Accedi!" : "Crea Account"}</h2>
         </div>
 
-        {/* Messaggio di errore */}
         {error && (
           <div className={styles.errorAlert}>
             <span className={styles.errorIcon}>⚠️</span>
@@ -148,7 +157,6 @@ export default function LoginPage() {
           </div>
         )}
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className={styles.form}>
           <FormField
             label="Username *"
@@ -173,8 +181,6 @@ export default function LoginPage() {
               disabled={loading}
             />
           )}
-
-          <span className="mt-1"></span>
 
           <FormField
             label="Password *"
@@ -202,33 +208,26 @@ export default function LoginPage() {
             />
           )}
 
-          <SubmitButton 
-            loading={loading} 
-            isLogin={isLogin} 
-          />
+          <SubmitButton loading={loading} isLogin={isLogin} />
         </form>
 
-        <SwitchLink 
-          isLogin={isLogin} 
-          loading={loading} 
-          onSwitch={switchMode} 
-        />
+        <SwitchLink isLogin={isLogin} loading={loading} onSwitch={switchMode} />
       </div>
     </div>
   );
 }
 
-// Componente per i campi del form
-function FormField({ 
-  label, 
-  type, 
-  id, 
-  value, 
-  onChange, 
-  placeholder, 
-  disabled, 
-  required = false, 
-  minLength 
+// --- COMPONENTI DI SUPPORTO ---
+function FormField({
+  label,
+  type,
+  id,
+  value,
+  onChange,
+  placeholder,
+  disabled,
+  required = false,
+  minLength,
 }) {
   return (
     <div className={styles.inputGroup}>
@@ -250,10 +249,9 @@ function FormField({
   );
 }
 
-// Componente per il bottone di submit
 function SubmitButton({ loading, isLogin }) {
   return (
-    <Button 
+    <Button
       variant="primary"
       type="submit"
       className={`${styles.submitButton} myrtle`}
@@ -262,29 +260,28 @@ function SubmitButton({ loading, isLogin }) {
       {loading ? (
         <div className={styles.loadingSpinner}>
           <div className={styles.spinner}></div>
-          {isLogin ? 'Accesso in corso...' : 'Registrazione in corso...'}
+          {isLogin ? "Accesso in corso..." : "Registrazione in corso..."}
         </div>
+      ) : isLogin ? (
+        "ACCEDI"
       ) : (
-        isLogin ? 'ACCEDI' : 'REGISTRATI'
+        "REGISTRATI"
       )}
     </Button>
   );
 }
 
-// Componente per il link di switch
 function SwitchLink({ isLogin, loading, onSwitch }) {
   return (
     <div className={styles.switchLink}>
-      <span>
-        {isLogin ? 'Non hai un account?' : 'Hai già un account?'}
-      </span>
+      <span>{isLogin ? "Non hai un account?" : "Hai già un account?"}</span>
       <button
         className={styles.linkButton}
         onClick={onSwitch}
         disabled={loading}
         type="button"
       >
-        {isLogin ? 'Registrati' : 'Accedi'}
+        {isLogin ? "Registrati" : "Accedi"}
       </button>
     </div>
   );

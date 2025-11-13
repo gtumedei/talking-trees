@@ -37,6 +37,8 @@ function PageContent() {
         return { lat: 43.99872834108618, lng: 12.433481099993726 };
       case '2':
         return { lat: 44.49197405160085, lng: 11.345286337978994 };
+      case '3':  
+        return { lat: 45.69867777777, lng: 9.78363888888889 };
       default:
         return null;
     }

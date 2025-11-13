@@ -83,10 +83,13 @@ body {
   overflow-x: hidden; /* prevenire scroll orizzontale */
   -webkit-text-stroke-width: 0.09px;
   -webkit-text-stroke-color: var(--light);
-  padding-bottom: 20px;
 }
 body .fw-bold {
   -webkit-text-stroke-width: 0;
+}
+
+.container{
+  padding-bottom: 20px;
 }
 
 .fw-green{-webkit-text-stroke-color: var(--green);}

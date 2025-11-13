@@ -553,7 +553,7 @@ export async function buildTreeContext(tree, species = null, variant="statico") 
   const ragStructure = await buildTreeStructure(tree, species, placeData, pollutionData, historicalData, weatherData);
   const context = buildContextString(ragStructure);
 
-  console.log(context)
+  console.log(ragStructure)
 
   if(variant == "statico")
     return {ragStructure: ragStructure, id_spacevector: ''};
