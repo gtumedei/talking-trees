@@ -6,18 +6,22 @@ import Image from "next/image";
 import styles from "./Tree.module.css";
 import Title from "@component/ui/Title";
 import TimeLine from "@component/timeline/TimeLine";
-import Link from "next/link";
+import Link from 'next/link';
 import MapLink from "@component/maps/PositionMap";
 import { useContext, useState, useEffect } from "react";
 import { UserContext } from "@/app/layout";
 import HealthStatus from "@component/ui/HealthStatus";
+import {TreeProps} from "@service/types/interface_page"
+import { UserTreeType } from "@/backend/types/interface_context";
+import { useRouter } from "next/navigation";
 
+export default function Tree({ variant = "statico" }: TreeProps) {
+  const userContext = useContext(UserContext) || ({} as { userTree?: UserTreeType });
+  const { userTree } = userContext;
+  const [imageSrc, setImageSrc] = useState<string>("/tree/empty.png");
+  const [imageLoaded, setImageLoaded] = useState<boolean>(false);
+  const router = useRouter();
 
-export default function Tree({ variant = "statico" }) {
-  const { userTree } = useContext(UserContext);
-  const [imageSrc, setImageSrc] = useState("/tree/empty.png");
-  const [imageLoaded, setImageLoaded] = useState(false);
-  
   // Precarica e verifica l'immagine
   useEffect(() => {
     const checkImageExists = async () => {
@@ -28,9 +32,9 @@ export default function Tree({ variant = "statico" }) {
       }
 
       const potentialImageSrc = `/tree/${treeId.replaceAll('/', '.')}.png`;
-      
+
       try {
-        const response = await fetch(potentialImageSrc, { method: 'HEAD' });
+        const response = await fetch(potentialImageSrc, { method: "HEAD" });
         if (response.ok) {
           setImageSrc(potentialImageSrc);
         } else {
@@ -40,7 +44,7 @@ export default function Tree({ variant = "statico" }) {
         console.log("Immagine non trovata, uso default");
         setImageSrc("/tree/tree-default.png");
       }
-      setImageLoaded(true)
+      setImageLoaded(true);
     };
 
     if (userTree) {
@@ -59,21 +63,21 @@ export default function Tree({ variant = "statico" }) {
         return {
           treeButtonText: "Parla con l'albero",
           treeButtonIcon: <FaTree />,
-          treeButtonHref: "/pages/chatbot?variant=scientifico",
-          treeButtonClass: "green"
+          treeButtonHref: `/pages/chatbot?variant=${variant}`,
+          treeButtonClass: "green",
         };
       case "chatbot-narrativo":
         return {
           treeButtonText: "Parla con l'albero",
           treeButtonIcon: <FaTree />,
-          treeButtonHref: "/pages/chatbot?variant=narrativo"
+          treeButtonHref: `/pages/chatbot?variant=${variant}`,
         };
       case "statico":
       default:
         return {
           treeButtonText: "Informazioni sull'albero",
           treeButtonIcon: <FaInfoCircle />,
-          treeButtonHref: "/pages/infoTree"
+          treeButtonHref: "/pages/infoTree",
         };
     }
   };
@@ -82,30 +86,11 @@ export default function Tree({ variant = "statico" }) {
 
   if (!userTree) return null;
 
-  const currentYear = new Date().getFullYear();
-  
-  // Estrae il numero dalla stringa "eta" e calcola startYear
-  const calculateStartYear = () => {
-    if (!userTree["eta"]) return null;
-    
-    // Estrae tutti i numeri dalla stringa
-    const numbers = userTree["eta"].match(/\d+/g);
-    if (!numbers || numbers.length === 0) return null;
-    
-    // Prende il primo numero trovato
-    const age = parseInt(numbers[0]);
-    if (isNaN(age)) return null;
-    
-    return currentYear - age;
-  };
-
-  const startYear = calculateStartYear();
-  const hasTimeline = userTree["eta"] && startYear !== null;
-
   // Determina la classe CSS in base al tipo di immagine
-  const imageClass = imageSrc === "/tree/tree-default.png" 
-    ? styles.treeImgDef 
-    : styles.treeImg;
+  const imageClass =
+    imageSrc === "/tree/tree-default.png"
+      ? styles.treeImgDef
+      : styles.treeImg;
 
   return (
     <Container className={styles.page}>
@@ -120,9 +105,11 @@ export default function Tree({ variant = "statico" }) {
       {userTree["specie nome scientifico"] && (
         <p className="text-center fst-italic">
           {userTree["index_specie"] === "" ? (
-            <span>userTree["specie nome scientifico"]</span>
+            <span>{userTree["specie nome scientifico"]}</span>
           ) : (
-            <Link href="/pages/specie" className={styles.nameLink}>{userTree["specie nome scientifico"]}</Link>
+            <Link href="/pages/specie" className={styles.nameLink}>
+              {userTree["specie nome scientifico"]}
+            </Link>
           )}
         </p>
       )}
@@ -140,7 +127,9 @@ export default function Tree({ variant = "statico" }) {
               alt={userTree["soprannome"] || userTree["specie nome volgare"]}
               width={300}
               height={400}
-              className={`${imageClass} img-fluid ${!imageLoaded ? styles.treeImgBlur : styles.treeImgLoaded}`}
+              className={`${imageClass} img-fluid ${
+                !imageLoaded ? styles.treeImgBlur : styles.treeImgLoaded
+              }`}
               priority
             />
           </div>
@@ -164,21 +153,21 @@ export default function Tree({ variant = "statico" }) {
           </p>
 
           {/* Mappa link */}
-          {userTree.lat && userTree.lng && (
+          {userTree.lat && userTree.lon && (
             <MapLink
-              lat={parseFloat(userTree.lat)}
-              lng={parseFloat(userTree.lng)}
+              lat={userTree.lat}
+              lng={userTree.lon}
               label=">> Vedi posizione"
               className="tx-small text-end w-100 mt-0 mb-3"
             />
           )}
 
           {/* Stato di salute attuale */}
-          {userTree["status_salute"] &&
+          {userTree.stato_salute && (
             <div className="d-flex justify-content-between align-items-center mb-2">
-              <p className="mt-2 fw-bold mb-0">Stato di salute {userTree["status_salute"]}</p>
+              <p className="mt-2 fw-bold mb-0">Stato di salute {userTree.stato_salute}</p>
             </div>
-          }
+          )}
 
           {/* Dimensioni */}
           <p className="mt-2 fw-bold">Dimensioni</p>
@@ -194,9 +183,11 @@ export default function Tree({ variant = "statico" }) {
           <p className="mt-1 fw-bold">Criteri di Monumentalità</p>
           <ul>
             {userTree["criteri di monumentalità"]
-               ?.replace(/^-/, "")
-               .split("-")
-              .map((c, i) => <li key={i}>{c}</li>)}
+              ?.replace(/^-/, "")
+              .split("-")
+              .map((c : string, i : any) => (
+                <li key={i}>{c}</li>
+              ))}
           </ul>
 
           {/* Età stimata */}
@@ -208,22 +199,26 @@ export default function Tree({ variant = "statico" }) {
         </Col>
       </Row>
 
-      {/* Bottone salute*/}
+      {/* Bottone salute */}
       <HealthStatus />
 
       {/* Timeline - MOSTRATA SOLO SE È PRESENTE IL CAMPO "eta" */}
-      {hasTimeline && (
-        <TimeLine startYear={startYear} endYear={currentYear} />
+      {userTree["eta"] && (
+        <TimeLine eta={userTree["eta"]} endYear={new Date().getFullYear()} />
       )}
 
       {/* Bottone di navigazione */}
       <div className="w-100 d-flex justify-content-around">
-        <Button as={Link} href="/pages/diary" variant="primary"
+       <Button
+          onClick={() =>  router.push("/pages/diary")}
+          variant="primary"
           className="mt-3 mb-5 fw-bold d-flex align-items-center gap-2 flame"
         >
           <FaBookOpen /> Pezzi di storia
         </Button>
-        <Button as={Link} href={treeConfig.treeButtonHref} variant="primary"
+        <Button
+          onClick={() =>  router.push(treeConfig.treeButtonHref)}
+          variant="primary"
           className={`mt-3 mb-5 fw-bold d-flex align-items-center gap-2 green`}
         >
           {treeConfig.treeButtonIcon} {treeConfig.treeButtonText}

@@ -5,17 +5,11 @@ import styles from "./Diary.module.css";
 import Title from "@component/ui/Title";
 import { Modal, Button, Form } from "react-bootstrap";
 import BackButton from "@component/ui/BackButton";
-import { db } from "@/app/services/firebase";
-import {collection, doc, getDoc, getDocs, setDoc, updateDoc, addDoc, arrayUnion, serverTimestamp,
-  query, where, orderBy} from "firebase/firestore";
 import { UserContext } from "@/app/layout";
+import { saveCommentToFirebase, loadCommentsFromFirebase } from "@service/userServices";
+import { Comment } from "@service/types/interface_db";
+import { UserContextType } from '@service/types/interface_context';
 
-// ---------- tipi ----------
-type Entry = {
-  date: string;
-  text: string;
-  author?: string;
-};
 
 // ---------- lista font con dimensione base ----------
 const fonts = [
@@ -36,208 +30,81 @@ function seededRandom(seed: number) {
 
 // ---------- COMPONENTE ----------
 export default function DiaryPage() {
-  const userContext = useContext(UserContext) || ({} as { userTree?: { ["id scheda"]?: string } | null; user?: boolean });
+  const userContext = useContext(UserContext) || ({} as UserContextType);
   const { userTree, user } = userContext;
 
-  const [entries, setEntries] = useState<Entry[]>([]); // ✅ inizializzato come array vuoto
+  const [entries, setEntries] = useState<Comment[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [newText, setNewText] = useState("");
   const [newAuthor, setNewAuthor] = useState("");
 
   const seed = 42;
 
-  // 🔥 Funzione per salvare un commento
-  const saveCommentToFirebase = async (text: string, signature: string) => {
-    try {
-      // 🔥 Forza userValue a essere una STRINGA
-      const userValue =
-        user
-          ? user.username
-          : signature.trim() !== ""
-          ? signature.trim()
-          : null;
-
-      const idScheda = String(userTree?.["id scheda"] || "");
-      if (!idScheda) {
-        console.error("⚠️ Nessun id scheda trovato in userTree");
-        return;
-      }
-
-      // 💾 1️⃣ Salva sempre il commento in "comments"
-      await addDoc(collection(db, "comments"), {
-        date: serverTimestamp(),
-        id_tree: idScheda,
-        text: text.trim(),
-        user: userValue, // ora è una stringa
-      });
-      console.log("✅ Commento aggiunto a Firestore (collezione comments)");
-
-      // 💾 2️⃣ Se esiste un utente loggato, aggiorna anche la struttura user-tree
-      if (userValue) {
-        const safeTreeId = idScheda.replace(/\//g, ".");
-        const userTreeDocRef = doc(db, "user-tree", userValue);
-
-        const userDocSnap = await getDoc(userTreeDocRef);
-        if (!userDocSnap.exists()) {
-          await setDoc(userTreeDocRef, {});
-          console.log("🆕 Creato nuovo documento per utente:", userValue);
-        }
-
-        const treeDocRef = doc(collection(userTreeDocRef, "tree"), safeTreeId);
-        const treeDocSnap = await getDoc(treeDocRef);
-
-        if (!treeDocSnap.exists()) {
-          const lat = userTree.lat || "";
-          const lon = userTree.lon || "";
-          const coordinates = `${lat},${lon}`;
-
-          await setDoc(treeDocRef, {
-            soprannome: userTree.soprannome || "Senza nome",
-            specie: userTree["specie nome scientifico"] || "Specie sconosciuta",
-            luogo: userTree.comune || "Comune sconosciuto",
-            regione: userTree.regione || "Regione sconosciuta",
-            coordinates,
-            comments: [],
-          });
-          console.log("🌳 Creato nuovo documento tree per", safeTreeId);
-        }
-
-        await updateDoc(treeDocRef, {
-          comments: arrayUnion(text.trim()),
-        });
-        console.log("💬 Commento aggiunto anche in user-tree → tree → comments");
-      }
-    } catch (error) {
-      console.error("❌ Errore nel salvataggio del commento:", error);
-    }
-  };
-
-
-
-  // 🌿 Funzione per caricare i commenti da Firestore
-  const loadCommentsFromFirebase = async () => {
-    if (!userTree?.["id scheda"]) {
-      console.warn("⚠️ Nessun id scheda disponibile per l'albero");
-      return;
-    }
-
-    try {
-      const q = query(
-        collection(db, "comments"),
-        where("id_tree", "==", userTree?.["id scheda"]),
-        orderBy("date", "asc")
-      );
-
-      const snapshot = await getDocs(q);
-
-      const loadedEntries: Entry[] = snapshot.docs.map((doc) => {
-        const data = doc.data();
-        return {
-          date: data.date?.toDate?.().toLocaleDateString("it-IT") || "—",
-          text: data.text || "",
-          author: data.user || undefined,
-        };
-      });
-
-      setEntries(loadedEntries);
-      console.log("✅ Commenti caricati da Firestore:", loadedEntries);
-    } catch (error) {
-      console.error("❌ Errore nel caricamento dei commenti:", error);
-    }
-  };
-
-  // ⚙️ Carica i commenti una sola volta al montaggio del componente
+  // Carica i commenti quando il componente si monta
   useEffect(() => {
-    loadCommentsFromFirebase();
-  }, []); // ✅ solo al mount
+    const loadEntries = async () => {
+      const loadedEntries = await loadCommentsFromFirebase(userTree);
+      setEntries(loadedEntries);
+    };
+    loadEntries();
+  }, [userTree]);
 
-  // ✏️ Aggiungi un nuovo commento
-  const handleAddEntry = async () => {
+  // Aggiungi un nuovo commento
+  const handleAddComment = async () => {
     if (!newText.trim()) return;
 
     const today = new Date().toLocaleDateString("it-IT");
-    const newEntry: Entry = {
+    const newComment: Comment = {
       date: today,
       text: newText,
-      author: newAuthor.trim() || undefined,
+      author: user ? user.username : newAuthor.trim() !== "" ? newAuthor.trim() : undefined
     };
 
-    // Aggiorna lo stato locale subito
-    setEntries((prev) => [...prev, newEntry]);
+    setEntries((prev) => [...prev, newComment]);
     setNewText("");
     setNewAuthor("");
     setShowModal(false);
 
-    // 💾 Salvataggio nel database Firebase
-    await saveCommentToFirebase(newText, newAuthor);
-
-    // 🔄 Ricarica i commenti aggiornati
-    await loadCommentsFromFirebase();
+    await saveCommentToFirebase(newComment, userTree);
+    const updatedEntries = await loadCommentsFromFirebase(userTree);
+    setEntries(updatedEntries);
   };
 
   return (
     <main className="p-2">
       <BackButton />
-      <Title
-        text="Pezzi di Storia"
-        level={1}
-        className="text-center mt-3 display-6"
-      />
-      <p className="text-center">
-        Leggi i ricordi, gli eventi e le emozioni relative a quest'albero
-      </p>
+      <Title text="Pezzi di Storia" level={1} className="text-center mt-3 display-6" />
+      <p className="text-center">Leggi i ricordi, gli eventi e le emozioni relative a quest'albero</p>
 
-      {/* pulsante sopra i commenti */}
       <div className="mb-1 text-center">
-        <Button
-          variant="secondary"
-          className="flame"
-          onClick={() => setShowModal(true)}
-        >
+        <Button variant="secondary" className="flame" onClick={() => setShowModal(true)}>
           + Aggiungi ricordo
         </Button>
       </div>
 
       <div className={styles.entries}>
         {entries.length === 0 ? (
-          <p className="text-center text-muted mt-3">
-            Nessun ricordo ancora presente 🌱
-          </p>
+          <p className="text-center text-muted mt-3">Nessun ricordo ancora presente 🌱</p>
         ) : (
-          entries.map((entry, i) => {
+          entries.map((Comment, i) => {
             const fontIndex = Math.floor(seededRandom(seed + i) * fonts.length);
             const { family, baseSize, fontBold } = fonts[fontIndex];
-            const variation =
-              Math.floor(seededRandom(seed * (i + 1)) * 3) - 1;
+            const variation = Math.floor(seededRandom(seed * (i + 1)) * 3) - 1;
             const fontSize = baseSize + variation;
 
-            console.log(entry)
-
             return (
-              <div key={i} className={styles.entry}>
+              <div key={i} className={styles.Comment}>
                 <p className={styles.date}>
-                  <i>{entry.date}</i>
+                  <i>{Comment.date}</i>
                 </p>
-                <p
-                  className={`${styles.text} ${
-                    fontBold ? "fw-bold" : ""
-                  }`}
-                  style={{ fontFamily: family, fontSize: `${fontSize}px` }}
-                >
-                  {entry.text}
+                <p className={`${styles.text} ${fontBold ? "fw-bold" : ""}`} style={{ fontFamily: family, fontSize: `${fontSize}px` }}>
+                  {Comment.text}
                 </p>
-                {entry.author && (
-                  <p
-                    className={styles.author}
-                    style={{
-                      fontFamily: family,
-                      fontSize: `${fontSize - 1}px`,
-                    }}
-                  >
-                    — {entry.author}
+                {Comment.author && (
+                  <p className={styles.author} style={{ fontFamily: family, fontSize: `${fontSize - 1}px` }}>
+                    — {Comment.author}
                   </p>
                 )}
-
                 <hr className="my-2" />
               </div>
             );
@@ -245,7 +112,6 @@ export default function DiaryPage() {
         )}
       </div>
 
-      {/* modal per aggiungere nuovo commento */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Aggiungi il tuo ricordo</Modal.Title>
@@ -254,33 +120,19 @@ export default function DiaryPage() {
           <Form>
             <Form.Group className="mb-3">
               <Form.Label>Ricordo</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                value={newText}
-                onChange={(e) => setNewText(e.target.value)}
-                placeholder="Scrivi il tuo ricordo..."
-              />
+              <Form.Control as="textarea" rows={3} value={newText} onChange={(e) => setNewText(e.target.value)} placeholder="Scrivi il tuo ricordo..." />
             </Form.Group>
             <Form.Group>
               <Form.Label>Firma (opzionale)</Form.Label>
-              <Form.Control
-                type="text"
-                value={newAuthor}
-                onChange={(e) => setNewAuthor(e.target.value)}
-                placeholder="Il tuo nome"
-              />
+              <Form.Control type="text" value={newAuthor} onChange={(e) => setNewAuthor(e.target.value)} placeholder="Il tuo nome" />
             </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button
-            variant="secondary"
-            onClick={() => setShowModal(false)}
-          >
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
             Annulla
           </Button>
-          <Button variant="primary" onClick={handleAddEntry}>
+          <Button variant="primary" onClick={handleAddComment}>
             Salva
           </Button>
         </Modal.Footer>

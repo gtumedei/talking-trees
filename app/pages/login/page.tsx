@@ -1,25 +1,28 @@
 "use client";
 
 import { Button } from "react-bootstrap";
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, FormEvent } from "react";
 import { UserContext } from "@/app/layout";
 import { useRouter } from "next/navigation";
 import styles from "./Login.module.css";
 import BackButton from "@component/ui/BackButton";
-import { checkUserCredentials, registerUser } from "@/app/services/userServices";
-
+import { checkUserCredentials, registerUser, addTreeToUser } from "@service/userServices";
+import { UserContextType} from '@service/types/interface_context';
+import {UserDb} from '@service/types/interface_db'
 
 export default function LoginPage() {
-  const [isLogin, setIsLogin] = useState(true);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [isLogin, setIsLogin] = useState<boolean>(true);
+  const [username, setUsername] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
 
-  const { user, setUser, userTree } = useContext(UserContext); // 🔥 includiamo userTree
+  const { user, setUser, userTree } = useContext(UserContext) as UserContextType;
   const router = useRouter();
+
+  const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
   useEffect(() => {
     if (user) {
@@ -27,7 +30,7 @@ export default function LoginPage() {
     }
   }, [user, router]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
@@ -36,18 +39,22 @@ export default function LoginPage() {
       if (isLogin) {
         const result = await checkUserCredentials(username, password);
         if (result.success) {
-          setUser(result.user);
-          await addTreeToUser(username, userTree);
+          const res = result.user || {} as UserDb
+          setUser(res);
+          if (userTree) await addTreeToUser(username, userTree);
+          await sleep(1000);
         } else {
-          setError(result.error);
+          setError(result.error || 'Error!');
         }
       } else {
-        const result = await registerUser(username, password, email);
+        const result = await registerUser({username, password, email});
         if (result.success) {
-          setUser(result.user);
-          await addTreeToUser(username, userTree);
+          const res = result.user || {} as UserDb
+          setUser(res);
+          if (userTree) await addTreeToUser(username, userTree);
+          await sleep(1000);
         } else {
-          setError(result.error);
+          setError(result.error || 'Error!');
         }
       }
     } catch (err) {
@@ -76,45 +83,6 @@ export default function LoginPage() {
       return false;
     }
     return true;
-  };
-
-  // 🔥 funzione per creare la struttura user-tree in Firebase
-  const ensureUserTreeInFirebase = async (username, userTree) => {
-    try {
-      if (!userTree) return;
-
-      const safeTreeId = userTree["id scheda"].replace(/\//g, ".");
-      const userDocRef = doc(db, "user-tree", username);
-
-      // verifica se esiste il documento utente
-      const userSnap = await getDoc(userDocRef);
-      if (!userSnap.exists()) {
-        await setDoc(userDocRef, {}); // crea documento utente
-        console.log("🆕 Creato documento utente:", username);
-      }
-
-      // documento dell'albero nella subcollection tree
-      const treeDocRef = doc(collection(userDocRef, "tree"), safeTreeId);
-      const treeSnap = await getDoc(treeDocRef);
-
-      if (!treeSnap.exists()) {
-        const lat = userTree.lat || "";
-        const lon = userTree.lon || "";
-        const coordinates = `${lat},${lon}`;
-
-        await setDoc(treeDocRef, {
-          soprannome: userTree.soprannome || "Senza nome",
-          specie: userTree["specie nome scientifico"] || "Specie sconosciuta",
-          luogo: userTree.comune || "Comune sconosciuto",
-          regione: userTree.regione || "Regione sconosciuta",
-          coordinates,
-          comments: [],
-        });
-        console.log("🌳 Creato nuovo documento tree per", safeTreeId);
-      }
-    } catch (error) {
-      console.error("❌ Errore nella creazione di user-tree:", error);
-    }
   };
 
   const switchMode = () => {
@@ -218,6 +186,18 @@ export default function LoginPage() {
 }
 
 // --- COMPONENTI DI SUPPORTO ---
+interface FormFieldProps {
+  label: string;
+  type: string;
+  id: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+  disabled: boolean;
+  required?: boolean;
+  minLength?: number;
+}
+
 function FormField({
   label,
   type,
@@ -228,7 +208,7 @@ function FormField({
   disabled,
   required = false,
   minLength,
-}) {
+}: FormFieldProps) {
   return (
     <div className={styles.inputGroup}>
       <label htmlFor={id} className={styles.label}>
@@ -249,7 +229,12 @@ function FormField({
   );
 }
 
-function SubmitButton({ loading, isLogin }) {
+interface SubmitButtonProps {
+  loading: boolean;
+  isLogin: boolean;
+}
+
+function SubmitButton({ loading, isLogin }: SubmitButtonProps) {
   return (
     <Button
       variant="primary"
@@ -271,7 +256,13 @@ function SubmitButton({ loading, isLogin }) {
   );
 }
 
-function SwitchLink({ isLogin, loading, onSwitch }) {
+interface SwitchLinkProps {
+  isLogin: boolean;
+  loading: boolean;
+  onSwitch: () => void;
+}
+
+function SwitchLink({ isLogin, loading, onSwitch }: SwitchLinkProps) {
   return (
     <div className={styles.switchLink}>
       <span>{isLogin ? "Non hai un account?" : "Hai già un account?"}</span>

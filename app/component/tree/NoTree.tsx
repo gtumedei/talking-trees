@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState, ChangeEvent, FormEvent } from "react";
 import styles from "./NoTree.module.css";
 import { Container, Accordion } from "react-bootstrap";
+import {FormState} from '@service/types/interface_db'
+import { saveTreeData } from '@service/userServices'; // Importa la funzione saveTreeData
 
 export default function NoTree() {
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<FormState>({
     nome: "",
     altezza: "",
     circonferenza: "",
@@ -25,10 +27,13 @@ export default function NoTree() {
     mail: "",
   });
 
-  const [foto, setFoto] = useState(null);
+  const [foto, setFoto] = useState<File | null>(null);
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+  // Gestione del cambiamento dei campi
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.currentTarget;
+    const checked = (e.currentTarget as HTMLInputElement).checked;
+
     if (type === "checkbox") {
       setForm((prev) => ({
         ...prev,
@@ -41,10 +46,17 @@ export default function NoTree() {
     }
   };
 
-  const handleSubmit = (e) => {
+  // Gestione del submit del form
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Dati segnalazione:", { ...form, foto });
-    alert("Segnalazione inviata con successo!");
+    try {
+      const docId = await saveTreeData(form, foto);
+      console.log("ID del documento salvato:", docId);
+      alert("Segnalazione inviata con successo!");
+    } catch (error) {
+      console.error("Errore nell'invio della segnalazione:", error);
+      alert("Si è verificato un errore. Riprova più tardi.");
+    }
   };
 
   return (

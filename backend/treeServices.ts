@@ -19,8 +19,15 @@ export async function ensureUserTreeDoc(username: string) {
 
   // Se il documento non esiste, creiamo un nuovo documento vuoto
   if (!userDocSnap.exists()) {
-    await setDoc(userDocRef, {}); // Crea un documento vuoto
-    console.log("🆕 Creato nuovo documento utente:", username);
+    // Crea il documento dell'utente
+    await setDoc(userDocRef, {});
+    console.log('🆕 Creato documento user-tree per', username);
+    
+    // Crea una raccolta "tree" vuota all'interno del documento dell'utente
+    const treeCollectionRef = collection(userDocRef, 'tree');
+    // Puoi anche aggiungere un documento vuoto, o definire una struttura per la raccolta
+    await setDoc(doc(treeCollectionRef), {}); // aggiungi un documento vuoto alla raccolta "tree"
+    console.log('🌳 Creata raccolta "tree" per', username);
   }
 
   // Restituisce il riferimento al documento utente

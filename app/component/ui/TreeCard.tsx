@@ -2,70 +2,50 @@ import React from 'react';
 import { FaDownload, FaComment, FaMapMarkerAlt } from 'react-icons/fa';
 import RegionSVG from "@component/maps/RegionMap";
 import styles from './TreeCard.module.css'; // Assumo che i tuoi stili siano definiti qui
+import { ElemListTree } from "@service/types/interface_db";
 
-// Definiamo un'interfaccia per le props
-interface TreeCardProps {
-  id: string;
-  soprannome: string;
-  specie: string;
-  luogo: string | null;
-  regione: string;
-  coordinates?: string; // coordinate sono opzionali
-  comments?: string[]; // I commenti sono opzionali
-}
+export default function TreeCard({ tree }: { tree: ElemListTree }) {
+  const { id, soprannome, specie, luogo, regione, coordinates = '', comments = [] } = tree;
 
-const TreeCard: React.FC<TreeCardProps> = ({
-  id,
-  soprannome,
-  specie,
-  luogo,
-  regione,
-  coordinates = '',
-  comments = [],
-}) => {
-    // Dizionario di corrispondenza tra valori "sporchi" e nomi standard delle regioni
-    const regioneMap: { [key: string]: string } = {
-    'Lombardia': 'Lombardy',
-    'Sardegna': 'Sardegna',
-    'ValleDAosta': 'Valle d\'Aosta',
-    'Basilicata': 'Basilicata',
-    'Emilia': 'Emilia-Romagna',
-    'Bolzano': 'Alto Adige/Südtirol',
-    'Abruzzo': 'Abruzzo',
-    'Campania': 'Campania',
-    'Veneto': 'Veneto',
-    'Lazio': 'Lazio',
-    'Toscana': 'Tuscany',
-    'Puglia': 'Puglia',
-    'Trento': 'Trentino-Alto Adige',
-    'Molise': 'Molise',
-    'Friuli': 'Friuli Venezia Giulia',
-    'Calabria': 'Calabria',
-    'Sicilia': 'Sicilia',
-    'Marche': 'Marche',
-    'Liguria': 'Liguria',
-    'Piemonte': 'Piedmont',
-    'Umbria': 'Umbria',
-    };
+  // Dizionario di corrispondenza tra valori "sporchi" e nomi standard delle regioni
+  const regioneMap: { [key: string]: string } = {
+  'Lombardia': 'Lombardy',
+  'Sardegna': 'Sardegna',
+  'ValleDAosta': 'Valle d\'Aosta',
+  'Basilicata': 'Basilicata',
+  'Emilia': 'Emilia-Romagna',
+  'Bolzano': 'Alto Adige/Südtirol',
+  'Abruzzo': 'Abruzzo',
+  'Campania': 'Campania',
+  'Veneto': 'Veneto',
+  'Lazio': 'Lazio',
+  'Toscana': 'Tuscany',
+  'Puglia': 'Puglia',
+  'Trento': 'Trentino-Alto Adige',
+  'Molise': 'Molise',
+  'Friuli': 'Friuli Venezia Giulia',
+  'Calabria': 'Calabria',
+  'Sicilia': 'Sicilia',
+  'Marche': 'Marche',
+  'Liguria': 'Liguria',
+  'Piemonte': 'Piedmont',
+  'Umbria': 'Umbria',
+  };
 
-    // Funzione per standardizzare il nome della regione
-    function standardizzaRegione(valore: string): string {
-    // Se il valore è null o undefined, restituiamo subito "Regione non trovata"
+  // Funzione per standardizzare il nome della regione
+  function standardizzaRegione(valore: string): string {
     if (!valore) return "Regione non trovata";
-
     // Rimuoviamo spazi e facciamo una ricerca case-insensitive nel dizionario
     const valoreStandard = Object.keys(regioneMap).find(key => 
         key.trim().replace(/\s+/g, '').toLowerCase() === valore.trim().replace(/\s+/g, '').toLowerCase()
     );
-
     // Se troviamo una corrispondenza, restituiamo il valore standard
     if (valoreStandard) {
         return regioneMap[valoreStandard];
     }
-
-    // Se non troviamo alcuna corrispondenza, restituiamo "Regione non trovata"
     return "Regione non trovata";
-    }
+  }
+
   const [lat, lon] = coordinates?.split(",") || [];
   const latNum = lat ? parseFloat(lat) : NaN; // Converte lat in numero
   const lonNum = lon ? parseFloat(lon) : NaN; // Converte lon in numero
@@ -87,15 +67,7 @@ const TreeCard: React.FC<TreeCardProps> = ({
     
 
   const downloadTreeInfo = () => {
-    const treeData = {
-      id,
-      soprannome,
-      specie,
-      luogo,
-      regione,
-      coordinates,
-      comments,
-      dataEsportazione: new Date().toISOString(),
+    const treeData = {id, soprannome, specie, luogo, regione, coordinates, comments, dataEsportazione: new Date().toISOString(),
     };
     const blob = new Blob([JSON.stringify(treeData, null, 2)], {
       type: "application/json",
@@ -178,5 +150,3 @@ const TreeCard: React.FC<TreeCardProps> = ({
     </div>
   );
 };
-
-export default TreeCard;

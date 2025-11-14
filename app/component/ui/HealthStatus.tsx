@@ -3,20 +3,28 @@
 import { Modal, Button, Row, Col } from "react-bootstrap";
 import { FaHeart, FaHeartbeat, FaSkull, FaLeaf, FaTree } from "react-icons/fa";
 import styles from "./HealthStatus.module.css";
-import { useState, useContext } from "react";
+import { useState, useContext, JSX } from "react";
 import { UserContext } from "@/app/layout";
-import { db } from "@service/firebase";
-import { doc, setDoc, getDoc, updateDoc, arrayUnion } from "firebase/firestore";
+import { saveHealthStatus } from "@/backend/userServices";
 
-const HealthStatus = () => {
-  const { userTree } = useContext(UserContext);
-  const [showModal, setShowModal] = useState(false);
-  const [currentStatus, setCurrentStatus] = useState(null);
-  const [hasSubmitted, setHasSubmitted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSubmit, setIsSubmit] = useState(false);
+// Definisci il tipo per il livello di salute
+interface HealthLevel {
+  level: number;
+  label: string;
+  color: string;
+  icon: JSX.Element; // Elemento React per l'icona
+}
 
-  const healthLevels = [
+const HealthStatus: React.FC = () => {
+  const userContext = useContext(UserContext)
+  const {userTree} = userContext || {};
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [currentStatus, setCurrentStatus] = useState<number | null>(null); // Livello di salute selezionato
+  const [hasSubmitted, setHasSubmitted] = useState<boolean>(false); // Se è stato già inviato
+  const [isLoading, setIsLoading] = useState<boolean>(false); // Se è in corso il salvataggio
+  const [isSubmit, setIsSubmit] = useState<boolean>(false); // Se il salvataggio è stato completato
+
+  const healthLevels: HealthLevel[] = [
     { 
       level: 1, 
       label: "Critico", 
@@ -49,15 +57,6 @@ const HealthStatus = () => {
     },
   ];
 
-  // Funzione per pulire l'ID e renderlo valido per Firestore
-  const getCleanTreeId = () => {
-    if (!userTree || !userTree["id scheda"]) return null;
-    
-    const rawId = userTree["id scheda"].toString();
-    // Rimuove o sostituisce i caratteri non validi
-    return rawId.replace(/\//g, '_').replace(/\./g, '_');
-  };
-
   const handleOpenModal = () => {
     if (hasSubmitted) {
       setCurrentStatus(null);
@@ -72,65 +71,22 @@ const HealthStatus = () => {
     }
   };
 
-  const handleStatusClick = (level) => {
+  const handleStatusClick = (level: number): void => {
     setCurrentStatus(level);
   };
 
-  const handleSubmit = async () => {
-    if (!currentStatus || !userTree) {
-      alert("Seleziona uno stato di salute prima di inviare");
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      const cleanTreeId = getCleanTreeId();
-      
-      if (!cleanTreeId) {
-        throw new Error("ID albero non valido");
-      }
-
-      // Crea l'oggetto dati da salvare
-      const healthEntry = {
-        livello: currentStatus,
-        livelloLabel: healthLevels.find(h => h.level === currentStatus)?.label,
-        timestamp: new Date().toISOString(), // ISO string
-      };
-
-      console.log("Tentativo di salvataggio per albero ID:", cleanTreeId);
-
-      // Usa l'ID pulito dell'albero come nome del documento
-      const treeDocRef = doc(db, "Salute", cleanTreeId);
-      
-      // Verifica se il documento esiste già
-      const treeDoc = await getDoc(treeDocRef);
-      
-      if (treeDoc.exists()) {
-        // Se il documento esiste, aggiorna l'array storico
-        await updateDoc(treeDocRef, {
-          storico: arrayUnion(healthEntry)
-        });
-        console.log("Documento aggiornato");
-      } else {
-        // Se il documento non esiste, crealo con i primi dati
-        await setDoc(treeDocRef, {
-          alberoId: cleanTreeId,
-          storico: [healthEntry]
-        });
-        console.log("Nuovo documento creato");
-      }
-
-      setHasSubmitted(true);
-      setShowModal(false);
-      setIsSubmit(true);
-      alert(`Stato di salute salvato: Livello ${currentStatus}`);
-      
-    } catch (error) {
-      console.error("Errore nel salvataggio: ", error);
-      alert("Errore nel salvataggio dello stato di salute. Riprova.");
-    } finally {
-      setIsLoading(false);
+  const handleSubmit = async (): Promise<void> => {
+    // Passiamo la logica di salvataggio a userServices
+    if (userTree) {
+      await saveHealthStatus(
+        currentStatus,
+        healthLevels,
+        userTree,
+        setIsLoading,
+        setHasSubmitted,
+        setShowModal,
+        setIsSubmit
+      );
     }
   };
 

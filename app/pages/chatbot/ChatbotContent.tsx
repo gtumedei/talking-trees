@@ -5,16 +5,10 @@ import styles from './Chatbot.module.css';
 import { Button, Badge, Form } from "react-bootstrap"; 
 import BackButton from "@/app/component/ui/BackButton";
 import { UserContext } from "@/app/layout";
-
-import { db } from "@/app/services/firebase"; // o il path corretto al tuo file firebase.js
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-
-
-type Source = {
-    title: string;
-    uri: string;
-    content: string;
-};
+import { Source } from "@service/types/interface_db";
+import { saveChatToFirebase } from "@service/userServices";  // Importa il servizio
+import { TreeProps } from "@service/types/interface_page";  // Importa il servizio
+import { UserContextType } from "@/backend/types/interface_context";
 
 type Message = {
     id: string;
@@ -24,13 +18,9 @@ type Message = {
     sources?: Source[];
 };
 
-interface Props {
-  variant: string;
-}
+export default function ChatbotContent({ variant }: TreeProps){
 
-export default function ChatbotContent({ variant }: Props){
-
-    const userContext = useContext(UserContext) || {userTree: "", idSpacevector: ""};
+    const userContext = useContext(UserContext) as UserContextType;
     const userTree = userContext.userTree
     const idSpacevector = userContext.idSpacevector
     const [messages, setMessages] = useState<Message[]>([]);
@@ -41,7 +31,7 @@ export default function ChatbotContent({ variant }: Props){
 
     // Versione narrativa (prima persona, tono saggio)
     const QUICK_REPLIES =
-    variant === "narrativo"
+    variant === "chatbot-narrativo"
         ? [
             "Chi sei?",
             "Quanti anni hai?",
@@ -51,7 +41,7 @@ export default function ChatbotContent({ variant }: Props){
             "Come ti senti?",
             "Qual è la tua specie?",
             "Dove ti trovi?"
-        ]:[
+        ]:[ 
             "Che albero è?",
             "Quanti anni ha?",
             "Qual è il suo significato storico o culturale?",
@@ -61,7 +51,6 @@ export default function ChatbotContent({ variant }: Props){
             "A quale specie botanica appartiene?",
             "Dove si trova?"
         ];
-
 
     // 👋 Messaggio iniziale
     useEffect(() => {
@@ -88,14 +77,13 @@ export default function ChatbotContent({ variant }: Props){
         let queryText = input;
         if (userTree?.soprannome) {
             const nickname = userTree.soprannome;
-            // Aggiungi il soprannome solo prima del primo "?" se esiste
             queryText = input.replace(/\?/, ` ${nickname}?`);
         }
 
         const userMessage: Message = {
             id: Date.now().toString(),
             sender: "user",
-            text: input, // Mostriamo all'utente la query con il soprannome
+            text: input,
             timestamp: new Date(),
         };
 
@@ -109,15 +97,13 @@ export default function ChatbotContent({ variant }: Props){
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     index_id: idSpacevector,
-                    query: input, // invio con soprannome
+                    query: input,
                     version: variant,
                     tree_name: userTree.soprannome,
                 }),
             });
 
             const data = await response.json();
-
-            console.log(data)
 
             const botMessage: Message = {
                 id: Date.now().toString() + "_bot",
@@ -127,7 +113,10 @@ export default function ChatbotContent({ variant }: Props){
                 sources: data?.sources || [],
             };
             
-            await saveChatToFirebase(input, botMessage.text, botMessage.sources);
+            const variantToUse = variant || "";
+
+            // Usa il servizio per salvare la chat su Firestore
+            await saveChatToFirebase(input, botMessage.text, userTree.soprannome, variantToUse);
             
             setMessages((prev) => [...prev, botMessage]);
         } catch (error) {
@@ -146,22 +135,6 @@ export default function ChatbotContent({ variant }: Props){
         }
     };
 
-    // 💾 Salva query e risposta in Firestore
-    const saveChatToFirebase = async (userMessage: string, botMessage: string | null, sources?: Source[]) => {
-    try {
-        await addDoc(collection(db, "chat_queries"), {
-        treeName: userTree?.soprannome || null,
-        query: userMessage,
-        version: variant
-        });
-        console.log("✅ Chat salvata su Firestore");
-    } catch (error) {
-        console.error("❌ Errore nel salvataggio su Firestore:", error);
-    }
-    };
-
-
-
     const handleQuickReply = (reply: string) => {
         setInput(reply);
         handleSend();
@@ -169,7 +142,7 @@ export default function ChatbotContent({ variant }: Props){
 
     return (
         <div className={styles.content}>
-            <BackButton />
+            <BackButton message="Sei sicuro di voler abbandonare la chat" />
 
             <div className={styles.chat}>
                 {messages.map((msg) => (

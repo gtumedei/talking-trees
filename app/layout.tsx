@@ -2,10 +2,11 @@
 
 import { createContext, useState, useEffect, ReactNode } from "react";
 import "./globals.css";
-import { getCurrentUser } from '@/app/services/userServices';
+import { getCurrentUser } from '@service/userServices';
+import { UserContextType } from '@service/types/interface_context';
 
 // Definisci l'interfaccia per la struttura RAG
-interface RAGSection {
+interface TreeSectionStructure {
   id: string;
   type: string;
   content: string;
@@ -18,34 +19,14 @@ interface RAGSection {
   };
 }
 
-interface RAGStructure {
-  sections: RAGSection[];
+interface TreeStructure {
+  sections: TreeSectionStructure[];
   metadata: {
     treeName: string;
     totalChunks: number;
     totalWords: number;
     sources: string[];
   };
-}
-
-// Definisci l'interfaccia per il contesto
-interface UserContextType {
-  userTree: any;
-  setUserTree: (tree: any) => void;
-  userSpecies: any;
-  setUserSpecies: (species: any) => void;
-  user: any;
-  setUser: (user: any) => void;
-  userCoords: any;
-  setUserCoords: (coords: any) => void;
-  authLoading: boolean;
-  history: Event[];
-  setHistory: (events: Event[]) => void;
-  document: RAGStructure | null; // Ora è una struttura RAG
-  setDocument: (doc: RAGStructure | null) => void;
-  idSpacevector: string;
-  setIdSpacevector:(id: string)=> void;
-  mainroute: string;  // Aggiunto tipo per mainroute
 }
 
 type Event = {
@@ -69,7 +50,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
   const [authLoading, setAuthLoading] = useState(true);
   const [userCoords, setUserCoords] = useState<any>(null);
   const [history, setHistory] = useState<Event[]>([]);
-  const [document, setDocument] = useState<RAGStructure | null>(null);
+  const [document, setDocument] = useState<TreeStructure | null>(null);
   const [idSpacevector, setIdSpacevector] = useState<string>('');
   const [mainroute, setMainroute] = useState<string>(''); // inizializza come stringa vuota
 

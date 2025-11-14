@@ -1,16 +1,32 @@
 "use client";
 
 import { Container, Row, Col, Card, Badge, ListGroup } from "react-bootstrap";
-import { FaLeaf, FaTree, FaMapMarkerAlt, FaHeart, FaRecycle, FaHistory } from "react-icons/fa";
+import { FaLeaf, FaMapMarkerAlt, FaHeart, FaRecycle, FaHistory } from "react-icons/fa";
 import { useContext } from "react";
 import { UserContext } from "@/app/layout";
 import styles from "./InfoTree.module.css";
 import Title from "@/app/component/ui/Title";
 import BackButton from "@component/ui/BackButton";
+import {EcologicalData, SpeciesData, LocationData, HealthData, HistoricalData, TreeData} from "@service/types/interface_page"
+
+// Define types for the data structure (adjust these as per your actual data structure)
+interface Document {
+  name: string;
+  sections?: {
+    id: string;
+    content: any;
+  }[];
+}
+
+interface UserContextType {
+  document: Document | null;
+}
 
 export default function InfoTree() {
-  const { document } = useContext(UserContext);
-  console.log(document)
+
+  // Define the context type
+  const { document } = useContext(UserContext) as UserContextType;
+
 
   if (!document) {
     return (
@@ -22,15 +38,16 @@ export default function InfoTree() {
   }
 
   // Estrae i contenuti delle varie sezioni
-  const getSection = (id) => document.sections?.find((s) => s.id === id)?.content || {};
+  const getSection = (id: string) =>
+    document.sections?.find((s) => s.id === id)?.content || {};
 
-  const albero = getSection("tree_data");
+  const albero = getSection("tree_data") as TreeData;
   const descrizione = document.sections?.find((s) => s.id === "tree_description")?.content || "";
-  const specie = getSection("species_data");
-  const ecologia = getSection("ecological_data");
-  const luogo = getSection("place_data");
-  const salute = getSection("health_data");
-  const storia = getSection("historical_data");
+  const specie = getSection("species_data") as SpeciesData;
+  const ecologia = getSection("ecological_data") as EcologicalData;
+  const luogo = getSection("place_data") as LocationData;
+  const salute = getSection("health_data") as HealthData;
+  const storia = getSection("historical_data") as HistoricalData;
 
   // Dati formattati
   const criteri = albero?.criteri || "N/D";
@@ -50,13 +67,13 @@ export default function InfoTree() {
   const eventiStorici = storia?.eventi?.length ? storia.eventi : [];
 
   // --- Info inquinanti ---
-  const pollutantInfo = {
-    "CO₂": { emoji: "🌱", descrizione: "Riduce la concentrazione di anidride carbonica (gas serra)." },
-    "PM10": { emoji: "💨", descrizione: "Filtra le polveri sottili sospese nell’aria." },
-    "O₃": { emoji: "☀️", descrizione: "Contribuisce a ridurre l’ozono troposferico." },
-    "NO₂": { emoji: "🌫️", descrizione: "Assorbe biossido di azoto, migliorando la qualità dell’aria." },
-    "SO₂": { emoji: "🏭", descrizione: "Contrasta il biossido di zolfo derivante dalle attività industriali." }
-  };
+  const pollutantInfo: {[key: string]: { emoji: string; descrizione: string };} = {
+  "CO₂": { emoji: "🌱", descrizione: "Riduce la concentrazione di anidride carbonica (gas serra)." },
+  "PM10": { emoji: "💨", descrizione: "Filtra le polveri sottili sospese nell’aria." },
+  "O₃": { emoji: "☀️", descrizione: "Contribuisce a ridurre l’ozono troposferico." },
+  "NO₂": { emoji: "🌫️", descrizione: "Assorbe biossido di azoto, migliorando la qualità dell’aria." },
+  "SO₂": { emoji: "🏭", descrizione: "Contrasta il biossido di zolfo derivante dalle attività industriali." }
+};
 
   return (
     <Container className={styles.page}>
@@ -135,10 +152,10 @@ export default function InfoTree() {
               <Card.Body>
                 {ecologicalEntries.map(([key, value]) => {
                   const base = key.replace("Abbattimento ", "");
-                  const info = pollutantInfo[base] || {};
+                  const info = pollutantInfo[base] ?? { emoji: "🌿", descrizione: "" };
                   return (
                     <div key={key} className="mb-2">
-                      <strong>{info.emoji || "🌿"} Abbattimento {key}:</strong> {value.valore.replace("Abbattimento ", "").replace(key, "")}
+                      <strong>{info.emoji} Abbattimento {key}:</strong> {value.valore.replace("Abbattimento ", "").replace(key, "")}
                       {value.descrizione?.descrizione && (
                         <div className="small text-secondary text-center">{value.descrizione.descrizione}</div>
                       )}
@@ -173,7 +190,6 @@ export default function InfoTree() {
             </Card.Header>
             <Card.Body>
               <p><strong>Età stimata:</strong> {storia.eta}</p>
-              
             </Card.Body>
           </Card>
         </Col>

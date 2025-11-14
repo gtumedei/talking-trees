@@ -12,7 +12,7 @@
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
-    "moduleResolution": "bundler",
+    "moduleResolution": "node",  // Cambiato da "bundler" a "node"
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
@@ -33,8 +33,8 @@
         "./app/component/*"
       ],
       "@service/*": [
-        "./app/services/*"
-      ]
+        "./backend/*"
+      ],
     }
   },
   "include": [

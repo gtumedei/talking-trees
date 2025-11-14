@@ -1,31 +1,20 @@
 "use client";
 
-import React, { useState, useEffect, useContext, useRef } from "react";
+import { useState, useEffect, useContext } from "react";
 import { OverlayTrigger, Tooltip, Form, Button, DropdownButton } from "react-bootstrap";
 import { UserContext } from "@/app/layout";
 import styles from "./TimeLine.module.css";
-
-type Event = {
-  year: number;
-  text: string;
-  category: string;
-};
+import { UserContextType, EventType } from "@/backend/types/interface_context";
 
 interface TimeLineProps {
-  startYear: number;
+  eta: string;
   endYear: number;
 }
 
-export default function TimeLine({ startYear, endYear }: TimeLineProps) {
-  const userContext = useContext(UserContext);
+export default function TimeLine({ eta, endYear}: TimeLineProps) {
+  const { history, setHistory } = useContext(UserContext) as UserContextType;
   
-  // Controlla se il context è disponibile
-  if (!userContext) {
-    throw new Error("TimeLine deve essere usato dentro UserContext.Provider");
-  }
-  
-  const { history, setHistory } = userContext;
-  const [allEvents, setAllEvents] = useState<Event[]>([]);
+  const [allEvents, setAllEvents] = useState<EventType[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([
     "storico",
     "artistico",
@@ -34,14 +23,32 @@ export default function TimeLine({ startYear, endYear }: TimeLineProps) {
     "tecnologico",
     "sportivo",
   ]);
-  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
+  const [filteredEvents, setFilteredEvents] = useState<EventType[]>([]);
   const [showDropdown, setShowDropdown] = useState(false); // Stato per controllare l'apertura del dropdown
+
+  // Estrae il numero dalla stringa "eta" e calcola startYear
+  const calculateStartYear = (eta : string, endYear : number): number => {  
+    // Estrae tutti i numeri dalla stringa
+    const numbers = eta.match(/\d+/g);
+    if (!numbers || numbers.length === 0) return 0;
+
+    // Prende il primo numero trovato
+    const age = parseInt(numbers[0]);
+    if (isNaN(age)) return 0;
+
+    return endYear - age;
+  };
+
+  const startYear = calculateStartYear(eta, endYear);
+  if(startYear == 0){
+    return (<></>)
+  }
 
   const totalYears = endYear - startYear;
   const getPosition = (year: number) => ((year - startYear) / totalYears) * 100;
 
   // Funzione per selezionare al massimo 10 eventi distribuiti equamente
-  const selectRandomEvents = (events: Event[], categories: string[]): Event[] => {
+  const selectRandomEvents = (events: EventType[], categories: string[]): EventType[] => {
     const filtered = events.filter(e => categories.includes(e.category));
     
     if (filtered.length === 0) return [];
@@ -49,7 +56,7 @@ export default function TimeLine({ startYear, endYear }: TimeLineProps) {
     const maxEvents = 10;
     const yearsPerSlot = Math.ceil(totalYears / maxEvents);
     
-    const selected: Event[] = [];
+    const selected: EventType[] = [];
 
     for (let slotStart = startYear; slotStart <= endYear; slotStart += yearsPerSlot) {
       const slotEnd = Math.min(slotStart + yearsPerSlot - 1, endYear);
@@ -73,7 +80,7 @@ export default function TimeLine({ startYear, endYear }: TimeLineProps) {
     const loadEvents = async () => {
       try {
         const res = await fetch("/event_catalog.json");
-        const data: Event[] = await res.json();
+        const data: EventType[] = await res.json();
         setAllEvents(data);
 
         // Se history è vuota, genera nuovi eventi e salvali in history
@@ -166,96 +173,96 @@ export default function TimeLine({ startYear, endYear }: TimeLineProps) {
   }
 
   return (
-    <div className="mt-2 mx-2">
-      <p className="mb-1 text-center">Alcuni eventi successi durante la mia vita</p>
-      <div className={styles.timelineContainer}>
-        <div className={styles.timelineBar}>
-          {ticks.map((year, i) => (
-            <div
-              key={year}
-              className={styles.tick}
-              style={{ left: `${getPosition(year)}%` }}
-            >
-              <span
-                className={`${styles.tickLabel} ${
-                  i % 2 === 0 ? styles.tickLabelTop : styles.tickLabelBottom
-                }`}
+      <div className="mt-2 mx-2">
+        <p className="mb-1 text-center">Alcuni eventi successi durante la mia vita</p>
+        <div className={styles.timelineContainer}>
+          <div className={styles.timelineBar}>
+            {ticks.map((year, i) => (
+              <div
+                key={year}
+                className={styles.tick}
+                style={{ left: `${getPosition(year)}%` }}
               >
-                {year}
-              </span>
+                <span
+                  className={`${styles.tickLabel} ${
+                    i % 2 === 0 ? styles.tickLabelTop : styles.tickLabelBottom
+                  }`}
+                >
+                  {year}
+                </span>
+              </div>
+            ))}
+
+            {filteredEvents.map((event, i) => {
+              const percent = (event.year - startYear) / totalYears;
+              const hoverColor = lerpColor("#4B301E", "#8BA96E", percent); 
+
+              return (
+                <OverlayTrigger
+                  key={`${event.year}-${i}-${event.text}`}
+                  overlay={
+                    <Tooltip
+                      className={styles.customTooltip}
+                      onClick={() =>
+                        window.open(`https://www.google.com/search?q=${encodeURIComponent(event.text)}`, "_blank")
+                      }
+                      style={{ cursor: "pointer", color: hoverColor }}
+                    >
+                      <span className={styles.dateEvent}>{event.year}</span>
+                      <br />
+                      <span>{parseText(event.text)}</span>
+                    </Tooltip>
+                  }
+                >
+                  <div
+                    className={styles.eventDot}
+                    style={{
+                      left: `${getPosition(event.year)}%`, 
+                      boxShadow: `inset 0 0 0 2.5px ${hoverColor}`,
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = hoverColor;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "";
+                    }}
+                  />
+                </OverlayTrigger>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="mt-3 pt-1 text-end">
+          <DropdownButton 
+            id="dropdown-categories" 
+            title="Filtra tipologia eventi" 
+            drop="start" 
+            className={styles.dropdownCustom}
+            show={showDropdown}
+            onToggle={(isOpen) => setShowDropdown(isOpen)}
+          >
+            <div className={styles.dropdownMenuCustom}>
+              {["storico", "artistico", "culturale", "scientifico", "tecnologico", "sportivo"].map(
+                cat => (
+                  <Form.Check
+                    key={cat}
+                    type="checkbox"
+                    label={cat}
+                    checked={selectedCategories.includes(cat)}
+                    onChange={() => handleCategoryChange(cat)}
+                    className={styles.dropdownCheck}
+                  />
+                )
+              )}
+              <div className="mt-1 text-center">
+                <Button className={`${styles.filterButton} noir`} size="sm" onClick={applyFilter}>
+                  Mostra
+                </Button>
+              </div>
             </div>
-          ))}
-
-          {filteredEvents.map((event, i) => {
-            const percent = (event.year - startYear) / totalYears;
-            const hoverColor = lerpColor("#4B301E", "#8BA96E", percent); 
-
-            return (
-              <OverlayTrigger
-                key={`${event.year}-${i}-${event.text}`}
-                overlay={
-                  <Tooltip
-                    className={styles.customTooltip}
-                    onClick={() =>
-                      window.open(`https://www.google.com/search?q=${encodeURIComponent(event.text)}`, "_blank")
-                    }
-                    style={{ cursor: "pointer", color: hoverColor }}
-                  >
-                    <span className={styles.dateEvent}>{event.year}</span>
-                    <br />
-                    <span>{parseText(event.text)}</span>
-                  </Tooltip>
-                }
-              >
-                <div
-                  className={styles.eventDot}
-                  style={{
-                    left: `${getPosition(event.year)}%`, 
-                    boxShadow: `inset 0 0 0 2.5px ${hoverColor}`,
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = hoverColor;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "";
-                  }}
-                />
-              </OverlayTrigger>
-            );
-          })}
+          </DropdownButton>
         </div>
       </div>
-
-      <div className="mt-3 pt-1 text-end">
-        <DropdownButton 
-          id="dropdown-categories" 
-          title="Filtra tipologia eventi" 
-          drop="start" 
-          className={styles.dropdownCustom}
-          show={showDropdown}
-          onToggle={(isOpen) => setShowDropdown(isOpen)}
-        >
-          <div className={styles.dropdownMenuCustom}>
-            {["storico", "artistico", "culturale", "scientifico", "tecnologico", "sportivo"].map(
-              cat => (
-                <Form.Check
-                  key={cat}
-                  type="checkbox"
-                  label={cat}
-                  checked={selectedCategories.includes(cat)}
-                  onChange={() => handleCategoryChange(cat)}
-                  className={styles.dropdownCheck}
-                />
-              )
-            )}
-            <div className="mt-1 text-center">
-              <Button className={`${styles.filterButton} noir`} size="sm" onClick={applyFilter}>
-                Mostra
-              </Button>
-            </div>
-          </div>
-        </DropdownButton>
-      </div>
-    </div>
-  );
+    );
 }

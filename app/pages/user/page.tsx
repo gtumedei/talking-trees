@@ -4,30 +4,19 @@ import { useState, useEffect, useContext } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { UserContext } from "@/app/layout";
-import { doc, getDoc, setDoc, collection, getDocs } from "firebase/firestore";
 import { FaEnvelope, FaLeaf } from "react-icons/fa";
 import ButtonBack from "@component/ui/BackButton";
 import TreeCard from "@component/ui/TreeCard";
 import styles from "./User.module.css";
 import LoginButton from "@component/ui/LoginButton";
-import { getUserTrees } from "@/app/services/treeServices";
-
-// Defining the types for user and tree data
-interface User {
-  username: string;
-  email: string;
-}
-
-interface Tree {
-  id: string;
-  [key: string]: any; // Represents other properties of a tree
-}
+import { getUserTrees } from "@/backend/treeServices";
+import { UserContextType } from "@/backend/types/interface_context";
+import { ElemListTree, UserDb } from "@/backend/types/interface_db";
 
 export default function UserPage() {
-  const context = useContext(UserContext);
-  const user = context?.user;
+  const {user} = useContext(UserContext) as UserContextType;
   const router = useRouter();
-  const [trees, setTrees] = useState<Tree[]>([]);
+  const [trees, setTrees] = useState<ElemListTree[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -37,7 +26,7 @@ export default function UserPage() {
     }
 
     const load = async () => {
-      const data = await getUserTrees(user.username);
+      const data = await getUserTrees(user.username) as ElemListTree[];
       setTrees(data);
       setLoading(false);
     };
@@ -49,16 +38,14 @@ export default function UserPage() {
 
   if (loading) {
     return (
-      <div
-        className={`${styles.loadingContainer} d-flex flex-column justify-content-center align-items-center`}
-      >
-        <div
-          className={`spinner-border text-myrtle ${styles.spinner}`}
-          role="status"
-        >
-          <span className="visually-hidden">Caricamento...</span>
+      <div className={styles.container}>
+        <div className={`${styles.userCard} text-center p-5`}>
+          <p className="my-5"></p>
+          <div className={`mt-5 mx-auto spinner-border text-myrtle ${styles.spinner}`} role="status">
+            <span className="visually-hidden">Caricamento...</span>
+          </div>
+          <p className="mt-3 mb-5 py-5 fw-bold text-myrtle">Caricamento profilo...</p>
         </div>
-        <p className="mt-3 fw-bold text-myrtle">Caricamento profilo...</p>
       </div>
     );
   }
@@ -79,21 +66,16 @@ export default function UserPage() {
 
       <div className={`${styles.userCard} container-fluid p-0`}>
         <div className={styles.content}>
-          <UserInfoSection username={user.username} email={user.email} />
-          <VisitedTreesSection trees={trees} />
+          <UserInfoSection user={user} />
+          <VisitedTreesSection listTrees={trees} />
         </div>
       </div>
     </div>
   );
 }
 
-// 👤 Info utente
-interface UserInfoSectionProps {
-  username: string;
-  email: string;
-}
-
-function UserInfoSection({ username, email }: UserInfoSectionProps) {
+function UserInfoSection({ user }: { user: UserDb }) {
+  const {username, email} = user
   return (
     <section className={`${styles.section} mb-4`}>
       <div className="text-center mb-3">
@@ -111,13 +93,9 @@ function UserInfoSection({ username, email }: UserInfoSectionProps) {
 }
 
 
-// 🌳 Sezione alberi visitati
-interface VisitedTreesSectionProps {
-  trees: Tree[];
-}
-
-function VisitedTreesSection({ trees }: VisitedTreesSectionProps) {
-  if (!trees || trees.length === 0) {
+function VisitedTreesSection({ listTrees }: { listTrees: ElemListTree[] })  {
+  console.log(listTrees)
+  if (!listTrees || listTrees.length === 0) {
     return (
       <section className={styles.section}>
         <div className="card border-0 shadow-sm">
@@ -136,12 +114,12 @@ function VisitedTreesSection({ trees }: VisitedTreesSectionProps) {
   return (
     <section className={styles.section}>
       <h2 className={`${styles.sectionTitle} mb-4`}>
-        Alberi Visitati ({trees.length})
+        Alberi Visitati ({listTrees.length})
       </h2>
       <div className="row g-4">
-        {trees.map((tree, index) => (
+        {listTrees.map((tree, index) => (
           <div key={tree.id || index} className="col-12 col-md-6 col-lg-4">
-            <TreeCard soprannome={tree?.soprannome} specie={tree?.specie} luogo={tree?.luogo} regione={tree?.regione} {...tree} />
+            <TreeCard tree={tree} />
           </div>
         ))}
       </div>

@@ -8,8 +8,15 @@ import { UserContext } from "@/app/layout";
 import Title from "@component/ui/Title";
 import BackButton from "@component/ui/BackButton";
 
+import {UserSpeciesType, UserContextType} from "@service/types/interface_context"
+
 export default function Specie() {
-  const { userSpecies } = useContext(UserContext);
+  const { userSpecies } = useContext(UserContext) as UserContextType;
+
+  const HABITAT_KEYS : Array<keyof UserSpeciesType> = [ "habitat_litorale", "habitat_pianura",
+    "habitat_collina", "habitat_montagna", "habitat_alloctona_esotica",];
+
+
   if (!userSpecies) return null;
 
   console.log("🌳 Specie selezionata:", userSpecies);
@@ -111,11 +118,11 @@ export default function Specie() {
             </Col>
           )}
 
-          {userSpecies.forma_chioma && (
+          {userSpecies.info_forma_chioma && (
             <Col xs={6}>
               <div className={styles.card}>
                 <Image
-                  src={`/icon/forma_${userSpecies.forma_chioma
+                  src={`/icon/forma_${userSpecies.info_forma_chioma
                     .toLowerCase()
                     .replace(/ /g, "_")}.png`}
                   alt=""
@@ -128,11 +135,11 @@ export default function Specie() {
             </Col>
           )}
 
-          {userSpecies.portamento && (
+          {userSpecies.info_portamento && (
             <Col xs={6}>
               <div className={styles.card}>
                 <Image
-                  src={`/icon/portamento_${userSpecies.portamento.toLowerCase()}.png`}
+                  src={`/icon/portamento_${userSpecies.info_portamento.toLowerCase()}.png`}
                   alt=""
                   width={40}
                   height={40}
@@ -200,7 +207,12 @@ export default function Specie() {
             {userSpecies.info_abbattimento_co2 && (
               <Col xs={6}>
                 <div className={styles.card}>
-                  <Image src={`/icon/${userSpecies.abbattimento_co2.toLowerCase()}.png`} alt="CO2" width={40} height={40} />
+                  <Image
+                    src={`/icon/${userSpecies.info_abbattimento_co2.toLowerCase()}.png`}
+                    alt="CO2"
+                    width={40}
+                    height={40}
+                  />
                   <p className="fw-bold">Assorbimento CO₂</p>
                   <p>{userSpecies.info_abbattimento_co2}</p>
                 </div>
@@ -210,7 +222,12 @@ export default function Specie() {
             {userSpecies.info_abbattimento_pm10 && (
               <Col xs={6}>
                 <div className={styles.card}>
-                  <Image src={`/icon/${userSpecies.abbattimento_pm10.toLowerCase()}.png`} alt="PM10" width={40} height={40} />
+                  <Image
+                    src={`/icon/${userSpecies.info_abbattimento_pm10.toLowerCase()}.png`}
+                    alt="PM10"
+                    width={40}
+                    height={40}
+                  />
                   <p className="fw-bold">Rimozione PM10</p>
                   <p>{userSpecies.info_abbattimento_pm10}</p>
                 </div>
@@ -226,22 +243,15 @@ export default function Specie() {
           <p className={styles.sectionTitle}>Ambiente di provenienza</p>
           <div className={`g-3 ${styles.card}`}>
             <div className="d-flex justify-content-center gap-3 flex-wrap">
-              {[
-                { key: "habitat_litorale", label: "Litorale" },
-                { key: "habitat_pianura", label: "Pianura" },
-                { key: "habitat_collina", label: "Collina" },
-                { key: "habitat_montagna", label: "Montagna" },
-                { key: "habitat_alloctona_esotica", label: "Alloctona/Esotica" },
-              ]
-                .filter((h) => userSpecies[h.key] === "Sì")
-                .map((h) => (
+              {HABITAT_KEYS
+                .filter((key) => userSpecies[key] === "Sì")
+                .map((key) => (
                   <Image
-                    key={h.key}
-                    src={`/icon/${h.key}.png`}
-                    alt={h.label}
+                    key={key}
+                    src={`/icon/${key}.png`}
+                    alt={key}
                     width={40}
                     height={40}
-                    className="px-1 py-1"
                   />
                 ))}
             </div>

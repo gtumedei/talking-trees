@@ -172,6 +172,7 @@
   opacity: 0.2;
   z-index: 2;
   mix-blend-mode: overlay;
+  width: 100px;
 }
 
 /* Gradiente overlay */
