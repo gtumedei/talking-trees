@@ -213,7 +213,7 @@ export function buildDatiAlbero(tree?: UserTreeType): Section<TreeData> | null {
   if (!tree) return null;
 
   const content: TreeData = {
-    criteri: tree.criteri_di_monumentalita || '',
+    criteri: tree["criteri di monumentalità"] || '',
     circonferenza: tree.circonferenza_fusto || (tree.circonferenza_clear || ''),
     altezza: tree.altezza || (tree.altezza_clear || '')
   };
