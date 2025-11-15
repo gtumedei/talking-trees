@@ -158,7 +158,6 @@ export const addTreeToUser = async (username: string, userTree: Record<string, a
 
 // 🔹 Recupera tutti gli alberi visitati da un utente
 export const getUserTrees = async (username: string ): Promise<ElemListTree[]> => { // Dichiariamo esplicitamente che ritorniamo Tree[]
-  if (username === undefined) return [{}as ElemListTree] 
   try {
     const userDocRef = doc(db, 'user-tree', username);
     const userDocSnap: DocumentSnapshot = await getDoc(userDocRef);
