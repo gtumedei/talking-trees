@@ -1,6 +1,6 @@
 // Tipizzazione del tipo di applicazione
 export interface TreeProps {
-  variant?: "statico" | "chatbot-scientifico" | "chatbot-narrativo";
+  variant?: "statico" | "scientifico" | "narrativo";
 }
 
 /*------------------ INFO TREE/BUILD STRUCTURE ------------------ */

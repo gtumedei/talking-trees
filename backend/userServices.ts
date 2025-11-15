@@ -6,6 +6,7 @@ import { getStorage, ref, uploadBytes } from "firebase/storage";
 import { Comment, FormState, UserTreeDb, UserDb, ElemListTree } from "@service/types/interface_db";
 import { UserTreeType } from "@service/types/interface_context.d";
 
+
 /*----------------- CREDENZIALI UTENTE -----------------*/
 export const checkUserCredentials = async (username: string, password: string): Promise<{ success: boolean, user?: UserDb, error?: string }> => {
   try {
@@ -157,6 +158,7 @@ export const addTreeToUser = async (username: string, userTree: Record<string, a
 
 // 🔹 Recupera tutti gli alberi visitati da un utente
 export const getUserTrees = async (username: string ): Promise<ElemListTree[]> => { // Dichiariamo esplicitamente che ritorniamo Tree[]
+  if (username === undefined) return [{}as ElemListTree] 
   try {
     const userDocRef = doc(db, 'user-tree', username);
     const userDocSnap: DocumentSnapshot = await getDoc(userDocRef);

@@ -13,13 +13,7 @@ interface RegionSVGProps {
   height?: number;
 }
 
-export default function RegionSVG({
-  regione,
-  lat,
-  lon,
-  width = 100,
-  height = 100,
-}: RegionSVGProps) {
+export default function RegionSVG({regione, lat, lon, width = 100, height = 100,}: RegionSVGProps) {
   const svgRef = React.useRef<SVGSVGElement>(null);
 
   React.useEffect(() => {

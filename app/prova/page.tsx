@@ -23,7 +23,7 @@ function PageContent() {
   const searchParams = useSearchParams();
   //const variant : TreeProps = searchParams.get("variant") || "statico";
   const rawVariant = searchParams.get("variant");
-  const variant = rawVariant === "chatbot-scientifico" || rawVariant === "chatbot-narrativo"
+  const variant = rawVariant === "scientifico" || rawVariant === "narrativo"
       ? rawVariant : "statico";
 
   const test = searchParams.get("test");

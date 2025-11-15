@@ -9,21 +9,24 @@ import ButtonBack from "@component/ui/BackButton";
 import TreeCard from "@component/ui/TreeCard";
 import styles from "./User.module.css";
 import LoginButton from "@component/ui/LoginButton";
-import { getUserTrees } from "@/backend/treeServices";
+import { getUserTrees } from "@/backend/userServices";
 import { UserContextType } from "@/backend/types/interface_context";
 import { ElemListTree, UserDb } from "@/backend/types/interface_db";
+import { isValidUser } from "@/backend/treeServices";
 
 export default function UserPage() {
-  const {user} = useContext(UserContext) as UserContextType;
+  const {user, mainroute} = useContext(UserContext) as UserContextType;
   const router = useRouter();
   const [trees, setTrees] = useState<ElemListTree[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    if (!user) {
+    if (!user || !isValidUser(user)) {
       router.push("/pages/login");
       return;
     }
+
+    console.log(user)
 
     const load = async () => {
       const data = await getUserTrees(user.username) as ElemListTree[];
@@ -33,8 +36,6 @@ export default function UserPage() {
 
     load();
   }, [user]);
-
-  if (!user) return null;
 
   if (loading) {
     return (
@@ -50,28 +51,31 @@ export default function UserPage() {
     );
   }
 
-  return (
-    <div className={styles.container}>
-      {/* Header */}
-      <div className={`${styles.pageHeader} container-fluid`}>
-        <div className="row align-items-center">
-          <div className="col-auto">
-            <ButtonBack bg={true} />
-          </div>
-          <div className="col-auto">
-            <LoginButton logout={true} />
+  return (<>{!isValidUser(user) ? (<></>) : (
+      <div className={styles.container}>
+        {/* Header */}
+        <div className={`${styles.pageHeader} container-fluid`}>
+          <div className="row align-items-center">
+            <div className="col-auto">
+              <ButtonBack bg={true} />
+            </div>
+            <div className="col-auto">
+              <LoginButton logout={true} />
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className={`${styles.userCard} container-fluid p-0`}>
-        <div className={styles.content}>
-          <UserInfoSection user={user} />
-          <VisitedTreesSection listTrees={trees} />
+        <div className={`${styles.userCard} container-fluid p-0`}>
+          <div className={styles.content}>
+            <UserInfoSection user={user} />
+            <VisitedTreesSection listTrees={trees} mainpage={mainroute} />
+          </div>
         </div>
       </div>
-    </div>
-  );
+    )}
+  </>
+);
+
 }
 
 function UserInfoSection({ user }: { user: UserDb }) {
@@ -93,7 +97,7 @@ function UserInfoSection({ user }: { user: UserDb }) {
 }
 
 
-function VisitedTreesSection({ listTrees }: { listTrees: ElemListTree[] })  {
+function VisitedTreesSection({ listTrees, mainpage }: { listTrees: ElemListTree[], mainpage : string })  {
   console.log(listTrees)
   if (!listTrees || listTrees.length === 0) {
     return (
@@ -102,7 +106,7 @@ function VisitedTreesSection({ listTrees }: { listTrees: ElemListTree[] })  {
           <div className="card-body text-center py-5">
             <FaLeaf className={`${styles.emptyIcon} mb-3`} />
             <h3 className="h5 text-muted mb-3">Nessun albero visitato ancora</h3>
-            <Link href="/" className="btn btn-myrtle">
+            <Link href={mainpage} className="btn btn-myrtle">
               Esplora gli alberi
             </Link>
           </div>

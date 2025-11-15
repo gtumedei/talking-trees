@@ -9,9 +9,9 @@ export default async function ChatbotPage({ searchParams }: Props) {
   const variant = params?.variant;
 
   // Usa un fallback se `variant` è undefined o non valido
-  const selectedVariant: "statico" | "chatbot-scientifico" | "chatbot-narrativo" =
-    (["statico", "chatbot-scientifico", "chatbot-narrativo"].includes(variant ?? "")
-      ? variant : "chatbot-narrativo") as "statico" | "chatbot-scientifico" | "chatbot-narrativo"; 
+  const selectedVariant: "statico" | "scientifico" | "narrativo" =
+    (["statico", "scientifico", "narrativo"].includes(variant ?? "")
+      ? variant : "narrativo") as "statico" | "scientifico" | "narrativo"; 
 
   return <ChatbotContent variant={selectedVariant} />;
 }

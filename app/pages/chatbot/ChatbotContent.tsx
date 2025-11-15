@@ -31,7 +31,7 @@ export default function ChatbotContent({ variant }: TreeProps){
 
     // Versione narrativa (prima persona, tono saggio)
     const QUICK_REPLIES =
-    variant === "chatbot-narrativo"
+    variant === "narrativo"
         ? [
             "Chi sei?",
             "Quanti anni hai?",

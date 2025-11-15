@@ -9,11 +9,8 @@ import { useRouter } from "next/navigation";
 import Modal from "react-bootstrap/Modal"; // Assicurati di importare Modal
 import Button from "react-bootstrap/Button"; // Assicurati di importare Button
 import styles from './LoginButton.module.css';
-
-// Definisci il tipo per l'utente
-interface User {
-  username: string;
-}
+import { UserDb } from "@/backend/types/interface_db";
+import { isValidUser } from "@/backend/treeServices";
 
 // Definisci il tipo delle props per il componente LoginButton
 interface LoginButtonProps {
@@ -22,7 +19,7 @@ interface LoginButtonProps {
 
 const LoginButton: React.FC<LoginButtonProps> = ({ logout = false }) => {
   const context = useContext(UserContext);
-  const { user, setUser } = context!;
+  const { user, setUser, mainroute } = context!;
   const router = useRouter();
   const [showModal, setShowModal] = useState<boolean>(false); // Stato per il modal
   const message = 'Sei sicuro di voler eseguire il logout?';
@@ -35,8 +32,7 @@ const LoginButton: React.FC<LoginButtonProps> = ({ logout = false }) => {
   // Funzione per confermare il logout
   const handleConfirmLogout = () => {
     logoutUser();
-    setUser(null);
-    router.push('/');
+    setUser({} as UserDb);
     setShowModal(false); // Nascondi il modal
   };
 
@@ -47,7 +43,7 @@ const LoginButton: React.FC<LoginButtonProps> = ({ logout = false }) => {
 
   return (
     <div className={styles.loginButtonContainer}>
-      {user ? (
+      {isValidUser(user) ? (
         logout ? (
           <button 
             onClick={handleLogoutClick}

@@ -2,6 +2,7 @@
 
 import { db } from "./firebase";
 import { doc, getDoc, setDoc, collection, getDocs } from "firebase/firestore";
+import { UserDb } from "./types/interface_db";
 
 /**
  * Verifica se esiste un documento per l'utente nel percorso `user-tree/username`.
@@ -87,7 +88,7 @@ export async function addTreeToUser(username: string, userTree: any) {
  * @param username - Il nome utente per cui ottenere gli alberi.
  * @returns Un array di oggetti che rappresentano gli alberi dell'utente.
  */
-export async function getUserTrees(username: string) {
+/*export async function getUserTrees(username: string) {
   // Creazione del riferimento al documento dell'utente
   const userDocRef = doc(db, "user-tree", username);
 
@@ -112,4 +113,10 @@ export async function getUserTrees(username: string) {
     id: docSnap.id, // ID dell'albero
     ...docSnap.data(), // Dati dell'albero
   }));
-}
+}*/
+
+
+/**------ VALIDATION ------- */
+export const isValidUser = (user: UserDb | null | undefined) => {
+  return user && Object.keys(user).length > 0;
+};

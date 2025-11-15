@@ -9,6 +9,7 @@ import BackButton from "@component/ui/BackButton";
 import { checkUserCredentials, registerUser, addTreeToUser } from "@service/userServices";
 import { UserContextType} from '@service/types/interface_context';
 import {UserDb} from '@service/types/interface_db'
+import { isValidUser } from "@/backend/treeServices";
 
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState<boolean>(true);
@@ -25,7 +26,7 @@ export default function LoginPage() {
   const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
   useEffect(() => {
-    if (user) {
+    if (isValidUser(user)) {
       router.push("/pages/user");
     }
   }, [user, router]);
@@ -92,7 +93,7 @@ export default function LoginPage() {
     setConfirmPassword("");
   };
 
-  if (user) return null;
+  if (isValidUser(user)) return null;
 
   return (
     <div className={styles.container}>

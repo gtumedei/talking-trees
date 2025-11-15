@@ -4,6 +4,7 @@ import { createContext, useState, useEffect, ReactNode } from "react";
 import "./globals.css";
 import { getCurrentUser } from '@service/userServices';
 import { UserContextType } from '@service/types/interface_context';
+import {UserDb} from '@service/types/interface_db'
 
 // Definisci l'interfaccia per la struttura RAG
 interface TreeSectionStructure {
@@ -46,7 +47,7 @@ export const UserContext = createContext<UserContextType | undefined>(undefined)
 export default function RootLayout({ children }: RootLayoutProps) {
   const [userTree, setUserTree] = useState<any>(null);
   const [userSpecies, setUserSpecies] = useState<any>(null);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<UserDb>({} as UserDb);
   const [authLoading, setAuthLoading] = useState(true);
   const [userCoords, setUserCoords] = useState<any>(null);
   const [history, setHistory] = useState<Event[]>([]);
@@ -72,7 +73,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 
     // Setta la mainroute usando window.location
     if (typeof window !== "undefined") {
-      setMainroute(window.location.pathname); // Ottieni il percorso corrente
+      setMainroute(window.location.pathname + window.location.search);
     }
 
   }, []); // Usa il router quando cambia la path
