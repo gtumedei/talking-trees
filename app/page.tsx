@@ -8,6 +8,7 @@ import { UserContext } from "@/app/layout";
 import { buildTreeContext } from "@service/TreeContextBuilder";
 import LoginButton from "@component/ui/LoginButton";
 import { UserSpeciesType, UserTreeType, UserContextType } from "@/backend/types/interface_context";
+import { isValidTree } from "@/backend/treeServices";
 
 interface Coordinates {
   lat: number;
@@ -31,6 +32,7 @@ function PageContent() {
   const {userTree, setUserTree, setUserSpecies, setUserCoords, setDocument, setIdSpacevector,} = useContext(UserContext) as UserContextType;
 
   const [loading, setLoading] = useState(true);
+  const [find, setFind] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const getTestCoordinates = (): Coordinates => {
@@ -135,7 +137,7 @@ function PageContent() {
   return (
     <main>
       <LoginButton />
-      {userTree ? <Tree variant={variant} /> : <NoTree />}
+      {isValidTree(userTree) ? <Tree variant={variant} /> : <NoTree />}
     </main>
   );
 }

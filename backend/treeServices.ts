@@ -3,6 +3,7 @@
 import { db } from "./firebase";
 import { doc, getDoc, setDoc, collection, getDocs } from "firebase/firestore";
 import { UserDb } from "./types/interface_db";
+import { UserTreeType } from "./types/interface_context";
 
 /**
  * Verifica se esiste un documento per l'utente nel percorso `user-tree/username`.
@@ -119,4 +120,8 @@ export async function addTreeToUser(username: string, userTree: any) {
 /**------ VALIDATION ------- */
 export const isValidUser = (user: UserDb | null | undefined) => {
   return user && Object.keys(user).length > 0;
+};
+
+export const isValidTree = (tree: UserTreeType | null | undefined) => {
+  return tree && Object.keys(tree).length > 0;
 };

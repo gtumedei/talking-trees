@@ -30,6 +30,8 @@ export async function GET(request: Request) {
     const foundSpecies =
       foundTree && foundTree.index_specie ? species[parseInt(foundTree.index_specie)] || null : null;
 
+    console.log(foundSpecies)
+
     return NextResponse.json({ tree: foundTree, species: foundSpecies });
   } catch (err) {
     console.error('Error finding tree:', err);
