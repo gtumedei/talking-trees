@@ -214,8 +214,8 @@ export function buildDatiAlbero(tree?: UserTreeType): Section<TreeData> | null {
 
   const content: TreeData = {
     criteri: tree["criteri di monumentalità"] || '',
-    circonferenza: tree.circonferenza_fusto || (tree.circonferenza_clear || ''),
-    altezza: tree.altezza || (tree.altezza_clear || '')
+    circonferenza: tree["circonferenza fusto (cm)"] || (tree.circonferenza_clear || ''),
+    altezza: tree["altezza (m)"] || (tree.altezza_clear || '')
   };
 
   // aggiungiamo nome come nel JS originale
