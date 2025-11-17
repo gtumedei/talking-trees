@@ -14,12 +14,10 @@ export default function Specie() {
   const { userSpecies } = useContext(UserContext) as UserContextType;
 
   const HABITAT_KEYS : Array<keyof UserSpeciesType> = [ "habitat_litorale", "habitat_pianura",
-    "habitat_collina", "habitat_montagna", "habitat_alloctona_esotica",];
+    "habitat_collina", "habitat_montagna", "habitat_alloctona/esotica",];
 
 
   if (!userSpecies) return null;
-
-  console.log("🌳 Specie selezionata:", userSpecies);
 
   return (
     <Container className={styles.page}>
@@ -44,6 +42,7 @@ export default function Specie() {
         )}
       </section>
 
+ 
       {/* --- DIMENSIONI --- */}
       <section className="mb-4">
         <p className={styles.sectionTitle}>Dimensioni</p>
@@ -55,14 +54,23 @@ export default function Specie() {
               <div className={styles.card}>
                 <Image src="/icon/altezza.png" alt="" width={40} height={40} />
                 <p className="fw-bold">Altezza</p>
+
                 {userSpecies.size_altezza && (
-                  <p>A maturità: {userSpecies.size_altezza}</p>
+                  <p>
+                     <span>A maturità:{userSpecies.size_altezza}</span>
+                  </p>
                 )}
+
                 {userSpecies.size_altezza_max && (
-                  <p>Massima: {userSpecies.size_altezza_max}</p>
+                  <p>
+                     <span>Massima: {userSpecies.size_altezza_max}</span>
+                  </p>
                 )}
+
                 {userSpecies.size_classe && (
-                  <p>Classe di grandezza: {userSpecies.size_classe}</p>
+                  <p>
+                     <span>Classe di grandezza: {userSpecies.size_classe}</span>
+                  </p>
                 )}
               </div>
             </Col>
@@ -73,17 +81,19 @@ export default function Specie() {
               <div className={styles.card}>
                 <Image src="/icon/larghezza.png" alt="" width={40} height={40} />
                 <p className="fw-bold">Taglia chioma</p>
-                <p>{userSpecies.size_chioma}</p>
+                <p><span>{userSpecies.size_chioma}</span></p>
               </div>
             </Col>
           )}
         </Row>
       </section>
 
+
       {/* --- CARATTERISTICHE --- */}
       <section className="mb-4">
         <p className={styles.sectionTitle}>Caratteristiche</p>
         <Row className="g-3">
+
           {userSpecies.info_tipologia && (
             <Col xs={6}>
               <div className={styles.card}>
@@ -96,7 +106,7 @@ export default function Specie() {
                   height={40}
                 />
                 <p className="fw-bold">Tipologia</p>
-                <p>{userSpecies.info_tipologia}</p>
+                <p><span>{userSpecies.info_tipologia}</span></p>
               </div>
             </Col>
           )}
@@ -113,7 +123,7 @@ export default function Specie() {
                   height={40}
                 />
                 <p className="fw-bold">Densità chioma</p>
-                <p>{userSpecies.info_densita_chioma}</p>
+                <p><span>{userSpecies.info_densita_chioma}</span></p>
               </div>
             </Col>
           )}
@@ -130,7 +140,7 @@ export default function Specie() {
                   height={40}
                 />
                 <p className="fw-bold">Forma chioma</p>
-                <p>{userSpecies.info_forma_chioma}</p>
+                <p><span>{userSpecies.info_forma_chioma}</span></p>
               </div>
             </Col>
           )}
@@ -145,7 +155,7 @@ export default function Specie() {
                   height={40}
                 />
                 <p className="fw-bold">Portamento</p>
-                <p>{userSpecies.info_portamento}</p>
+                <p><span>{userSpecies.info_portamento}</span></p>
               </div>
             </Col>
           )}
@@ -160,12 +170,14 @@ export default function Specie() {
                   height={40}
                 />
                 <p className="fw-bold">Fioritura</p>
+
                 {userSpecies.info_stagione_fioritura && (
-                  <p>Periodo: {userSpecies.info_stagione_fioritura}</p>
+                  <p>Periodo: <span>{userSpecies.info_stagione_fioritura}</span></p>
                 )}
+
                 {userSpecies.info_fioritura && (
                   <p className="fst-italic text-muted">
-                    {userSpecies.info_fioritura}
+                    <span>{userSpecies.info_fioritura}</span>
                   </p>
                 )}
               </div>
@@ -177,7 +189,7 @@ export default function Specie() {
               <div className={styles.card}>
                 <Image src="/icon/frutti.png" alt="" width={40} height={40} />
                 <p className="fw-bold">Frutti</p>
-                <p>{userSpecies.info_frutti}</p>
+                <p><span>{userSpecies.info_frutti}</span></p>
               </div>
             </Col>
           )}
@@ -192,29 +204,32 @@ export default function Specie() {
                   height={40}
                 />
                 <p className="fw-bold">Colore foglie autunnali</p>
-                <p>{userSpecies.info_colori_autunnali}</p>
+                <p><span>{userSpecies.info_colori_autunnali}</span></p>
               </div>
             </Col>
           )}
+
         </Row>
       </section>
+
 
       {/* --- IMPATTO AMBIENTALE --- */}
       {(userSpecies.info_abbattimento_co2 || userSpecies.info_abbattimento_pm10) && (
         <section className="mb-4">
           <p className={styles.sectionTitle}>Impatto Ambientale</p>
           <Row className="g-3">
+
             {userSpecies.info_abbattimento_co2 && (
               <Col xs={6}>
                 <div className={styles.card}>
                   <Image
-                    src={`/icon/${userSpecies.info_abbattimento_co2.toLowerCase()}.png`}
+                    src={`/icon/${userSpecies.abbattimento_co2.toLowerCase()}.png`}
                     alt="CO2"
                     width={40}
                     height={40}
                   />
                   <p className="fw-bold">Assorbimento CO₂</p>
-                  <p>{userSpecies.info_abbattimento_co2}</p>
+                  <p><span>{userSpecies.info_abbattimento_co2}</span></p>
                 </div>
               </Col>
             )}
@@ -223,16 +238,17 @@ export default function Specie() {
               <Col xs={6}>
                 <div className={styles.card}>
                   <Image
-                    src={`/icon/${userSpecies.info_abbattimento_pm10.toLowerCase()}.png`}
+                    src={`/icon/${userSpecies.abbattimento_pm10.toLowerCase()}.png`}
                     alt="PM10"
                     width={40}
                     height={40}
                   />
                   <p className="fw-bold">Rimozione PM10</p>
-                  <p>{userSpecies.info_abbattimento_pm10}</p>
+                  <p><span>{userSpecies.info_abbattimento_pm10}</span></p>
                 </div>
               </Col>
             )}
+
           </Row>
         </section>
       )}
@@ -241,24 +257,31 @@ export default function Specie() {
       {userSpecies.habitat && (
         <section className="mb-4">
           <p className={styles.sectionTitle}>Ambiente di provenienza</p>
+
           <div className={`g-3 ${styles.card}`}>
             <div className="d-flex justify-content-center gap-3 flex-wrap">
+
               {HABITAT_KEYS
-                .filter((key) => userSpecies[key] === "Sì")
+                .filter((key) => (userSpecies[key] === "Sì" || userSpecies[key] == ""))
                 .map((key) => (
                   <Image
                     key={key}
-                    src={`/icon/${key}.png`}
+                    src={`/icon/${String(key).toLowerCase().replace(/[^a-z0-9]+/g, "_")}.png`}
                     alt={key}
                     width={40}
                     height={40}
                   />
                 ))}
+
             </div>
-            <p className="fw-bold text-center">{userSpecies.habitat}</p>
+
+            <p className="fw-bold text-center">
+              <span>{userSpecies.habitat}</span>
+            </p>
           </div>
         </section>
       )}
+
     </Container>
   );
 }

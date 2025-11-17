@@ -57,7 +57,7 @@ export default function ChatbotContent({ variant }: TreeProps){
         const welcomeMsg: Message = {
             id: "welcome",
             sender: "bot",
-            text: "Piacere di conoscerti! Cosa vuoi che ti racconti?",
+            text: "Piacere di conoscerti!\n Cosa vuoi che ti racconti?",
             timestamp: new Date(),
         };
         setMessages([welcomeMsg]);

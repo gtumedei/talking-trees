@@ -21,3 +21,7 @@
   transform: scale(1.2);
   color: var(--light-green);
 }
+
+.backButtonTitle {
+  font-family: 'Marker';
+}

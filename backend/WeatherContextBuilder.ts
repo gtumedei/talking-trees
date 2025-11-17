@@ -1,497 +1,345 @@
-// ./services/WeatherContextBuilder.ts
+// WeatherContextBuilder.ts
+// Classe unica con metodo statico generateReflection(lat, lon)
+// Produce dataset + analisi + riflessioni in terza persona
 
-export interface HourlyData {
-  time?: string[];
-  temperature_2m?: number[];
-  relative_humidity_2m?: number[];
-  dewpoint_2m?: number[];
-  windspeed_10m?: number[];
-  winddirection_10m?: number[];
-  precipitation?: number[];
-  pressure_msl?: number[];
-  uv_index?: number[];
-  [key: string]: any;
-}
+export class WeatherContextBuilder {
+  static baseUrlMeteo = "https://api.open-meteo.com/v1/forecast";
+  static baseUrlAir = "https://air-quality-api.open-meteo.com/v1/air-quality";
+  static archiveUrl = "https://archive-api.open-meteo.com/v1/era5";
 
-export interface DailyData {
-  daily?: {
-    time: string[];
-    temperature_2m_max?: number[];
-    temperature_2m_min?: number[];
-    temperature_2m_mean?: number[];
-    precipitation_sum?: number[];
-    relative_humidity_2m_mean?: number[];
-    [key: string]: any;
-  };
-}
+  // =====================================================
+  // FETCH DATI
+  // =====================================================
+  private static async fetchHourly7Days(lat: number, lon: number) {
+    const meteo = new URLSearchParams({
+      latitude: String(lat),
+      longitude: String(lon),
+      hourly:
+        "temperature_2m,relative_humidity_2m,dewpoint_2m,windspeed_10m,winddirection_10m,precipitation,pressure_msl,uv_index",
+      timezone: "Europe/Rome",
+      past_days: "7",
+    });
 
-export interface MonthlyAggregated {
-  time: string[];
-  [metric: string]: string[] | (number | null)[];
-}
+    const air = new URLSearchParams({
+      latitude: String(lat),
+      longitude: String(lon),
+      hourly:
+        "pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,sulphur_dioxide,ozone,dust,uv_index",
+      timezone: "Europe/Rome",
+      past_days: "7",
+    });
 
-export interface WeatherBundle {
-  hourlyData: HourlyData;
-  dailyLastYear: DailyData;
-  monthly10Years: MonthlyAggregated;
-}
+    const [m, a] = await Promise.all([
+      fetch(`${this.baseUrlMeteo}?${meteo}`),
+      fetch(`${this.baseUrlAir}?${air}`),
+    ]);
 
-class WeatherService {
-  baseUrlMeteo = "https://api.open-meteo.com/v1/forecast";
-  baseUrlAir = "https://air-quality-api.open-meteo.com/v1/air-quality";
-  archiveUrl = "https://archive-api.open-meteo.com/v1/era5";
-
-  async fetchHourlyLast7Days(lat: number, lon: number): Promise<HourlyData> {
-    try {
-      const meteoParams = new URLSearchParams({
-        latitude: String(lat),
-        longitude: String(lon),
-        hourly:
-          "temperature_2m,relative_humidity_2m,dewpoint_2m,windspeed_10m,winddirection_10m,precipitation,pressure_msl",
-        timezone: "Europe/Rome",
-        past_days: "7",
-      });
-
-      const airParams = new URLSearchParams({
-        latitude: String(lat),
-        longitude: String(lon),
-        hourly:
-          "pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,sulphur_dioxide,ozone,dust,uv_index",
-        timezone: "Europe/Rome",
-        past_days: "7",
-      });
-
-      const [meteoResponse, airResponse] = await Promise.all([
-        fetch(`${this.baseUrlMeteo}?${meteoParams}`),
-        fetch(`${this.baseUrlAir}?${airParams}`),
-      ]);
-
-      if (!meteoResponse.ok || !airResponse.ok) {
-        throw new Error("Errore nel fetch dei dati meteo");
-      }
-
-      const meteoData = await meteoResponse.json();
-      const airData = await airResponse.json();
-
-      return {
-        ...meteoData,
-        air_quality: airData.hourly,
-      };
-    } catch (error) {
-      console.error("Errore nel fetch dei dati orari:", error);
-      throw error;
-    }
-  }
-
-  async fetchDailyLastYear(lat: number, lon: number): Promise<DailyData> {
-    try {
-      const today = new Date();
-      const oneYearAgo = new Date();
-      oneYearAgo.setFullYear(today.getFullYear() - 1);
-
-      const params = new URLSearchParams({
-        latitude: String(lat),
-        longitude: String(lon),
-        start_date: oneYearAgo.toISOString().split("T")[0],
-        end_date: today.toISOString().split("T")[0],
-        daily:
-          "temperature_2m_max,temperature_2m_min,temperature_2m_mean,precipitation_sum,relative_humidity_2m_mean",
-        timezone: "Europe/Rome",
-      });
-
-      const response = await fetch(`${this.archiveUrl}?${params}`);
-
-      if (!response.ok) {
-        throw new Error("Errore nel fetch dei dati annuali");
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error("Errore nel fetch dei dati annuali:", error);
-      throw error;
-    }
-  }
-
-  async fetchDailyLast10Years(lat: number, lon: number): Promise<DailyData> {
-    try {
-      const today = new Date();
-      const tenYearsAgo = new Date();
-      tenYearsAgo.setFullYear(today.getFullYear() - 10);
-
-      const params = new URLSearchParams({
-        latitude: String(lat),
-        longitude: String(lon),
-        start_date: tenYearsAgo.toISOString().split("T")[0],
-        end_date: today.toISOString().split("T")[0],
-        daily:
-          "temperature_2m_max,temperature_2m_min,temperature_2m_mean,precipitation_sum,relative_humidity_2m_mean",
-        timezone: "Europe/Rome",
-      });
-
-      const response = await fetch(`${this.archiveUrl}?${params}`);
-
-      if (!response.ok) {
-        throw new Error("Errore nel fetch dei dati decennali");
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error("Errore nel fetch dei dati decennali:", error);
-      throw error;
-    }
-  }
-
-  aggregateMonthly(dailyData: DailyData): MonthlyAggregated {
-    if (!dailyData?.daily?.time) return { time: [] };
-
-    const { time, ...metrics } = dailyData.daily;
-
-    // Struttura interna temporanea per aggregare
-    type TempMonth = {
-      sum: number;
-      count: number;
-      values: number[];
+    return {
+      hourly: (await m.json()).hourly,
+      air: (await a.json()).hourly,
     };
+  }
 
-    const monthly: Record<
-      string,
-      Record<string, TempMonth>
-    > = {};
+  private static async fetchDailyArchive(lat: number, lon: number, years: number) {
+    const end = new Date();
+    const start = new Date();
+    start.setFullYear(end.getFullYear() - years);
 
-    // inizializza struttura
-    for (const metric of Object.keys(metrics)) {
-      monthly[metric] = {};
-    }
+    const params = new URLSearchParams({
+      latitude: String(lat),
+      longitude: String(lon),
+      start_date: start.toISOString().split("T")[0],
+      end_date: end.toISOString().split("T")[0],
+      daily:
+        "temperature_2m_max,temperature_2m_min,temperature_2m_mean,precipitation_sum,relative_humidity_2m_mean",
+      timezone: "Europe/Rome",
+    });
 
-    time.forEach((dateString: string, index: number) => {
-      const date = new Date(dateString);
-      const yearMonth = `${date.getFullYear()}-${String(
+    const res = await fetch(`${this.archiveUrl}?${params}`);
+    return res.json();
+  }
+
+  private static aggregateMonthly(daily: any) {
+    if (!daily?.daily?.time) return { time: [] };
+
+    const { time, ...metrics } = daily.daily;
+    const monthly: Record<string, Record<string, { sum: number; count: number }>> = {};
+    for (const m of Object.keys(metrics)) monthly[m] = {};
+
+    time.forEach((d: string, idx: number) => {
+      const date = new Date(d);
+      const key = `${date.getFullYear()}-${String(
         date.getMonth() + 1
       ).padStart(2, "0")}`;
 
-      for (const metric of Object.keys(metrics)) {
+      for (const m of Object.keys(metrics)) {
+        if (!monthly[m][key]) monthly[m][key] = { sum: 0, count: 0 };
 
-        if (!monthly[metric][yearMonth]) {
-          monthly[metric][yearMonth] = { sum: 0, count: 0, values: [] };
-        }
-
-        const value = metrics[metric]?.[index];
-
-        if (value !== null && value !== undefined) {
-          monthly[metric][yearMonth].sum += value;
-          monthly[metric][yearMonth].count++;
-          monthly[metric][yearMonth].values.push(value);
+        const v = metrics[m][idx];
+        if (v !== null && v !== undefined) {
+          monthly[m][key].sum += v;
+          monthly[m][key].count++;
         }
       }
     });
 
-    // === RISULTATO ===
-
-    const result: MonthlyAggregated = {
-      time: Object.keys(monthly[Object.keys(monthly)[0]])
+    const result: any = {
+      time: Object.keys(monthly[Object.keys(monthly)[0]]),
     };
 
-    for (const metric of Object.keys(metrics)) {
-      result[metric] = result.time.map((ym) => {
-        const month = monthly[metric][ym];
-        return month && month.count > 0
-          ? month.sum / month.count
-          : null;
+    for (const m of Object.keys(metrics)) {
+      result[m] = result.time.map((t: string) => {
+        const info = monthly[m][t];
+        if (!info || info.count === 0) return null;
+        return info.sum / info.count;
       });
     }
 
     return result;
   }
 
-
-  async getAllWeatherData(lat: number, lon: number): Promise<WeatherBundle> {
-    try {
-      const hourlyData = await this.fetchHourlyLast7Days(lat, lon);
-      const dailyLastYear = await this.fetchDailyLastYear(lat, lon);
-      const daily10Years = await this.fetchDailyLast10Years(lat, lon);
-      const monthly10Years = this.aggregateMonthly(daily10Years);
-
-      return {
-        hourlyData,
-        dailyLastYear,
-        monthly10Years,
-      };
-    } catch (error) {
-      console.error("Errore totale:", error);
-      throw error;
-    }
-  }
-}
-
-class WiseTree {
-  week: HourlyData;
-  lastYear: DailyData;
-  tenYears: MonthlyAggregated;
-
-  constructor(week: HourlyData, lastYear: DailyData, tenYears: MonthlyAggregated) {
-    this.week = week;
-    this.lastYear = lastYear;
-    this.tenYears = tenYears;
-  }
-
-  // ===== Utility numeriche =====
-  private _avg(arr?: (number | null)[]) {
+  // =====================================================
+  // STATISTICHE
+  // =====================================================
+  private static avg(arr?: (number | null)[]) {
     if (!arr || arr.length === 0) return 0;
-    const nums = arr.map((v) => v ?? 0);
-    return nums.reduce((a, b) => a + b, 0) / nums.length;
+    const v = arr.filter((x) => x !== null && x !== undefined) as number[];
+    return v.reduce((a, b) => a + b, 0) / v.length;
   }
 
-  private _max(arr?: (number | null)[]) {
-    if (!arr || arr.length === 0) return 0;
-    return Math.max(...arr.filter((v) => v !== null && v !== undefined) as number[]);
+  private static sum(arr?: (number | null)[]) {
+    if (!arr) return 0;
+    return arr.reduce((a: number, b) => a + (b ?? 0), 0);
   }
 
-  private _min(arr?: (number | null)[]) {
-    if (!arr || arr.length === 0) return 0;
-    return Math.min(...arr.filter((v) => v !== null && v !== undefined) as number[]);
+  private static max(arr?: (number | null)[]) {
+    const v = arr?.filter((x) => x !== null) as number[];
+    return v?.length ? Math.max(...v) : 0;
   }
 
-  private _sum(arr?: (number | null)[]) {
-    if (!arr || arr.length === 0) return 0;
-    return arr.reduce<number>((acc, v) => acc + (v ?? 0), 0);
+  private static min(arr?: (number | null)[]) {
+    const v = arr?.filter((x) => x !== null) as number[];
+    return v?.length ? Math.min(...v) : 0;
   }
 
-
-  private _std(arr?: (number | null)[]) {
-    if (!arr || arr.length === 0) return 0;
-    const mean = this._avg(arr);
-    const squareDiffs = arr.map((v) => Math.pow((v ?? 0) - mean, 2));
-    return Math.sqrt(this._avg(squareDiffs));
+  private static std(arr?: (number | null)[]) {
+    if (!arr) return 0;
+    const mean = this.avg(arr);
+    const diffs = arr.map((v) => Math.pow((v ?? 0) - mean, 2));
+    return Math.sqrt(this.avg(diffs));
   }
 
-  // ====== Analisi principale =======
-  private _analyzeWeek() {
-    const h = this.week.hourly ?? this.week;
+  // =====================================================
+  // ANALISI ANNUALE
+  // =====================================================
+  private static analyzeYear(year: any) {
+    const tMean = this.avg(year.daily.temperature_2m_mean);
+    const tMax = this.max(year.daily.temperature_2m_max);
+    const tMin = this.min(year.daily.temperature_2m_min);
 
-    const stats = {
+    return {
       temperature: {
-        mean: this._avg(h.temperature_2m),
-        max: this._max(h.temperature_2m),
-        min: this._min(h.temperature_2m),
-        std: this._std(h.temperature_2m),
+        mean: tMean,
+        max: tMax,
+        min: tMin,
+        std: this.std(year.daily.temperature_2m_mean),
       },
-      humidity: this._avg(h.relative_humidity_2m),
-      precipitation: this._sum(h.precipitation),
-      wind: {
-        mean: this._avg(h.windspeed_10m),
-        max: this._max(h.windspeed_10m),
-      },
-      pressure: this._avg(h.pressure_msl),
-      dewpoint: this._avg(h.dewpoint_2m),
-      air_quality: this._analyzeAirQualityScore(),
-      uv: h.uv_index ? this._avg(h.uv_index) : null,
+      humidity: this.avg(year.daily.relative_humidity_2m_mean),
+      precipitation: this.sum(year.daily.precipitation_sum),
     };
-
-    return stats;
   }
 
-  private _analyzeDecade() {
-    try {
-      const currentMonth = new Date(
-        this.week.hourly?.time?.slice(-1)?.[0] ?? ""
-      ).getMonth() + 1;
+  // =====================================================
+  // ANALISI SETTIMANA + DECADE
+  // =====================================================
+  private static analyzeAirQuality(aq: any) {
+    if (!aq) return 80;
 
-      const monthFilter = (arr?: number[]) =>
-        arr?.filter((_, i) => {
-          const date = new Date(this.tenYears.time[i]);
-          return date.getMonth() + 1 === currentMonth;
-        }) ?? [];
-
-      const temp = monthFilter(this.tenYears.temperature_2m_mean as number[]);
-      const hum = monthFilter(this.tenYears.relative_humidity_2m_mean as number[]);
-      const prec = monthFilter(this.tenYears.precipitation_sum as number[]);
-
-      return {
-        temp_mean: this._avg(temp.length ? temp : (this.tenYears.temperature_2m_mean as number[])),
-        humidity: this._avg(hum.length ? hum : (this.tenYears.relative_humidity_2m_mean as number[])),
-        precipitation: this._avg(prec.length ? prec : (this.tenYears.precipitation_sum as number[])),
-      };
-    } catch (e) {
-      return {
-        temp_mean: this._avg(this.tenYears.temperature_2m_mean as number[]),
-        humidity: this._avg(this.tenYears.relative_humidity_2m_mean as number[]),
-        precipitation: this._avg(this.tenYears.precipitation_sum as number[]),
-      };
-    }
-  }
-
-  private _analyzeAirQualityScore() {
-    const a = this.week.air_quality ?? {};
-    const pollutants = ["pm10", "pm2_5", "carbon_monoxide", "nitrogen_dioxide", "sulphur_dioxide", "ozone"];
-
-    const valid = pollutants.filter((p) => a[p] && a[p].length > 0);
-    if (valid.length === 0) return null;
-
+    const pm2 = this.avg(aq.pm2_5);
     let score = 100;
 
-    if (a.pm2_5) {
-      const v = this._avg(a.pm2_5);
-      if (v > 50) score -= 25;
-      else if (v > 35) score -= 20;
-      else if (v > 25) score -= 15;
-      else if (v > 15) score -= 10;
-    }
+    if (pm2 > 50) score -= 30;
+    else if (pm2 > 35) score -= 20;
+    else if (pm2 > 20) score -= 10;
 
-    return Math.max(score, 0);
+    return score;
   }
 
-  private _calculateDryDays() {
-    const arr = this.week.hourly?.precipitation ?? [];
-    let dryHours = 0;
-    for (let i = arr.length - 1; i >= 0; i--) {
-      if ((arr[i] ?? 0) > 0.5) break;
-      dryHours++;
-    }
-    return Math.ceil(dryHours / 24);
-  }
+  private static analyzeTrends(week: any, decade: any, year: any) {
+    const m: string[] = [];
 
-  private _analyzeHydration(week: any, dec: any) {
+    // Precipitazioni — settimana vs anno vs decade
     const p = week.precipitation;
-    const h = week.humidity;
-    const p_norm = dec.precipitation;
+    const pY = year.precipitation / 52;
+    const pD = decade.precipitation;
 
-    const dry = this._calculateDryDays();
+    if (p > pY * 3) m.push(`Nell’ultima settimana si sono registrate precipitazioni molto superiori alla media annuale: ${p.toFixed(1)} mm contro una media settimanale di ${pY.toFixed(1)} mm.`);
+    else if (p < pY * 0.3) m.push(`La settimana è stata insolitamente secca rispetto ai valori medi dell'anno: ${p.toFixed(1)} mm contro ${pY.toFixed(1)} mm attesi.`);
 
-    if (p === 0 && h < 40)
-      return `Ho sete, non piove da ${dry} giorni e l'umidità è solo al ${Math.round(h)}%.`;
+    if (p > pD * 4) m.push(`Le piogge registrate superano in modo anomalo anche i valori climatici di riferimento del decennio: ${p.toFixed(1)} mm rispetto alla media settimanale decennale di ${(pD).toFixed(1)} mm.`);
+    if (p < pD * 0.25) m.push(`Le precipitazioni risultano anche inferiori alla media decennale: ${p.toFixed(1)} mm contro ${(pD).toFixed(1)} mm.`);
 
-    if (p > p_norm * 3)
-      return `Sono zuppo! Questa settimana ${p.toFixed(1)}mm di pioggia, molto sopra la media.`;
+    // Temperature — settimana vs anno vs decade
+    const tW = week.temperature.mean;
+    const tY = year.temperature.mean;
+    const tD = decade.temp_mean;
 
-    return `Sto bene, l'umidità è al ${Math.round(h)}%.`;
+    if (tW - tY > 4) m.push(`Le temperature settimanali risultano decisamente più alte della media annuale: ${tW.toFixed(1)} °C contro ${tY.toFixed(1)} °C.`);
+    if (tW - tY < -4) m.push(`Le temperature della settimana sono nettamente più basse rispetto alla media annuale: ${tW.toFixed(1)} °C contro ${tY.toFixed(1)} °C.`);
+    if (tW - tD > 3)  m.push(`La settimana è stata più calda anche rispetto al clima di riferimento del decennio: ${tW.toFixed(1)} °C contro ${tD.toFixed(1)} °C.`);
+    if (tW - tD < -3) m.push(`Le temperature settimanali sono inferiori ai valori tipici del decennio: ${tW.toFixed(1)} °C rispetto a ${tD.toFixed(1)} °C.`);
+
+    return m;
   }
 
-  private _analyzeTemperature(week: any, dec: any) {
+  private static analyzeDecade(ten: any, week: any) {
+    try {
+      const last = new Date(week.time[week.time.length - 1]);
+      const month = last.getMonth() + 1;
+
+      const filter = (arr: number[]) =>
+        arr.filter((_: any, i: number) => new Date(ten.time[i]).getMonth() + 1 === month);
+
+      return {
+        temp_mean: this.avg(filter(ten.temperature_2m_mean) || ten.temperature_2m_mean),
+        humidity: this.avg(filter(ten.relative_humidity_2m_mean) || ten.relative_humidity_2m_mean),
+        precipitation: this.avg(filter(ten.precipitation_sum) || ten.precipitation_sum),
+      };
+    } catch {
+      return {
+        temp_mean: this.avg(ten.temperature_2m_mean),
+        humidity: this.avg(ten.relative_humidity_2m_mean),
+        precipitation: this.avg(ten.precipitation_sum),
+      };
+    }
+  }
+
+  private static analyzeWeek(week: any, aq: any) {
+    return {
+      temperature: {
+        mean: this.avg(week.temperature_2m),
+        max: this.max(week.temperature_2m),
+        min: this.min(week.temperature_2m),
+        std: this.std(week.temperature_2m),
+      },
+      humidity: this.avg(week.relative_humidity_2m),
+      precipitation: this.sum(week.precipitation),
+      wind: {
+        mean: this.avg(week.windspeed_10m),
+        max: this.max(week.windspeed_10m),
+      },
+      pressure: this.avg(week.pressure_msl),
+      airQualityScore: this.analyzeAirQuality(aq),
+    };
+  }
+
+  // =====================================================
+  // GENERAZIONE DEL TESTO
+  // =====================================================
+  private static buildReflection(week: any, year: any, decade: any, trends: string[]) {
+    const parts: string[] = [];
+
+    // ================= TEMPERATURE =================
     const t = week.temperature.mean;
-    const t_norm = dec.temp_mean;
 
-    if (t > 35) return `Sto soffrendo il caldo: ${t.toFixed(1)}°C.`;
-    if (t < 0) return `Fa gelissimo: ${t.toFixed(1)}°C.`;
+    if (t > 38)
+      parts.push(`Le temperature estremamente elevate della settimana (${t.toFixed(1)}°C) possono aver causato un’eccessiva traspirazione e un marcato stress idrico per l’albero.`);
+    else if (t > 32)
+      parts.push(`La settimana è stata caratterizzata da temperature alte (${t.toFixed(1)}°C) che potrebbero aver aumentato il fabbisogno idrico dell’albero.`);
+    else if (t > 25)
+      parts.push(`Le temperature moderatamente elevate (${t.toFixed(1)}°C) suggeriscono condizioni favorevoli alla crescita, purché l’umidità sia stata adeguata.`);
+    else if (t > 10)
+      parts.push(`Le temperature miti (${t.toFixed(1)}°C) risultano generalmente positive per i processi fisiologici dell’albero.`);
+    else if (t > 0)
+      parts.push(`La settimana ha mostrato temperature basse ma non estreme (${t.toFixed(1)}°C), potenzialmente rallentando i processi metabolici dell’albero.`);
+    else
+      parts.push(`Le temperature rigide (${t.toFixed(1)}°C) indicano condizioni di gelo che possono aver danneggiato gemme e tessuti giovani.`);
 
-    if (t > t_norm + 5)
-      return `Fa molto più caldo del normale: ${t.toFixed(1)}°C contro ${t_norm.toFixed(1)}°C.`;
-
-    if (t < t_norm - 5)
-      return `Fa più freddo del solito: ${t.toFixed(1)}°C invece di ${t_norm.toFixed(1)}°C.`;
-
-    return `La temperatura di ${t.toFixed(1)}°C mi sta bene.`;
-  }
-
-  private _analyzeHumidityPressure(week: any) {
-    const h = week.humidity;
-    const p = week.pressure;
-
-    if (p < 1005) return `Pressione bassa (${p.toFixed(0)}hPa), mi sento pesante.`;
-    if (p > 1025) return `Pressione alta (${p.toFixed(0)}hPa), aria frizzante.`;
-
-    if (h > 85) return `Umidità alta (${Math.round(h)}%).`;
-    if (h < 40) return `Aria secca (${Math.round(h)}%).`;
-
-    return `Umidità piacevole (${Math.round(h)}%).`;
-  }
-
-  private _analyzeWind(week: any) {
-    const w = week.wind.mean;
-    const wmax = week.wind.max;
-
-    if (wmax > 50) return `Raffiche molto forti (${Math.round(wmax)}km/h)!`;
-    if (wmax > 30) return `Vento sostenuto (${Math.round(wmax)}km/h).`;
-    if (w > 15) return `Vento teso (${w.toFixed(1)}km/h).`;
-    if (w > 5) return `Brezza (${w.toFixed(1)}km/h).`;
-
-    return `Quasi nessun vento.`;
-  }
-
-  private _analyzeAirQuality(score: number | null) {
-    if (score === null) return "Dati insufficienti sulla qualità dell'aria.";
-    if (score > 90) return "Aria ottima!";
-    if (score > 70) return "Aria discreta.";
-    if (score > 50) return "Aria non buona.";
-    return "Aria molto inquinata.";
-  }
-
-  private _analyzeSolarRadiation(week: any) {
-    if (week.uv == null) return null;
-
-    const uv = week.uv;
-
-    if (uv > 8) return `UV molto alti (${uv.toFixed(1)}).`;
-    if (uv > 5) return `UV intensi (${uv.toFixed(1)}).`;
-
-    return `UV moderati (${uv.toFixed(1)}).`;
-  }
-
-  private _analyzeWeekTrend(week: any, dec: any) {
-    const messages: string[] = [];
-
+    // ================= PRECIPITAZIONI =================
     const p = week.precipitation;
-    const p_avg = dec.precipitation;
 
-    if (p_avg > 0) {
-      const ratio = (p / p_avg) * 100;
+    if (p === 0)
+      parts.push(`L’assenza totale di precipitazioni (0 mm) indica un periodo secco che può aver ridotto la disponibilità idrica nel suolo.`);
+    else if (p < 5)
+      parts.push(`Le precipitazioni leggere (${p.toFixed(1)} mm) non sono state probabilmente sufficienti a reintegrare completamente l’umidità del terreno.`);
+    else if (p < 20)
+      parts.push(`Le piogge moderate (${p.toFixed(1)} mm) possono aver garantito un buon apporto idrico, utile alla stabilità fisiologica dell’albero.`);
+    else if (p < 60)
+      parts.push(`Le piogge abbondanti (${p.toFixed(1)} mm) possono aver arricchito il suolo, favorendo le riserve idriche dell’apparato radicale.`);
+    else
+      parts.push(`Le precipitazioni eccezionalmente intense (${p.toFixed(1)} mm) potrebbero aver saturato il suolo, con potenziale rischio di ristagni dannosi.`);
 
-      if (ratio > 300) messages.push(`Settimana estremamente piovosa (+${Math.round(ratio)}%).`);
-      else if (ratio > 150) messages.push(`Più pioggia del solito.`);
-      else if (ratio < 50) messages.push(`Molto meno pioggia del normale.`);
-    }
+    // ================= UMIDITÀ =================
+    const h = week.humidity;
 
-    const tempDiff = week.temperature.mean - dec.temp_mean;
+    if (h < 35)
+      parts.push(`L’umidità molto bassa (${h}%) può aver favorito disidratazione fogliare e stress idrico.`);
+    else if (h < 55)
+      parts.push(`L’umidità moderata (${h}%) suggerisce condizioni tendenzialmente secche ma non critiche.`);
+    else if (h < 75)
+      parts.push(`L’umidità elevata (${h}%) ha probabilmente sostenuto i processi fotosintetici senza particolari difficoltà.`);
+    else
+      parts.push(`L’umidità molto alta (${h}%) può aver incrementato il rischio di patogeni fungini, influenzando la salute dell’albero.`);
 
-    if (Math.abs(tempDiff) > 3) {
-      if (tempDiff > 0)
-        messages.push(`Molto più caldo del solito (+${tempDiff.toFixed(1)}°C).`);
-      else
-        messages.push(`Molto più freddo del solito (${tempDiff.toFixed(1)}°C).`);
-    }
+    // ================= VENTO =================
+    const w = week.wind.max;
 
-    return messages;
-  }
+    if (w > 70)
+      parts.push(`Raffiche di vento molto intense (${w} km/h) potrebbero aver causato stress meccanico o rotture nei rami più esposti.`);
+    else if (w > 40)
+      parts.push(`Il vento sostenuto (${w} km/h) può aver contribuito a una maggiore evaporazione e stress idrico.`);
+    else if (w > 20)
+      parts.push(`Il vento moderato (${w} km/h) non rappresenta generalmente un fattore critico, salvo condizioni di siccità.`);
+    else
+      parts.push(`Il vento debole (${w} km/h) suggerisce un ambiente stabile e non stressante dal punto di vista aerodinamico.`);
 
-  generateReflection() {
-    const week = this._analyzeWeek();
-    const dec = this._analyzeDecade();
+    // ================= PRESSIONE =================
+    parts.push(`La pressione atmosferica media della settimana si è attestata su ${week.pressure.toFixed(0)} hPa, indicatore utile per comprendere la stabilità delle masse d’aria.`);
 
-    const msgs = [
-      this._analyzeHydration(week, dec),
-      this._analyzeTemperature(week, dec),
-      this._analyzeHumidityPressure(week),
-      this._analyzeWind(week),
-      this._analyzeAirQuality(week.air_quality),
-    ];
+    // ================= QUALITÀ DELL’ARIA =================
+    const aqs = week.airQualityScore;
 
-    const rad = this._analyzeSolarRadiation(week);
-    if (rad) msgs.push(rad);
+    if (aqs > 90)
+      parts.push(`L’aria particolarmente pulita (indice ${aqs}) ha favorito gli scambi gassosi e la respirazione fogliare.`);
+    else if (aqs > 70)
+      parts.push(`La qualità dell’aria buona (indice ${aqs}) suggerisce condizioni favorevoli alla fotosintesi.`);
+    else if (aqs > 50)
+      parts.push(`La qualità dell’aria mediocre (indice ${aqs}) può aver ridotto leggermente l’efficienza fotosintetica.`);
+    else
+      parts.push(`L’aria di scarsa qualità (indice ${aqs}) potrebbe aver ostacolato i processi fotosintetici e respiratori dell’albero.`);
 
-    const trend = this._analyzeWeekTrend(week, dec);
-    msgs.push(...trend);
+    // ================= TREND CLIMATICI =================
+    parts.push(...trends);
 
-    return msgs.join(" ");
-  }
-}
-
-// ==========================
-// Funzione principale
-// ==========================
-
-export async function weatherReflection(latitude: number, longitude: number): Promise<string> {
-  try {
-    const weatherService = new WeatherService();
-    const weatherData = await weatherService.getAllWeatherData(latitude, longitude);
-
-    const wiseTree = new WiseTree(
-      weatherData.hourlyData,
-      weatherData.dailyLastYear,
-      weatherData.monthly10Years
+    // ================= ANALISI ANNUALE =================
+    parts.push(
+      `Osservando i dati dell’ultimo anno, le temperature medie annuali (${year.temperature.mean.toFixed(1)}°C), la precipitazione totale annuale (${year.precipitation.toFixed(1)} mm) e l’umidità (${Math.round(year.humidity)}%) delineano il contesto climatico recente a cui l'albero è stato esposto.`
     );
 
-    return wiseTree.generateReflection();
-  } catch (error: any) {
-    console.error("Errore nella riflessione:", error);
-    return `Errore nella generazione della riflessione: ${error.message}`;
+    // ================= ANALISI DECENNALE =================
+    parts.push(
+      `Nel quadro climatico degli ultimi dieci anni, si osservano valori medi pari a ${decade.temp_mean.toFixed(1)}°C per la temperatura, ${decade.precipitation.toFixed(1)} mm per le precipitazioni e un’umidità del ${Math.round(decade.humidity)}%. Questi dati aiutano a interpretare come l’albero abbia reagito a lungo termine a eventuali variazioni climatiche.`
+    );
+
+    return parts.join("\n");
+  }
+
+
+  // =====================================================
+  // METODO FINALE
+  // =====================================================
+  static async generateReflection(lat: number, lon: number): Promise<string> {
+    const weekData = await this.fetchHourly7Days(lat, lon);
+    const yearData = await this.fetchDailyArchive(lat, lon, 1);
+    const decadeRaw = await this.fetchDailyArchive(lat, lon, 10);
+    const decadeMonthly = this.aggregateMonthly(decadeRaw);
+
+    const week = this.analyzeWeek(weekData.hourly, weekData.air);
+    const year = this.analyzeYear(yearData);
+    const decade = this.analyzeDecade(decadeMonthly, weekData.hourly);
+
+    const trends = this.analyzeTrends(week, decade, year);
+
+    return this.buildReflection(week, year, decade, trends);
   }
 }

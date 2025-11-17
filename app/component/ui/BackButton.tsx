@@ -65,7 +65,7 @@ export default function BackButton({ bg = false, message = '' }: BackButtonProps
         style={{marginLeft:"12.5%"}}
       >
         <Modal.Header closeButton>
-          <Modal.Title>Conferma Azione</Modal.Title>
+          <Modal.Title className={styles.backButtonTitle}>Conferma Azione</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {message} {/* Mostra il messaggio passato come prop */}

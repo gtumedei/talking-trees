@@ -6,9 +6,18 @@
 
 .page p, .page a{
     z-index: 5 !important;
+    font-size: 10px;
 }
 .page .colInfo{
     min-height: 250px;
+}
+
+.page button{
+    margin: 5px;
+}
+
+.page button svg{
+    font-size: 16px;
 }
 
 /* Container per l'immagine */
@@ -24,7 +33,7 @@
     opacity: 0.85;
     position: relative;
     left: -5vw !important;
-    top: -10vh !important;
+    top: -6vh !important;
     max-width: 52vw !important;
     object-fit: contain;
     padding-right: 2vw;
@@ -60,21 +69,71 @@
 .nameLink{
     text-decoration: underline solid var(--dark-noir);
     color: var(--dark-noir);
+    border: 1px solid var(--light-noir);
+    border-radius: 5px;
+    padding: 2px 5px;
+    margin: 10px;
+    font-family: 'Marker';
+    font-size: 14px !important;
 }
 
 .treeInfo{
     line-height: 20px;
     font-size: 16px !important;
+    padding-left: 0;
 }
-.treeInfo>p, .treeInfo>ul{
+.treeInfo>div{
+    padding-left: 5vh !important;
+}
+.treeInfo p, .treeInfo ul{
     margin: 0;
+    font-size: 14px;
 }
-.treeInfo>p{
+.treeInfo p{
     margin-top: 15px;
 }
-.treeInfo>ul{
+.treeInfo ul{
     line-height: 24px;
-    font-size: 14px !important;
+    font-size: 10px !important;
+    padding-left: 2vh !important;
+    list-style-position: inside;
+}
+
+.treeInfoCriteri{
+    line-height: 24px;
+    font-size: 10px !important;
+    padding-left: 2vh !important;
+    list-style-position: inside;
+    list-style: none;
+    padding-left: 0;
+}
+
+.treeInfoCriteri li {
+  position: relative;
+  padding-left: 10px;
+  margin-top: 8px;
+  line-height: 14px;
+}
+
+.treeInfoCriteri  li::before {
+  content: "•";        /* bullet personalizzato */
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+
+.treeInfoPlace {
+    margin: 0 !important;
+    padding-top: 5px;
+    font-size: 8px !important;
+    line-height: 16px;
+    -webkit-text-stroke-width: 0;
+    -webkit-text-stroke-color: none;
+}
+
+.treeInfoPlace a{
+    text-decoration: underline solid var(--dark-noir);
 }
 
 /* Bottone foto */
@@ -91,19 +150,4 @@
 }
 .photoButton:hover {
   background-color: #e0e0e0 !important;
-}
-
-/* Bottone stato di salute */
-.healthMainButton {
-  background: linear-gradient(135deg, #28a745, #20c997);
-  border: none;
-  border-radius: 25px;
-  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
-  transition: all 0.3s ease;
-}
-
-.healthMainButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
-  background: linear-gradient(135deg, #218838, #1ea085);
 }

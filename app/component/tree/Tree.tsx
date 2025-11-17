@@ -22,6 +22,35 @@ export default function Tree({ variant = "statico" }: TreeProps) {
   const [imageLoaded, setImageLoaded] = useState<boolean>(false);
   const router = useRouter();
 
+  const regioneMap: { [key: string]: string } = {
+    "Lombardia": "lombardia",
+    "Sardegna": "sardegna",
+    "ValleDAosta": "valle-d-aosta",
+    "Valle d'Aosta": "valle-d-aosta",
+    "Basilicata": "basilicata",
+    "Emilia": "emilia-romagna",
+    "Emilia-Romagna": "emilia-romagna",
+    "Bolzano": "trentino-alto-adige",
+    "Trento": "trentino-alto-adige",
+    "Trentino-Alto Adige": "trentino-alto-adige",
+    "Abruzzo": "abruzzo",
+    "Campania": "campania",
+    "Veneto": "veneto",
+    "Lazio": "lazio",
+    "Toscana": "toscana",
+    "Puglia": "puglia",
+    "Molise": "molise",
+    "Friuli": "friuli-venezia-giulia",
+    "Friuli-Venezia Giulia": "friuli-venezia-giulia",
+    "Calabria": "calabria",
+    "Sicilia": "sicilia",
+    "Marche": "marche",
+    "Liguria": "liguria",
+    "Piemonte": "piemonte",
+    "Umbria": "umbria"
+  };
+
+
   // Precarica e verifica l'immagine
   useEffect(() => {
     const checkImageExists = async () => {
@@ -103,7 +132,7 @@ export default function Tree({ variant = "statico" }: TreeProps) {
 
       {/* Nome scientifico */}
       {userTree["specie nome scientifico"] && (
-        <p className="text-center fst-italic">
+        <p className="text-center my-1">
           {userTree["index_specie"] === "" ? (
             <span>{userTree["specie nome scientifico"]}</span>
           ) : (
@@ -114,13 +143,13 @@ export default function Tree({ variant = "statico" }: TreeProps) {
         </p>
       )}
 
-      <p className="text-muted text-end fst-italic m-0">
+      <p className="text-muted text-end fst-italic m-0 pt-1">
         {userTree["comune"]}, {userTree["provincia"]}, {userTree["regione"]}
       </p>
 
       <Row>
         {/* Immagine albero - MANTENUTO COME ORIGINALE */}
-        <Col xs={5} className="m-0 p-0 text-center colInfo">
+        <Col xs={4} className="m-0 p-0 text-center colInfo">
           <div className={styles.imageContainer}>
             <Image
               src={imageSrc}
@@ -136,66 +165,54 @@ export default function Tree({ variant = "statico" }: TreeProps) {
         </Col>
 
         {/* Info testo */}
-        <Col xs={7} className={`${styles.treeInfo} m-0 align-middle pe-2`}>
-          <p className="fst-italic text-muted text-end tx-small m-0">
-            In {userTree["regione"]} sono presenti
-            <strong>
-              {" "}
-              <a
-                href={`https://alberimonumentali.info/regioni/${userTree["regione"].toLowerCase()}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                alberi monumentali
-              </a>
-            </strong>
-            , di cui <strong>1 vicino a te</strong>.
-          </p>
-
+        <Col xs={8} className={`${styles.treeInfo} m-0 align-middle`}>
           {/* Mappa link */}
-          {userTree.lat && userTree.lon && (
-            <MapLink
-              lat={userTree.lat}
-              lng={userTree.lon}
-              label=">> Vedi posizione"
-              className="tx-small text-end w-100 mt-0 mb-3"
-            />
-          )}
-
-          {/* Stato di salute attuale */}
-          {userTree.stato_salute && (
-            <div className="d-flex justify-content-between align-items-center mb-2">
-              <p className="mt-2 fw-bold mb-0">Stato di salute {userTree.stato_salute}</p>
-            </div>
-          )}
-
-          {/* Dimensioni */}
-          <p className="mt-2 fw-bold">Dimensioni</p>
-          <ul className="list-unstyled">
-            <li>Circonferenza fusto: {userTree["circonferenza fusto (cm)"]} cm</li>
-            <li>Altezza: {userTree["altezza (m)"]} m</li>
-            {userTree["altitudine (m s.l.m.)"] && (
-              <li>Altitudine: {userTree["altitudine (m s.l.m.)"]} m s.l.m.</li>
+            {userTree.lat && userTree.lon && (
+              <MapLink
+                lat={userTree.lat}
+                lng={userTree.lon}
+                label=">> Vedi posizione"
+                className="tx-small text-end w-100 mt-0 mb-2"
+              />
             )}
-          </ul>
 
-          {/* Criteri di Monumentalità */}
-          <p className="mt-1 fw-bold">Criteri di Monumentalità</p>
-          <ul>
-            {userTree["criteri di monumentalità"]
-              ?.replace(/^-/, "")
-              .split("-")
-              .map((c : string, i : any) => (
-                <li key={i}>{c}</li>
-              ))}
-          </ul>
+          <div>
+            {/* Stato di salute attuale */}
+            {userTree.stato_salute && (
+              <div className="d-flex justify-content-between align-items-center mb-2">
+                <p className="mt-2 fw-bold mb-0">Stato di salute {userTree.stato_salute}</p>
+              </div>
+            )}
 
-          {/* Età stimata */}
-          {userTree["eta_descrizione"] && (
-            <p className="mt-1">
-              <strong>Stima età:</strong> {userTree["eta_descrizione"]}
-            </p>
-          )}
+            {/* Dimensioni */}
+            <p className="mt-2 fw-bold">Dimensioni</p>
+            <ul className="list-unstyled">
+              <li>Circonferenza fusto: {userTree["circonferenza fusto (cm)"]} cm</li>
+              <li>Altezza: {userTree["altezza (m)"]} m</li>
+              {userTree["altitudine (m s.l.m.)"] && (
+                <li>Altitudine: {userTree["altitudine (m s.l.m.)"]} m s.l.m.</li>
+              )}
+            </ul>
+
+            {/* Criteri di Monumentalità */}
+            <p className="mt-1 fw-bold">Criteri di Monumentalità</p>
+            <ul className={styles.treeInfoCriteri}>
+              {userTree["criteri di monumentalità"]
+                ?.replace(/^-/, "")
+                .split("-")
+                .map((c : string, i : any) => (
+                  <li key={i}>{c}</li>
+                ))}
+            </ul>
+
+            {/* Età stimata */}
+            {userTree["eta_descrizione"] && (
+              <p className="mt-1">
+                <strong>Stima età:</strong> {userTree["eta_descrizione"]}
+              </p>
+            )}
+          </div>
+
         </Col>
       </Row>
 
@@ -226,7 +243,7 @@ export default function Tree({ variant = "statico" }: TreeProps) {
       </div>
 
       {/* Bottone per fare foto in basso a sinistra */}
-      <div className={styles.photoWrapper}>
+      {/*<div className={styles.photoWrapper}>
         <Button
           variant="light"
           className={styles.photoButton}
@@ -242,7 +259,7 @@ export default function Tree({ variant = "statico" }: TreeProps) {
           style={{ display: "none" }}
           onChange={handlePhoto}
         />
-      </div>
+      </div>*/}
     </Container>
   );
 }

@@ -22,28 +22,32 @@
   max-width: 500px;
   margin: 0 auto;
 }
+/* Stili del Modal */
+.healthModal * {
+  font-family: 'OpenDyslexic' ;
+}
+
 
 .modalHeader {
   border-bottom: 2px solid #e9ecef;
-  padding: 1.5rem 1.5rem 1rem;
+  padding: 10px;
   background: white;
 }
 
 .headerContent {
   width: 100%;
-  text-align: center;
 }
 
 .modalTitle {
   font-weight: 700;
-  font-size: 1.3rem;
+  font-size: 14px;
   color: #2c5530;
   margin: 0 0 0.5rem 0;
 }
 
 .modalDescription {
   color: #6c757d;
-  font-size: 0.9rem;
+  font-size: 10px;
   margin: 0;
   font-weight: 400;
 }
@@ -105,14 +109,15 @@
 }
 
 .healthLabel {
-  font-weight: 600;
-  font-size: 0.8rem;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: -2px;
   text-align: center;
   color: white;
 }
 
 .healthLevel {
-  font-size: 0.75rem;
+  font-size: 10px;
   color: white;
   opacity: 0.9;
   font-weight: 500;
@@ -128,10 +133,10 @@
 .submitButton {
   background: linear-gradient(135deg, #28a745, #20c997);
   border: none;
-  border-radius: 25px;
+  border-radius: 8px;
   padding: 0.75rem 2rem;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 12px;
   box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
   transition: all 0.3s ease;
   min-width: 200px;
@@ -151,28 +156,4 @@
   box-shadow: none;
   cursor: not-allowed;
   color: white;
-}
-
-/* Responsive */
-@media (max-width: 576px) {
-  .healthButtonsRow {
-    gap: 0.3rem;
-  }
-  
-  .healthButton {
-    padding: 0.8rem 0.3rem;
-    min-height: 90px;
-  }
-  
-  .healthLabel {
-    font-size: 0.75rem;
-  }
-  
-  .healthLevel {
-    font-size: 0.7rem;
-  }
-  
-  .modalBody {
-    padding: 1rem;
-  }
 }

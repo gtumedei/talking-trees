@@ -68,40 +68,43 @@
 
 .dropdownCustom {
   margin-top: 10px;
-  font-family: inherit;
 }
 
 .dropdownCustom > button {
   background-color: var(--light) !important;
-  color: #43434185 !important;           /* testo marrone */
+  color: var(--dark-noir) !important;           /* testo marrone */
   border: none !important;
+  opacity: 0.75;
   font-style: italic;
-  font-size: 14px !important;
   padding: 0;
+  font-family: 'OpenDyslexic';
+  letter-spacing: -1px;
+  font-size: 12px;
+  margin-top: 0;
 }
 
 .dropdownCustom > button:hover {
   background-color: #eaeaea !important;
-  color: #43434185 !important;
+  color: var(--dark-noir) !important;
   text-decoration: underline;
 }
 
 .dropdownMenuCustom {
   padding: 0px 10px;
   top: -200%;
+  font-size: 13px;
 }
 .dropdownCheck input:checked{
   background-color: var(--noir);
   border: var(--light-noir) solid 1px;
 }
 .dropdownCheck label {
-  font-size: 0.9rem;
+  font-size: 12px;
   color: var(--noir);
 }
 
 .filterButton {
-  font-family: 'Oneday', sans-serif;
   font-size: 12px !important;
-  font-weight: bold !important;
   padding: 2px 10px 4px !important;
+  letter-spacing: 2px;
 }

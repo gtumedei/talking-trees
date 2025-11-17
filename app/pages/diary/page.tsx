@@ -8,27 +8,8 @@ import BackButton from "@component/ui/BackButton";
 import { UserContext } from "@/app/layout";
 import { saveCommentToFirebase, loadCommentsFromFirebase } from "@service/userServices";
 import { Comment } from "@service/types/interface_db";
-import { UserContextType } from '@service/types/interface_context';
+import { UserContextType } from "@service/types/interface_context";
 
-
-// ---------- lista font con dimensione base ----------
-const fonts = [
-  { family: "'Homemade Apple', cursive", baseSize: 11, fontBold: true },
-  { family: "'Reenie Beanie', cursive", baseSize: 14, fontBold: true },
-  { family: "'Indie Flower', cursive", baseSize: 14, fontBold: true },
-  { family: "'Just Me Again Down Here', cursive", baseSize: 15, fontBold: false },
-  { family: "'Beth Ellen', cursive", baseSize: 14, fontBold: true },
-  { family: "'Waiting for the Sunrise', cursive", baseSize: 14, fontBold: true },
-  { family: "'Dr Sugiyama', cursive", baseSize: 15, fontBold: false },
-];
-
-// ---------- funzione per generare numeri pseudo-casuali con seed ----------
-function seededRandom(seed: number) {
-  const x = Math.sin(seed) * 10000;
-  return x - Math.floor(x);
-}
-
-// ---------- COMPONENTE ----------
 export default function DiaryPage() {
   const userContext = useContext(UserContext) || ({} as UserContextType);
   const { userTree, user } = userContext;
@@ -37,10 +18,9 @@ export default function DiaryPage() {
   const [showModal, setShowModal] = useState(false);
   const [newText, setNewText] = useState("");
   const [newAuthor, setNewAuthor] = useState("");
+  const [closeVisible, setCloseVisible] = useState(true);
 
-  const seed = 42;
-
-  // Carica i commenti quando il componente si monta
+  // Carica i commenti al montaggio
   useEffect(() => {
     const loadEntries = async () => {
       const loadedEntries = await loadCommentsFromFirebase(userTree);
@@ -49,90 +29,119 @@ export default function DiaryPage() {
     loadEntries();
   }, [userTree]);
 
-  // Aggiungi un nuovo commento
+  // Salvataggio nuovo commento
   const handleAddComment = async () => {
     if (!newText.trim()) return;
 
     const today = new Date().toLocaleDateString("it-IT");
+
     const newComment: Comment = {
       date: today,
       text: newText,
-      author: user ? user.username : newAuthor.trim() !== "" ? newAuthor.trim() : undefined
+      author:
+        user?.username ||
+        (newAuthor.trim() !== "" ? newAuthor.trim() : undefined),
     };
 
+    // Aggiornamento immediato dell’interfaccia
     setEntries((prev) => [...prev, newComment]);
+
+    // Reset form
     setNewText("");
     setNewAuthor("");
     setShowModal(false);
+    setCloseVisible(true);
 
+    // Salvataggio su Firebase
     await saveCommentToFirebase(newComment, userTree);
+
+    // Ricarico aggiornato
     const updatedEntries = await loadCommentsFromFirebase(userTree);
     setEntries(updatedEntries);
   };
 
+  const handleOpenModal = () => {
+    setShowModal(true);
+    setCloseVisible(false);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setCloseVisible(true);
+  };
+
   return (
     <main className="p-2">
-      <BackButton />
+      {closeVisible && <BackButton />}
+
       <Title text="Pezzi di Storia" level={1} className="text-center mt-3 display-6" />
-      <p className="text-center">Leggi i ricordi, gli eventi e le emozioni relative a quest'albero</p>
+      <p className="text-center">
+        Leggi i ricordi, gli eventi e le emozioni relative a quest'albero
+      </p>
 
       <div className="mb-1 text-center">
-        <Button variant="secondary" className="flame" onClick={() => setShowModal(true)}>
+        <Button variant="secondary" className="flame" onClick={handleOpenModal}>
           + Aggiungi ricordo
         </Button>
       </div>
 
       <div className={styles.entries}>
         {entries.length === 0 ? (
-          <p className="text-center text-muted mt-3">Nessun ricordo ancora presente 🌱</p>
+          <p className="text-center text-muted mt-3">
+            Nessun ricordo ancora presente 🌱
+          </p>
         ) : (
-          entries.map((Comment, i) => {
-            const fontIndex = Math.floor(seededRandom(seed + i) * fonts.length);
-            const { family, baseSize, fontBold } = fonts[fontIndex];
-            const variation = Math.floor(seededRandom(seed * (i + 1)) * 3) - 1;
-            const fontSize = baseSize + variation;
-
-            return (
-              <div key={i} className={styles.Comment}>
-                <p className={styles.date}>
-                  <i>{Comment.date}</i>
-                </p>
-                <p className={`${styles.text} ${fontBold ? "fw-bold" : ""}`} style={{ fontFamily: family, fontSize: `${fontSize}px` }}>
-                  {Comment.text}
-                </p>
-                {Comment.author && (
-                  <p className={styles.author} style={{ fontFamily: family, fontSize: `${fontSize - 1}px` }}>
-                    — {Comment.author}
-                  </p>
-                )}
-                <hr className="my-2" />
-              </div>
-            );
-          })
+          entries.map((comment, i) => (
+            <div key={i} className={styles.Comment}>
+              <p className={styles.date}>
+                <i>{comment.date}</i>
+              </p>
+              <p className={styles.text}>{comment.text}</p>
+              {comment.author && (
+                <p className={styles.author}>— {comment.author}</p>
+              )}
+              <hr className="my-2" />
+            </div>
+          ))
         )}
       </div>
 
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
+      {/* MODAL CENTRATO */}
+      <Modal show={showModal} onHide={handleCloseModal} centered className={styles.modal}>
+        <Modal.Header className={styles.modalTitle} closeButton>
           <Modal.Title>Aggiungi il tuo ricordo</Modal.Title>
         </Modal.Header>
+
         <Modal.Body>
           <Form>
             <Form.Group className="mb-3">
               <Form.Label>Ricordo</Form.Label>
-              <Form.Control as="textarea" rows={3} value={newText} onChange={(e) => setNewText(e.target.value)} placeholder="Scrivi il tuo ricordo..." />
+              <Form.Control
+                as="textarea"
+                rows={3}
+                value={newText}
+                onChange={(e) => setNewText(e.target.value)}
+                placeholder="Scrivi il tuo ricordo..."
+              />
             </Form.Group>
+
             <Form.Group>
               <Form.Label>Firma (opzionale)</Form.Label>
-              <Form.Control type="text" value={newAuthor} onChange={(e) => setNewAuthor(e.target.value)} placeholder="Il tuo nome" />
+              <Form.Control
+                type="text"
+                value={newAuthor}
+                onChange={(e) => setNewAuthor(e.target.value)}
+                placeholder="Il tuo nome"
+              />
             </Form.Group>
           </Form>
         </Modal.Body>
+
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
+          <Button variant="secondary" className="flame" onClick={handleCloseModal}>
             Annulla
           </Button>
-          <Button variant="primary" onClick={handleAddComment}>
+          <Button variant="primary" className="flame" onClick={handleAddComment}>
             Salva
           </Button>
         </Modal.Footer>

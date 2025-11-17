@@ -1,8 +1,9 @@
 // ./services/TreeContextBuilder.tsx
-import { weatherReflection } from './WeatherContextBuilder';
+import { WeatherContextBuilder } from './WeatherContextBuilder';
 
 import { UserTreeType, UserSpeciesType, EventType } from '@service/types/interface_context';
 import {TreeData, SpeciesData, EcologicalData, LocationData, HealthData, HistoricalData, CSVRow} from '@service/types/interface_page';
+import { generaFraseTS } from './PollutionCoontextBuilder';
 
 // Se TreeStructure esiste altrove puoi importarlo; altrimenti usiamo questo
 export interface Section<T = any> {
@@ -138,7 +139,7 @@ export function buildContextString(treeStructure: TreeStructure | null): string 
   if (s['DATI_ECOLOGICI/AMBIENTALI']) {
     const ecoData = s['DATI_ECOLOGICI/AMBIENTALI'] as EcologicalData;
     const eco = Object.entries(ecoData).filter(([_, obj]) => obj?.valore && String(obj.valore).trim());
-
+    parts.push("Gli alberi svolgono un ruolo fondamentale nel mantenimento dell’equilibrio ambientale: assorbono anidride carbonica, migliorano la qualità dell’aria, favoriscono la biodiversità e contribuiscono alla regolazione del clima locale. La loro presenza aiuta a ridurre il rischio di erosione del suolo, stabilizza i terreni e crea microhabitat preziosi per numerose specie animali.");
     if (eco.length) {
       parts.push('\nDATI ECOLOGICI/AMBIENTALI:');
       eco.forEach(([nome, obj]) => {
@@ -146,6 +147,7 @@ export function buildContextString(treeStructure: TreeStructure | null): string 
         const descrizione = obj.descrizione?.descrizione || '';
         parts.push(`- ${valore}`);
         if (descrizione) parts.push(`  Descrizione: ${descrizione}`);
+        //manca la generazione pari a.....
       });
     }
   }
@@ -168,7 +170,7 @@ export function buildContextString(treeStructure: TreeStructure | null): string 
     const hs = s['DATI_STORICI'];
     const storia: string[] = [];
     if (hs.eta) storia.push(`- Età: ${hs.eta}`);
-    if (hs.eventi) storia.push(`- Eventi avvenuti durante la vita: ${hs.eventi}.join(', ')`);
+    if (hs.eventi) storia.push(`- Eventi avvenuti durante la vita: ${hs.eventi}`);
 
     if (storia.length) {
       parts.push('\nDATI STORICI:');
@@ -200,6 +202,14 @@ export function buildContextString(treeStructure: TreeStructure | null): string 
       parts.push(...luogo);
     }
   }
+
+  parts.push('\nDATI GENERALI:');
+  parts.push('Gli alberi monumentali rappresentano un patrimonio naturale e culturale di valore inestimabile. Oltre alla loro imponenza, raccontano secoli di storia, tradizioni e leggende del territorio. La loro conservazione è importante per tramandare alle generazioni future un legame tangibile con il passato e con la memoria collettiva di una comunità.');
+  parts.push('Un albero non è solo un organismo isolato, ma un piccolo ecosistema: offre riparo, cibo e siti riproduttivi a insetti, uccelli, piccoli mammiferi e microorganismi. La sua chioma, la corteccia e il terreno circostante ospitano una rete complessa di vita che contribuisce alla resilienza ambientale dell’area.');
+  parts.push('Ogni albero contribuisce alla biodiversità locale supportando la vita di molte specie vegetali e animali. Anche un singolo esemplare monumentale può fungere da punto di riferimento ecologico, diventando una risorsa stabile per la fauna selvatica e influenzando positivamente l’intero ecosistema circostante.');
+  parts.push('La presenza degli alberi favorisce il benessere psicofisico: migliorano la qualità dell’aria, riducono il rumore e creano zone d’ombra che abbassano le temperature estive. Il contatto con la natura è associato a benefici emotivi, cognitivi e sociali, rendendo questi giganti verdi preziosi anche per la salute dell’uomo.');
+  parts.push('Gli alberi contribuiscono alla filtrazione dell’aria, alla produzione di ossigeno, alla regolazione idrica e alla creazione di microclimi. Queste funzioni, spesso invisibili, rendono gli alberi essenziali per contrastare gli effetti del cambiamento climatico e per mantenere sano l’ambiente urbano e rurale.');
+  parts.push('Ogni albero monumentale è un’eredità naturale che ci è stata affidata. La sua tutela garantisce che le generazioni future possano continuare ad ammirarlo e a beneficiare dei servizi ecosistemici e del valore culturale che esso rappresenta.');
 
   return parts.join('\n').trim();
 }
@@ -279,13 +289,14 @@ export function buildDatiSpecie(species?: UserSpeciesType): Section<SpeciesData>
 export function buildEcologicalSection(species?: UserSpeciesType, pollutionData?: CSVRow[] | null): Section<EcologicalData> | null {
   if (!species) return null;
 
-  const inquinanti: Record<string, string | undefined> = {
-    'CO₂': species.info_abbattimento_co2,
-    'NO₂': species.info_abbattimento_no2,
-    'O₃': species.info_abbattimento_o3,
-    'PM10': species.info_abbattimento_pm10,
-    'SO₂': species.info_abbattimento_so2
+  const inquinanti: Record<string, number | undefined> = { 
+    'CO₂': species.info_abbattimento_co2 ? Number(species.info_abbattimento_co2) : undefined,
+    'NO₂': species.info_abbattimento_no2 ? Number(species.info_abbattimento_no2) : undefined,
+    'O₃': species.info_abbattimento_o3 ? Number(species.info_abbattimento_o3) : undefined,
+    'PM10': species.info_abbattimento_pm10 ? Number(species.info_abbattimento_pm10) : undefined,
+    'SO₂': species.info_abbattimento_so2 ? Number(species.info_abbattimento_so2) : undefined
   };
+
 
   const pollutantInfo: Record<string, { descrizione: string }> = {
     'CO₂': { descrizione: "La CO₂ è l'anidride carbonica, un gas serra che contribuisce al riscaldamento globale." },
@@ -300,7 +311,8 @@ export function buildEcologicalSection(species?: UserSpeciesType, pollutionData?
   for (const [nome, valore] of Object.entries(inquinanti)) {
     if (!valore) continue;
 
-    let info = `Abbattimento ${nome}: ${valore}`;
+    const equivalenza = generaFraseTS(nome, valore, pollutionData)
+    let info = `Abbattimento ${nome}: ${valore} → ${equivalenza}`;
 
     if (pollutionData) {
       const frasiExtra = pollutionData
@@ -430,7 +442,7 @@ export async function loadAsyncData(tree: UserTreeType, species?: UserSpeciesTyp
   promises.push(loadHistoricalData());
 
   const weatherPromise = (tree.lat && tree.lon)
-    ? weatherReflection(tree.lat, tree.lon)
+    ? WeatherContextBuilder.generateReflection(tree.lat, tree.lon)
     : Promise.resolve<string | null>(null);
   promises.push(weatherPromise);
 
@@ -594,7 +606,7 @@ export async function buildTreeContext(tree: UserTreeType, species: UserSpeciesT
 
   // debug
   // eslint-disable-next-line no-console
-  console.log(ragStructure);
+  console.log(context);
 
   if (variant === 'statico') {
     return { ragStructure, id_spacevector: '' };

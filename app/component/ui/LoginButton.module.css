@@ -90,7 +90,7 @@
 /* Testo */
 .loginText, .userName, .logoutText  {
   white-space: nowrap;
-  font-size: 16px;
+  font-size: 12px;
 }
 .loginButton .loginText,
 .profileButton .userName,

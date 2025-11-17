@@ -39,7 +39,7 @@ const HealthStatus: React.FC = () => {
     },
     { 
       level: 3, 
-      label: "Discreto", 
+      label: "Ok", 
       color: "#ffc107", 
       icon: <FaLeaf size={20} />
     },
@@ -51,7 +51,7 @@ const HealthStatus: React.FC = () => {
     },
     { 
       level: 5, 
-      label: "Eccellente", 
+      label: "Ottimo", 
       color: "#198754", 
       icon: <FaHeart size={20} />
     },

@@ -14,10 +14,10 @@
 
 /* Titoli e testi */
 .page strong {
-  font-size: 16px;
+  font-size: 10px;
   font-weight: 600;
   text-transform: capitalize;
-  font-family: 'Woodcutter', serif;
+  font-family: 'OpenDyslexic', serif;
 }
 
 .page h1, .page h2, .page h3 {
@@ -50,7 +50,7 @@
 }
 
 /* --- COLORI UNIFORMI --- */
-.bg-technical { background-color: var(--dark-green); color: var(--light);}
+.bg-technical { background-color: var(--dark-green); color: var(--light); }
 .bg-botanical { background-color: var(--green); color: var(--light);}
 .bg-geographic { background-color: var(--myrtle); color: var(--light);}
 .bg-ecological { background-color: var(--light-green); color: var(--light);}

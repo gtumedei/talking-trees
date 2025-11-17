@@ -62,6 +62,8 @@ type EventType = {
 };
 
 interface UserSpeciesType {
+  abbattimento_co2: string;
+  abbattimento_pm10: string;
   nome_comune: string;
   nome_specie: string;
   nome_genere: string;
@@ -90,5 +92,5 @@ interface UserSpeciesType {
   habitat_pianura?: string;
   habitat_collina?: string;
   habitat_montagna?: string;
-  habitat_alloctona_esotica?: string;
+  'habitat_alloctona/esotica'?: string;
 }
