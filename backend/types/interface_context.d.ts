@@ -17,7 +17,11 @@ interface UserContextType {
   setDocument: (doc: TreeStructure | null) => void;
   idSpacevector: string;
   setIdSpacevector:(id: string)=> void;
+  idInstance: string;
+  setIdInstance:(id: string)=> void;
   mainroute: string;  // Aggiunto tipo per mainroute
+  chatbotIsReady: boolean;
+  setChatbotIsReady: (val: boolean)=> void;
 }
 
 

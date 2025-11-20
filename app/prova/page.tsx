@@ -29,7 +29,7 @@ function PageContent() {
 
   const test = searchParams.get("test");
 
-  const {userTree, setUserTree, setUserSpecies, setUserCoords, setDocument, setIdSpacevector,} = useContext(UserContext) as UserContextType;
+  const {userTree, setUserTree, setUserSpecies, setUserCoords, setDocument, setIdSpacevector, setChatbotIsReady} = useContext(UserContext) as UserContextType;
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -50,7 +50,7 @@ function PageContent() {
   const initializeChatbotWithTree = async (tree: UserTreeType | null, species: UserSpeciesType | null) => {
     if (!tree) return;
     try {
-      const result: RagResult = await buildTreeContext(tree, species, variant);
+      const result: RagResult = await buildTreeContext(tree, species, variant, setChatbotIsReady);
       setDocument(result.ragStructure);
       setIdSpacevector(result.id_spacevector);
     } catch (error) {

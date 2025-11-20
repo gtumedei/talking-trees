@@ -90,12 +90,6 @@
   font-style: normal;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    /*??*/
-  }
-}
-
 html {
   background: var(--light);
   color: var(--dark);
@@ -108,12 +102,12 @@ body {
   background-color: #00000000;
   font-size: 12px;
   overflow-x: hidden; /* prevenire scroll orizzontale */
-  -webkit-text-stroke-width: 0.09px;
-  -webkit-text-stroke-color: var(--light);
 }
 body .fw-bold {
   -webkit-text-stroke-width: 0;
 }
+
+h1,h2,h3,h4,h5,h6{ -webkit-text-stroke-width: 0.09px; -webkit-text-stroke-color: var(--light);}
 
 .container{
   padding-bottom: 20px;

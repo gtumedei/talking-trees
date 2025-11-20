@@ -19,10 +19,7 @@ type Message = {
 };
 
 export default function ChatbotContent({ variant }: TreeProps){
-
-    const userContext = useContext(UserContext) as UserContextType;
-    const userTree = userContext.userTree
-    const idSpacevector = userContext.idSpacevector
+    const {userTree, idSpacevector, idInstance, chatbotIsReady} = useContext(UserContext) as UserContextType;
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -54,10 +51,17 @@ export default function ChatbotContent({ variant }: TreeProps){
 
     // 👋 Messaggio iniziale
     useEffect(() => {
+        let text = ''
+        if (variant == "narrativo"){
+            text = "Piacere di conoscerti!\n Cosa vuoi che ti racconti?"
+        }else{
+            text = "Benvenuto!\n Cosa vuoi conoscere dell'albero che hai davanti?"
+        }
+
         const welcomeMsg: Message = {
             id: "welcome",
             sender: "bot",
-            text: "Piacere di conoscerti!\n Cosa vuoi che ti racconti?",
+            text: text,
             timestamp: new Date(),
         };
         setMessages([welcomeMsg]);
@@ -92,44 +96,58 @@ export default function ChatbotContent({ variant }: TreeProps){
         setIsLoading(true);
 
         try {
+            // ✅ CORREZIONE: Chiamata all'endpoint query con i parametri corretti
             const response = await fetch("https://benny2199-rag-microservice.hf.space/query", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
                 body: JSON.stringify({
-                    index_id: idSpacevector,
-                    query: input,
-                    version: variant,
-                    tree_name: userTree.soprannome,
+                    space_id: idSpacevector,        // ✅ space_id (non index_id)
+                    question: queryText,            // ✅ question (non query)
+                    tree_name: userTree?.soprannome || "", // ✅ tree_name
+                    // ❌ RIMOSSO: prompt_style (ora gestito dall'istanza)
                 }),
             });
 
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || `Errore HTTP ${response.status}`);
+            }
+
             const data = await response.json();
+            
+            // ✅ CORREZIONE: Estrazione corretta del risultato
+            if (!data.success) {
+                throw new Error(data.error || "Errore nella risposta del servizio");
+            }
 
             const botMessage: Message = {
                 id: Date.now().toString() + "_bot",
                 sender: "bot",
-                text: data?.result?.response || "Non ho trovato nulla di rilevante 😔",
+                text: data.result || "Non ho trovato nulla di rilevante 😔", // ✅ data.result (non data.result.response)
                 timestamp: new Date(),
-                sources: data?.sources || [],
+                sources: data.sources || [], // ✅ Mantieni le fonti se presenti
             };
             
             const variantToUse = variant || "";
 
             // Usa il servizio per salvare la chat su Firestore
-            await saveChatToFirebase(input, botMessage.text, userTree.soprannome, variantToUse);
+            await saveChatToFirebase(input, botMessage.text, userTree?.soprannome || "", variantToUse);
             
             setMessages((prev) => [...prev, botMessage]);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Errore API:", error);
-            setMessages((prev) => [
-                ...prev,
-                {
-                    id: Date.now().toString() + "_error",
-                    sender: "bot",
-                    text: "⚠️ C'è stato un problema nel contattare l'albero. Riprova più tardi.",
-                    timestamp: new Date(),
-                },
-            ]);
+            
+            const errorMessage: Message = {
+                id: Date.now().toString() + "_error",
+                sender: "bot",
+                text: `⚠️ ${error.message || "C'è stato un problema nel contattare l'albero. Riprova più tardi."}`,
+                timestamp: new Date(),
+            };
+            
+            setMessages((prev) => [...prev, errorMessage]);
         } finally {
             setIsLoading(false);
         }
@@ -140,97 +158,107 @@ export default function ChatbotContent({ variant }: TreeProps){
         handleSend();
     };
 
-    return (
-        <div className={styles.content}>
-            <BackButton message="Sei sicuro di voler abbandonare la chat" />
+    if(!chatbotIsReady){
+        return (
+        <div className="d-flex justify-content-center align-items-center vh-100">
+            <BackButton />
+            <p className="fw-bold">⏳ Caricamento chatbot in corso...</p>
+        </div>
+        )
+    }
+    else{
+        return (
+            <div className={styles.content}>
+                <BackButton message="Sei sicuro di voler abbandonare la chat" />
 
-            <div className={styles.chat}>
-                {messages.map((msg) => (
-                    <div
-                        key={msg.id}
-                        className={`${styles.message} ${
-                            msg.sender === "user" ? styles.user : styles.bot
-                        }`}
-                    >
-                        <div className={styles.messageText}>{msg.text}</div>
+                <div className={styles.chat}>
+                    {messages.map((msg) => (
+                        <div
+                            key={msg.id}
+                            className={`${styles.message} ${
+                                msg.sender === "user" ? styles.user : styles.bot
+                            }`}
+                        >
+                            <div className={styles.messageText}>{msg.text}</div>
 
-                        {msg.sender === "bot" && msg.sources && msg.sources.length > 0 && (
-                            <div className={styles.sourcesSection}>
-                                <hr className="my-2" />
-                                <small className="text-muted d-block mb-1">
-                                    <strong>Fonti utilizzate (Google Search):</strong>
-                                </small>
-                                {msg.sources.map((source, index) => (
-                                    <div key={index} className={styles.sourceItem}>
-                                        <Badge bg="secondary" className="me-1">{index + 1}</Badge>
-                                        <a href={source.uri} target="_blank" rel="noopener noreferrer" className="text-decoration-none">
-                                            {source.title || (source.content.substring(0, 50) + '...')}
-                                        </a>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                ))}
+                            {msg.sender === "bot" && msg.sources && msg.sources.length > 0 && (
+                                <div className={styles.sourcesSection}>
+                                    <hr className="my-2" />
+                                    <small className="text-muted d-block mb-1">
+                                        <strong>Fonti utilizzate (Google Search):</strong>
+                                    </small>
+                                    {msg.sources.map((source, index) => (
+                                        <div key={index} className={styles.sourceItem}>
+                                            <Badge bg="secondary" className="me-1">{index + 1}</Badge>
+                                            <a href={source.uri} target="_blank" rel="noopener noreferrer" className="text-decoration-none">
+                                                {source.title || (source.content.substring(0, 50) + '...')}
+                                            </a>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    ))}
 
-                {isLoading && (
-                    <div className={styles.typingIndicator}>
-                        <div className={styles.typingAvatar}>🌳</div>
-                        <div className={styles.typingContent}>
-                            <span>L'albero sta rispondendo...</span>
-                            <div className={styles.typingDots}>
-                                <span></span>
-                                <span></span>
-                                <span></span>
+                    {isLoading && (
+                        <div className={styles.typingIndicator}>
+                            <div className={styles.typingAvatar}>🌳</div>
+                            <div className={styles.typingContent}>
+                                <span>L'albero sta rispondendo...</span>
+                                <div className={styles.typingDots}>
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </div>
                             </div>
                         </div>
+                    )}
+
+                    <div ref={messagesEndRef} />
+                </div>
+
+                <div className={styles.quickReplies}>
+                    <div className={styles.quickScroll}>
+                        {QUICK_REPLIES.map((reply, i) => (
+                            <Button
+                                key={i}
+                                onClick={() => handleQuickReply(reply)}
+                                variant="primary"
+                                size="sm"
+                                disabled={isLoading}
+                                className="me-2 mb-2 green"
+                            >
+                                {reply}
+                            </Button>
+                        ))}
                     </div>
-                )}
+                </div>
 
-                <div ref={messagesEndRef} />
-            </div>
-
-            <div className={styles.quickReplies}>
-                <div className={styles.quickScroll}>
-                    {QUICK_REPLIES.map((reply, i) => (
-                        <Button
-                            key={i}
-                            onClick={() => handleQuickReply(reply)}
-                            variant="primary"
-                            size="sm"
-                            disabled={isLoading}
-                            className="me-2 mb-2 green"
-                        >
-                            {reply}
-                        </Button>
-                    ))}
+                <div className={styles.inputBar}>
+                    <Form.Control
+                        type="text"
+                        placeholder={isLoading ? "L'albero sta rispondendo..." : "Chiedi qualcosa all'albero..."}
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => e.key === "Enter" && handleSend()}
+                        disabled={isLoading}
+                    />
+                    <Button
+                        variant="primary"
+                        onClick={handleSend}
+                        disabled={!input.trim() || isLoading}
+                        className={styles.sendButton}
+                    >
+                        {isLoading ? (
+                            <div className="spinner-border spinner-border-sm" role="status">
+                                <span className="visually-hidden">Loading...</span>
+                            </div>
+                        ) : (
+                            "➤"
+                        )}
+                    </Button>
                 </div>
             </div>
-
-            <div className={styles.inputBar}>
-                <Form.Control
-                    type="text"
-                    placeholder={isLoading ? "L'albero sta rispondendo..." : "Chiedi qualcosa all'albero..."}
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => e.key === "Enter" && handleSend()}
-                    disabled={isLoading}
-                />
-                <Button
-                    variant="primary"
-                    onClick={handleSend}
-                    disabled={!input.trim() || isLoading}
-                    className={styles.sendButton}
-                >
-                    {isLoading ? (
-                        <div className="spinner-border spinner-border-sm" role="status">
-                            <span className="visually-hidden">Loading...</span>
-                        </div>
-                    ) : (
-                        "➤"
-                    )}
-                </Button>
-            </div>
-        </div>
-    );
+        );
+    }
 }

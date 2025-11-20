@@ -85,6 +85,7 @@ export function buildContextString(treeStructure: TreeStructure | null): string 
       parts.push('DATI ALBERO:');
       parts.push(...datiAlbero);
     }
+    parts.push("Gli alberi monumentali rappresentano un patrimonio naturale e culturale inestimabile e la loro conservazione è importante per l'ambiente e il territorio.");
   }
 
   // 📝 DESCRIZIONE
@@ -147,9 +148,9 @@ export function buildContextString(treeStructure: TreeStructure | null): string 
         const descrizione = obj.descrizione?.descrizione || '';
         parts.push(`- ${valore}`);
         if (descrizione) parts.push(`  Descrizione: ${descrizione}`);
-        //manca la generazione pari a.....
       });
     }
+    parts.push('Gli alberi contribuiscono alla filtrazione dell’aria, alla produzione di ossigeno, alla regolazione idrica e alla creazione di microclimi. Regola anche il clima locale e contribuiscono alla stabilità dei terreni: anche un singolo esemplare può influenzare positivamente il microclima circostante, fornendo ombra, riducendo l’erosione e sostenendo la biodiversità vegetale e animale.');
   }
 
   // 🩺 SALUTE
@@ -181,6 +182,7 @@ export function buildContextString(treeStructure: TreeStructure | null): string 
   // 📍 LUOGO
   if (s['DATI_LUOGO']) {
     const l = s['DATI_LUOGO'];
+    console.log(l)
     const luogo: string[] = [];
     if (l.comune || l.provincia || l.regione || l.popolazione || l.superficie_km2) {
       luogo.push(
@@ -204,11 +206,8 @@ export function buildContextString(treeStructure: TreeStructure | null): string 
   }
 
   parts.push('\nDATI GENERALI:');
-  parts.push('Gli alberi monumentali rappresentano un patrimonio naturale e culturale di valore inestimabile. Oltre alla loro imponenza, raccontano secoli di storia, tradizioni e leggende del territorio. La loro conservazione è importante per tramandare alle generazioni future un legame tangibile con il passato e con la memoria collettiva di una comunità.');
   parts.push('Un albero non è solo un organismo isolato, ma un piccolo ecosistema: offre riparo, cibo e siti riproduttivi a insetti, uccelli, piccoli mammiferi e microorganismi. La sua chioma, la corteccia e il terreno circostante ospitano una rete complessa di vita che contribuisce alla resilienza ambientale dell’area.');
-  parts.push('Ogni albero contribuisce alla biodiversità locale supportando la vita di molte specie vegetali e animali. Anche un singolo esemplare monumentale può fungere da punto di riferimento ecologico, diventando una risorsa stabile per la fauna selvatica e influenzando positivamente l’intero ecosistema circostante.');
   parts.push('La presenza degli alberi favorisce il benessere psicofisico: migliorano la qualità dell’aria, riducono il rumore e creano zone d’ombra che abbassano le temperature estive. Il contatto con la natura è associato a benefici emotivi, cognitivi e sociali, rendendo questi giganti verdi preziosi anche per la salute dell’uomo.');
-  parts.push('Gli alberi contribuiscono alla filtrazione dell’aria, alla produzione di ossigeno, alla regolazione idrica e alla creazione di microclimi. Queste funzioni, spesso invisibili, rendono gli alberi essenziali per contrastare gli effetti del cambiamento climatico e per mantenere sano l’ambiente urbano e rurale.');
   parts.push('Ogni albero monumentale è un’eredità naturale che ci è stata affidata. La sua tutela garantisce che le generazioni future possano continuare ad ammirarlo e a beneficiare dei servizi ecosistemici e del valore culturale che esso rappresenta.');
 
   return parts.join('\n').trim();
@@ -429,6 +428,13 @@ export function buildHistoricalSection(tree: UserTreeType, historicalData?: CSVR
 // FUNZIONI DI SUPPORTO GENERALI (fetch loaders etc.)
 // =============================================
 
+/** Verifica se ci sono dati sugli inquinanti */
+function hasPollutionData(species: UserSpeciesType): boolean {
+  return !!(species.info_abbattimento_co2 || species.info_abbattimento_no2 ||
+    species.info_abbattimento_o3 || species.info_abbattimento_pm10 || species.info_abbattimento_so2
+  );
+}
+
 /** Carica tutti i dataset asincroni in parallelo */
 export async function loadAsyncData(tree: UserTreeType, species?: UserSpeciesType) {
   const promises: Promise<any>[] = [];
@@ -502,101 +508,10 @@ export async function loadHistoricalData(): Promise<CSVRow[] | null> {
   }
 }
 
-/** Verifica se ci sono dati sugli inquinanti */
-export function hasPollutionData(species: UserSpeciesType): boolean {
-  return !!(
-    species.info_abbattimento_co2 ||
-    species.info_abbattimento_no2 ||
-    species.info_abbattimento_o3 ||
-    species.info_abbattimento_pm10 ||
-    species.info_abbattimento_so2
-  );
-}
-
-/** Genera frasi sugli inquinanti (versione semplificata) */
-export function generatePollutionSentences(
-  pollutionData: CSVRow[] | null,
-  typeInquinante: string,
-  valoreAlbero: string
-): string[] {
-  if (!pollutionData) return [`Dati non disponibili per ${typeInquinante}`];
-
-  const mappaInquinanti: Record<string, string> = {
-    'CO₂': 'CO2',
-    'NO₂': 'NO2',
-    'O₃': 'O3',
-    'SO₂': 'SO2',
-    'PM10': 'PM10'
-  };
-  typeInquinante = (mappaInquinanti[typeInquinante] as string) || typeInquinante;
-
-  // Normalizza il dataset
-  let dataArray: CSVRow[] | null =
-    Array.isArray(pollutionData) && Array.isArray((pollutionData as any)[0])
-      ? (pollutionData as any)[0]
-      : (pollutionData as any).pollution && Array.isArray((pollutionData as any).pollution)
-      ? (pollutionData as any).pollution
-      : Array.isArray(pollutionData)
-      ? pollutionData
-      : null;
-
-  if (!dataArray) return [`Dati non disponibili per ${typeInquinante}`];
-
-  // Filtra le righe per inquinante
-  const subset = dataArray.filter(item => item && String(item['inquinante']) === typeInquinante);
-  if (subset.length === 0) return [`Nessuna informazione per ${typeInquinante}`];
-
-  // Scegli quante frasi generare (1 o 2)
-  const nFrasi = Math.random() > 0.5 ? 2 : 1;
-  const frasi: string[] = [];
-
-  for (let i = 0; i < nFrasi; i++) {
-    const row = subset[Math.floor(Math.random() * subset.length)];
-
-    try {
-      const parseValore = (str?: string) => {
-        const match = String(str || '').trim().match(/^([\d.,]+)\s*([a-zA-Zµμ²³%/]+)?$/);
-        if (!match) return { num: NaN, unit: '' };
-        return { num: parseFloat(match[1].replace(',', '.')), unit: match[2] || '' };
-      };
-
-      const { num: valoreNum, unit: unitValore } = parseValore(row['valore']);
-      const valoreAlberoNum = parseFloat(String(valoreAlbero));
-      if (isNaN(valoreNum) || isNaN(valoreAlberoNum)) {
-        frasi.push(`Abbattimento ${typeInquinante}: ${valoreAlbero}`);
-        continue;
-      }
-
-      const fattore = valoreNum !== 0 ? valoreAlberoNum / valoreNum : 1.0;
-
-      let nuovaDip = row['dipendenza'] || '';
-      const { num: dipNum, unit: dipUnit } = parseValore(nuovaDip);
-      if (!isNaN(dipNum)) {
-        const nuovoNum = Math.round(dipNum * fattore * 100) / 100;
-        nuovaDip = `${nuovoNum} ${dipUnit}`.trim();
-      }
-
-      let frase = row['desc'] || row['description'] || '';
-      frase = String(frase).replace(/^"|"$/g, '');
-      frase = frase.replace(/\{\$valore\}/g, `${valoreAlberoNum} ${unitValore}`.trim());
-      frase = frase.replace(/\{\$dipendenza\}/g, nuovaDip);
-      frase = frase.replace(/\{\$tempo\}/g, row['tempo'] || '1 anno');
-
-      frasi.push(frase);
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.warn(`Errore in generatePollutionSentences(${typeInquinante}):`, err);
-      frasi.push(`Abbattimento ${typeInquinante}: ${valoreAlbero}`);
-    }
-  }
-
-  return frasi;
-}
-
 // =============================================
 // METODO PER API (esportato)
 // =============================================
-export async function buildTreeContext(tree: UserTreeType, species: UserSpeciesType | null = null, variant = 'statico') {
+export async function buildTreeContext(tree: UserTreeType, species: UserSpeciesType | null = null, variant = 'statico', setChatbotIsReady?: (value: boolean) => void) {
   const { pollutionData, placeData, historicalData, weatherData } = await loadAsyncData(tree, species || undefined);
 
   // NOTA: qui passiamo gli argomenti nell'ordine coerente:
@@ -609,42 +524,74 @@ export async function buildTreeContext(tree: UserTreeType, species: UserSpeciesT
   console.log(context);
 
   if (variant === 'statico') {
-    return { ragStructure, id_spacevector: '' };
+    return { ragStructure, id_spacevector: '', instance_id: '' };
   }
 
-  // =============================================
-  // 🚀 Chiamata all’endpoint dello Space HuggingFace
-  // =============================================
-  let id = '';
-  try {
-    const response = await fetch('https://benny2199-rag-microservice.hf.space/initialize_space', {
+  try{
+    // =============================================
+    // 🚀 Inizializzazione RAG Space
+    // =============================================
+    const RAG_API_URL = 'https://benny2199-rag-microservice.hf.space/initialize';
+      
+    const response = await fetch(RAG_API_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ context })
+      headers: { 
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ 
+        context: context,
+        variant: variant
+      })
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      // eslint-disable-next-line no-console
-      console.error('Errore backend RAG:', errorData.error || response.statusText);
-      throw new Error(errorData.error || `Errore HTTP ${response.status}`);
+      const errorText = await response.text();
+      let errorMessage = `Errore HTTP ${response.status}`;
+      
+      try {
+        const errorData = JSON.parse(errorText);
+        errorMessage = errorData.error || errorMessage;
+      } catch {
+        errorMessage = errorText || errorMessage;
+      }
+      
+      throw new Error(errorMessage);
     }
 
     const data = await response.json();
-    id = data.index_id;
-    if (!data.success && !data.documents) {
-      throw new Error(data.error || 'Errore inizializzazione spazio vettoriale');
+    
+    if (!data.success) {
+      throw new Error(data.error || 'Errore durante l\'inizializzazione del spazio vettoriale');
     }
 
-    // eslint-disable-next-line no-console
-    console.log('✅ Spazio vettoriale inizializzato');
-  } catch (err: any) {
-    // eslint-disable-next-line no-console
-    console.log('❌ Errore durante la chiamata a initialize_space:');
-    // eslint-disable-next-line no-console
-    console.error('❌ Errore durante la chiamata a initialize_space:', err?.message || err);
-  }
+    const { space_id, instance_id } = data;
+      
+    if (!space_id || !instance_id) {
+      throw new Error('Dati di ritorno incompleti dal servizio RAG');
+    }
 
-  // 🌿 Ritorna il contesto legacy per compatibilità
-  return { ragStructure, id_spacevector: id };
+    setChatbotIsReady?.(true);
+    
+    // eslint-disable-next-line no-console
+    console.log('✅ Spazio RAG inizializzato:', { space_id, instance_id, variant: data.variant,message: data.message });
+
+    return { 
+      ragStructure, 
+      id_spacevector: space_id,
+      instance_id: instance_id
+    };
+
+  } catch (error: any) {
+    // eslint-disable-next-line no-console
+    console.error('❌ Errore in buildTreeContext:', error.message);
+    
+    // Fallback: ritorna comunque la struttura ma senza spazio vettoriale
+    return { 
+      ragStructure: ragStructure || {}, 
+      id_spacevector: '',
+      instance_id: '',
+      error: error.message
+    };
+  }
 }

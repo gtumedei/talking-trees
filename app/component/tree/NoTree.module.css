@@ -22,19 +22,20 @@
 .title {
   position: relative;
   z-index: 1;         /* scritta sopra l’immagine */
-  font-weight: bold;
   font-size: 1.5rem;
   text-align: center;
   margin: 5rem 0;
   padding-bottom: 4rem;
   text-shadow: 0 0 5px #EEEAE6;
+  -webkit-text-stroke-width: 0; -webkit-text-stroke-color: none;
 }
 
 .form label {
   display: flex;
   flex-direction: column;
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: 12px;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 .form input,
@@ -63,7 +64,9 @@
 
 .row {
   display: flex;
-  gap: 1rem;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+  width: 100%;
 }
 
 .row label {
@@ -80,17 +83,17 @@
 }
 
 .accordion button {
-  font-weight: bold !important;
   padding: 12px 0px !important;
   background-color: #00000000;
   border: none !important;
+  -webkit-text-stroke-width: 0; -webkit-text-stroke-color: none;
 }
 
 
 .submitBtn {
   margin-top: 1rem;
   padding: 0.8rem;
-  background: #4caf50;
+  background: var(--noir);
   color: white;
   border: none;
   border-radius: 8px;
@@ -99,5 +102,5 @@
 }
 
 .submitBtn:hover {
-  background: #43a047;
+  background: var(--light-noir);
 }

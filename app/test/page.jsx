@@ -200,6 +200,7 @@ const stopRecording = () => {
           width: 28px;
           height: 28px;
         }
+        .form-select{font-size:12px}
       `}</style>
       <Title text="Valuta l'esperienza"></Title>
 
@@ -207,9 +208,19 @@ const stopRecording = () => {
       {page === 1 && (
         <div>
           <p className="text-end fst-italic">Pagina 1</p>
-          <p className="text-start fw-bold mx-1">Compila tutti i campi</p>
 
-          <Form.Group className="mb-3">
+          <LikertRow
+            left="pessima"
+            right="ottima"
+            keyName="pessima_ottima"
+            value={likert["pessima_ottima"]}
+            onChange={(val) => handleLikertChange("pessima_ottima", val)}
+            style={"justify-content-end"}
+          />
+
+          
+          <p className="text-center fw-bold mx-1 m-0">Compila i campi relativi all'utente</p>
+          <Form.Group className="m-1">
             <Form.Label>Fascia d'età</Form.Label>
             <Form.Select
               required
@@ -225,7 +236,7 @@ const stopRecording = () => {
             </Form.Select>
           </Form.Group>
 
-          <Form.Group className="mb-5 py-3">
+          <Form.Group className="pb-5">
             <Form.Label>Esperienza svolta</Form.Label>
             <Form.Select
               required
@@ -239,12 +250,23 @@ const stopRecording = () => {
             </Form.Select>
           </Form.Group>
 
+          <p className="m-0"><strong>Quanto reputi utile l'utilizzo in loco di quest'applicazione per conoscere maggiori informazioni sull'albero monumentale?</strong></p>
           <LikertRow
-            left="pessima"
-            right="ottima"
-            keyName="pessima_ottima"
-            value={likert["pessima_ottima"]}
-            onChange={(val) => handleLikertChange("pessima_ottima", val)}
+            left="inutile"
+            right="utile"
+            keyName="online"
+            value={likert["online"]}
+            onChange={(val) => handleLikertChange("online", val)}
+            style={"justify-content-end"}
+          />
+
+          <p><strong>Quanto reputi utilel'utilizzo remoto per invogliare l'utente ad andare a visitare gli alberi monumentali?</strong></p>
+          <LikertRow
+            left="inutile"
+            right="utile"
+            keyName="remoto"
+            value={likert["remoto"]}
+            onChange={(val) => handleLikertChange("remoto", val)}
             style={"justify-content-end"}
           />
 

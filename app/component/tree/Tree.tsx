@@ -14,6 +14,7 @@ import HealthStatus from "@component/ui/HealthStatus";
 import {TreeProps} from "@service/types/interface_page"
 import { UserTreeType } from "@/backend/types/interface_context";
 import { useRouter } from "next/navigation";
+import { sleep } from "@/backend/treeServices";
 
 export default function Tree({ variant = "statico" }: TreeProps) {
   const userContext = useContext(UserContext) || ({} as { userTree?: UserTreeType });
@@ -21,35 +22,6 @@ export default function Tree({ variant = "statico" }: TreeProps) {
   const [imageSrc, setImageSrc] = useState<string>("/tree/empty.png");
   const [imageLoaded, setImageLoaded] = useState<boolean>(false);
   const router = useRouter();
-
-  const regioneMap: { [key: string]: string } = {
-    "Lombardia": "lombardia",
-    "Sardegna": "sardegna",
-    "ValleDAosta": "valle-d-aosta",
-    "Valle d'Aosta": "valle-d-aosta",
-    "Basilicata": "basilicata",
-    "Emilia": "emilia-romagna",
-    "Emilia-Romagna": "emilia-romagna",
-    "Bolzano": "trentino-alto-adige",
-    "Trento": "trentino-alto-adige",
-    "Trentino-Alto Adige": "trentino-alto-adige",
-    "Abruzzo": "abruzzo",
-    "Campania": "campania",
-    "Veneto": "veneto",
-    "Lazio": "lazio",
-    "Toscana": "toscana",
-    "Puglia": "puglia",
-    "Molise": "molise",
-    "Friuli": "friuli-venezia-giulia",
-    "Friuli-Venezia Giulia": "friuli-venezia-giulia",
-    "Calabria": "calabria",
-    "Sicilia": "sicilia",
-    "Marche": "marche",
-    "Liguria": "liguria",
-    "Piemonte": "piemonte",
-    "Umbria": "umbria"
-  };
-
 
   // Precarica e verifica l'immagine
   useEffect(() => {
@@ -234,7 +206,7 @@ export default function Tree({ variant = "statico" }: TreeProps) {
           <FaBookOpen /> Pezzi di storia
         </Button>
         <Button
-          onClick={() =>  router.push(treeConfig.treeButtonHref)}
+          onClick={async() =>  {await sleep(300); router.push(treeConfig.treeButtonHref)}}
           variant="primary"
           className={`mt-3 mb-5 fw-bold d-flex align-items-center gap-2 green`}
         >

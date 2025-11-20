@@ -53,7 +53,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
   const [history, setHistory] = useState<Event[]>([]);
   const [document, setDocument] = useState<TreeStructure | null>(null);
   const [idSpacevector, setIdSpacevector] = useState<string>('');
+  const [idInstance, setIdInstance] = useState<string>('');
   const [mainroute, setMainroute] = useState<string>(''); // inizializza come stringa vuota
+  const [chatbotIsReady, setChatbotIsReady] = useState(false);
 
   useEffect(() => {
     const checkLoggedInUser = async () => {
@@ -87,6 +89,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
     history, setHistory,
     document, setDocument,
     idSpacevector, setIdSpacevector,
+    idInstance, setIdInstance,
+    chatbotIsReady, setChatbotIsReady,
     mainroute // Passiamo la mainroute al contesto
   };
 

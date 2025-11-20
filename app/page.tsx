@@ -8,7 +8,7 @@ import { UserContext } from "@/app/layout";
 import { buildTreeContext } from "@service/TreeContextBuilder";
 import LoginButton from "@component/ui/LoginButton";
 import { UserSpeciesType, UserTreeType, UserContextType } from "@/backend/types/interface_context";
-import { isValidTree } from "@/backend/treeServices";
+import { isValidTree, sleep } from "@/backend/treeServices";
 
 interface Coordinates {
   lat: number;
@@ -18,6 +18,7 @@ interface Coordinates {
 interface RagResult {
   ragStructure: any;
   id_spacevector: string;
+  instance_id: string;
 }
 
 function PageContent() {
@@ -29,10 +30,9 @@ function PageContent() {
 
   const test = searchParams.get("test");
 
-  const {userTree, setUserTree, setUserSpecies, setUserCoords, setDocument, setIdSpacevector,} = useContext(UserContext) as UserContextType;
+  const {userTree, setUserTree, setUserSpecies, setUserCoords, setDocument, setIdSpacevector, setIdInstance, setChatbotIsReady} = useContext(UserContext) as UserContextType;
 
   const [loading, setLoading] = useState(true);
-  const [find, setFind] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const getTestCoordinates = (): Coordinates => {
@@ -51,9 +51,10 @@ function PageContent() {
   const initializeChatbotWithTree = async (tree: UserTreeType | null, species: UserSpeciesType | null) => {
     if (!tree) return;
     try {
-      const result: RagResult = await buildTreeContext(tree, species, variant);
+      const result: RagResult = await buildTreeContext(tree, species, variant, setChatbotIsReady);
       setDocument(result.ragStructure);
       setIdSpacevector(result.id_spacevector);
+      setIdInstance(result.instance_id);
     } catch (error) {
       console.error("❌ Errore nell'inizializzazione della struttura RAG:", error);
     }
@@ -67,7 +68,8 @@ function PageContent() {
       if (res.ok && data.tree) {
         setUserTree(data.tree);
         setUserSpecies(data.species || null);
-        await initializeChatbotWithTree(data.tree, data.species || null);
+        initializeChatbotWithTree(data.tree, data.species || null);
+        await sleep(2000);
       } else {
         setUserTree({} as UserTreeType);
         setUserSpecies({} as UserSpeciesType);

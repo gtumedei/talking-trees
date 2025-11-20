@@ -75,6 +75,7 @@
     margin: 10px;
     font-family: 'Marker';
     font-size: 14px !important;
+    -webkit-text-stroke-width: 0.09px; -webkit-text-stroke-color: var(--light);
 }
 
 .treeInfo{
@@ -128,8 +129,6 @@
     padding-top: 5px;
     font-size: 8px !important;
     line-height: 16px;
-    -webkit-text-stroke-width: 0;
-    -webkit-text-stroke-color: none;
 }
 
 .treeInfoPlace a{

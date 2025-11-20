@@ -1,4 +1,6 @@
+import { UserContext } from "@/app/layout";
 import ChatbotContent from "./ChatbotContent";
+import { UserContextType } from "@/backend/types/interface_context";
 
 interface Props {
   searchParams?: { variant?: string };

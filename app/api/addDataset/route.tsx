@@ -13,7 +13,7 @@ export async function GET() {
     const eventData = fs.readFileSync(path.join(dataDir, 'df_event.csv'), 'utf8');
 
     const pollution: CSVRow[] = parseCSV(pollutionData);
-    const locations: CSVRow[] = parseCSV(locationData);
+    const locations: CSVRow[] = parseCSV(locationData, '$');
     const events: CSVRow[] = parseCSV(eventData);
 
     return NextResponse.json({ pollution, locations, events });
@@ -26,8 +26,8 @@ export async function GET() {
   }
 }
 
-function parseCSV(csvText: string): CSVRow[] {
-  const rows = csvText.split("\n").map(row => row.split(","));
+function parseCSV(csvText: string, symbolSplit: string = ","): CSVRow[] {
+  const rows = csvText.split("\n").map(row => row.split(symbolSplit));
   const headers = rows[0];
   return rows.slice(1).map(row =>
     Object.fromEntries(row.map((val, i) => [headers[i], val]))

@@ -122,7 +122,7 @@ export default function NoTree() {
           {/* Dati del segnalante */}
           <Accordion.Item eventKey="0">
             <Accordion.Header>Dati del segnalante</Accordion.Header>
-            <Accordion.Body>
+            <Accordion.Body className="p-2 mx-1 gap-2">
               <div className={styles.row}>
                 <label>
                   Cognome:
@@ -163,7 +163,7 @@ export default function NoTree() {
           {/* Dati identificativi */}
           <Accordion.Item eventKey="1">
             <Accordion.Header>Dati identificativi dell'albero</Accordion.Header>
-            <Accordion.Body>
+            <Accordion.Body className="p-2 mx-1 gap-2">
               <label>
                 Nome comune o scientifico:
                 <input
@@ -209,7 +209,7 @@ export default function NoTree() {
           {/* Ubicazione */}
           <Accordion.Item eventKey="2">
             <Accordion.Header>Ubicazione</Accordion.Header>
-            <Accordion.Body>
+            <Accordion.Body className="p-2 mx-1 gap-2">
               <label>
                 Località:
                 <input

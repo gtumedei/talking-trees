@@ -125,3 +125,5 @@ export const isValidUser = (user: UserDb | null | undefined) => {
 export const isValidTree = (tree: UserTreeType | null | undefined) => {
   return tree && Object.keys(tree).length > 0;
 };
+
+export const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
