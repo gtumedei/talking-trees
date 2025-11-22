@@ -30,23 +30,21 @@ export default function ChatbotContent({ variant }: TreeProps){
     const QUICK_REPLIES =
     variant === "narrativo"
         ? [
-            "Chi sei?",
+            "Chi sei e qual è la tua storia?",
             "Quanti anni hai?",
             "Qual messaggio lasceresti a noi umani?",
             "Cosa hai visto cambiare in questi anni?",
             "Che benefici porti all'ambiente?",
-            "Come ti senti?",
             "Qual è la tua specie?",
-            "Dove ti trovi?"
+            "Cosa sai dirmi sul luogo in cui ti trovi?",
         ]:[ 
-            "Che albero è?",
+            "Cosa sai dirmi di quest'albero?",
             "Quanti anni ha?",
             "Qual è il suo significato storico o culturale?",
             "Quali cambiamenti ha vissuto?",
             "Che benefici l'albero porta all'ambiente?",
             "Qual è lo stato di salute dell'albero",
             "A quale specie botanica appartiene?",
-            "Dove si trova?"
         ];
 
     // 👋 Messaggio iniziale
