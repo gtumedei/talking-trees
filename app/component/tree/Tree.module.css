@@ -41,6 +41,7 @@
 }
 
 .treeImgDef{
+    top: 0vh !important;
     width: 48vw !important;
     opacity: 0.2;
 }

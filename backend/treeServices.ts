@@ -12,7 +12,7 @@ import { UserTreeType } from "./types/interface_context";
  * @param username - Il nome utente per il quale assicurarsi che esista un documento.
  * @returns Il riferimento al documento dell'utente.
  */
-export async function ensureUserTreeDoc(username: string) {
+/*export async function ensureUserTreeDoc(username: string) {
   // Creazione del riferimento al documento dell'utente
   const userDocRef = doc(db, "user-tree", username);
 
@@ -34,7 +34,7 @@ export async function ensureUserTreeDoc(username: string) {
 
   // Restituisce il riferimento al documento utente
   return userDocRef;
-}
+}*/
 
 /**
  * Aggiunge un nuovo albero al documento dell'utente.
@@ -44,7 +44,7 @@ export async function ensureUserTreeDoc(username: string) {
  * @param username - Il nome utente a cui associare l'albero.
  * @param userTree - L'oggetto contenente i dati dell'albero da aggiungere.
  */
-export async function addTreeToUser(username: string, userTree: any) {
+/*export async function addTreeToUser(username: string, userTree: any) {
   // Se l'oggetto dell'albero è vuoto, interrompiamo l'esecuzione
   if (!userTree) return;
 
@@ -81,42 +81,7 @@ export async function addTreeToUser(username: string, userTree: any) {
     console.log("🌳 Creato nuovo documento tree:", safeTreeId);
   }
 }
-
-/**
- * Recupera tutti gli alberi associati a un utente.
- * Se il documento dell'utente non esiste, viene creato un documento vuoto.
- * 
- * @param username - Il nome utente per cui ottenere gli alberi.
- * @returns Un array di oggetti che rappresentano gli alberi dell'utente.
- */
-/*export async function getUserTrees(username: string) {
-  // Creazione del riferimento al documento dell'utente
-  const userDocRef = doc(db, "user-tree", username);
-
-  // Recupero del documento dell'utente
-  const userDocSnap = await getDoc(userDocRef);
-
-  // Se il documento non esiste, creiamo un nuovo documento vuoto
-  if (!userDocSnap.exists()) {
-    await setDoc(userDocRef, {}); // Crea un documento vuoto
-    console.log("🆕 Creato nuovo documento per utente:", username);
-    return []; // Se non ci sono alberi, restituisce un array vuoto
-  }
-
-  // Recupero della collezione di alberi dell'utente
-  const treeCollectionRef = collection(userDocRef, "tree");
-
-  // Recupero dei documenti degli alberi
-  const querySnapshot = await getDocs(treeCollectionRef);
-
-  // Restituisce un array con i dati degli alberi dell'utente
-  return querySnapshot.docs.map((docSnap) => ({
-    id: docSnap.id, // ID dell'albero
-    ...docSnap.data(), // Dati dell'albero
-  }));
-}*/
-
-
+*/
 /**------ VALIDATION ------- */
 export const isValidUser = (user: UserDb | null | undefined) => {
   return user && Object.keys(user).length > 0;

@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Goudy+Bookletter+1911&family=Inknut+Antiqua:wght@300;400;500;600;700;800;900&display=swap');
 @import 'bootstrap/dist/css/bootstrap.min.css';
 :root {
-  --light: rgb(243, 245, 247);
+  --light: #f3f5f7;
   --dark: #282923ff;
 
   /* CSS HEX */
@@ -10,8 +10,8 @@
   --light-green: #8BA96Eff;
   --myrtle: #33685Eff;
   --light-myrtle: #7CA094ff;
-  --flame: #c2692dff;
-  --light-flame: #db9a4d;
+  --flame: #b23c1fff;; 
+  --light-flame: #d0493f;
   --light-noir: #CFBEA4ff;
   --noir: #7D5440ff;
   --dark-noir: #4B301Eff;
