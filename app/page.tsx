@@ -35,6 +35,10 @@ function PageContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [hourglassIndex, setHourglassIndex] = useState(0);
+  const hourglassFrames = ["⏳", "⌛"]; // 2 frame, puoi aggiungerne altri
+  const [dots, setDots] = useState(1);
+
   const getTestCoordinates = (): Coordinates => {
     switch (test) {
       case "1":
@@ -43,6 +47,8 @@ function PageContent() {
         return { lat: 44.49197405160085, lng: 11.345286337978994 };
       case "3":
         return { lat: 44.738433, lng: 8.821525}
+      case "4":
+        return { lat:42.600836, lng:	13.511669}
       default:
         return { lat: 45.69867777777, lng: 9.78363888888889 };
     }
@@ -119,10 +125,25 @@ function PageContent() {
     test ? handleTestCoordinates() : handleGeolocation();
   }, []);
 
+  useEffect(() => {
+          const interval = setInterval(() => {
+              // alterna clessidra
+              setHourglassIndex(prev => (prev + 1) % hourglassFrames.length);
+  
+              // alterna puntini 1 → 3
+              setDots(prev => (prev % 3) + 1);
+          }, 700); // ogni 700ms
+  
+          return () => clearInterval(interval);
+      }, []);
+
   if (loading)
     return (
       <div className="d-flex justify-content-center align-items-center vh-100">
-        <p className="fw-bold">⏳ Caricamento alberi in corso...</p>
+        <p className="fw-bold">
+            {hourglassFrames[hourglassIndex]} Caricamento alberi in corso
+            <span style={{width:"50px"}}>{".".repeat(dots)}</span>
+        </p>
       </div>
     );
 

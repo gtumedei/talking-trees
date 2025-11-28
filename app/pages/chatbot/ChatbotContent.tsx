@@ -23,6 +23,11 @@ export default function ChatbotContent({ variant }: TreeProps){
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const mex = variant=="narrativo" ? "L'albero sta pensando..." : "Stiamo elaborando le informazioni...";
+    const [hourglassIndex, setHourglassIndex] = useState(0);
+    const hourglassFrames = ["⏳", "⌛"]; // 2 frame, puoi aggiungerne altri
+    const [dots, setDots] = useState(1);
+
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -64,6 +69,19 @@ export default function ChatbotContent({ variant }: TreeProps){
         };
         setMessages([welcomeMsg]);
     }, []);
+    
+    useEffect(() => {
+        const interval = setInterval(() => {
+            // alterna clessidra
+            setHourglassIndex(prev => (prev + 1) % hourglassFrames.length);
+
+            // alterna puntini 1 → 3
+            setDots(prev => (prev % 3) + 1);
+        }, 700); // ogni 700ms
+
+        return () => clearInterval(interval);
+    }, []);
+
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -160,7 +178,11 @@ export default function ChatbotContent({ variant }: TreeProps){
         return (
         <div className="d-flex justify-content-center align-items-center vh-100">
             <BackButton />
-            <p className="fw-bold">⏳ Caricamento chatbot in corso...</p>
+            <p className="fw-bold">
+                {hourglassFrames[hourglassIndex]} Caricamento chatbot in corso
+                <span style={{width:"50px"}}>{".".repeat(dots)}</span>
+            </p>
+
         </div>
         )
     }
@@ -235,7 +257,7 @@ export default function ChatbotContent({ variant }: TreeProps){
                 <div className={styles.inputBar}>
                     <Form.Control
                         type="text"
-                        placeholder={isLoading ? "L'albero sta rispondendo..." : "Chiedi qualcosa all'albero..."}
+                        placeholder={isLoading ? mex : "Chiedi qualcosa all'albero..."}
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => e.key === "Enter" && handleSend()}
