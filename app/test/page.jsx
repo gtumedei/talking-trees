@@ -260,7 +260,7 @@ const stopRecording = () => {
             style={"justify-content-end"}
           />
 
-          <p><strong>Quanto reputi utilel'utilizzo remoto per invogliare l'utente ad andare a visitare gli alberi monumentali?</strong></p>
+          <p><strong>Quanto reputi utile l'utilizzo remoto per invogliare l'utente ad andare a visitare gli alberi monumentali?</strong></p>
           <LikertRow
             left="inutile"
             right="utile"

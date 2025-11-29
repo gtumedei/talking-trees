@@ -2,6 +2,7 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    animation: fadeIn 1s ease forwards;
 }
 
 .page p, .page a{
@@ -150,4 +151,13 @@
 }
 .photoButton:hover {
   background-color: #e0e0e0 !important;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
