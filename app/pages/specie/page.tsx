@@ -17,7 +17,12 @@ export default function Specie() {
     "habitat_collina", "habitat_montagna", "habitat_alloctona/esotica",];
 
 
-  if (!userSpecies) return null;
+  if (!userSpecies){
+    console.error("Specie: userSpecies è null");
+    return null;
+  } else{
+    console.log("Specie: userSpecies =", userSpecies);
+  }
 
   return (
     <Container className={styles.page}>

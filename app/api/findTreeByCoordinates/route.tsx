@@ -15,6 +15,8 @@ export async function GET(request: Request) {
 
     const trees = parseCSV(treesData);
     const species = parseCSV(speciesData);
+    
+    console.log(species);
 
     const foundTree = trees.find((t) => {
       const treeLat = parseFloat(t.lat);

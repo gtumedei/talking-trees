@@ -71,9 +71,11 @@ function PageContent() {
       const res = await fetch(`/api/findTreeByCoordinates?lat=${lat}&lng=${lng}`);
       const data = await res.json();
 
-      if (res.ok && data.tree) {
+      if (data.tree) {
         setUserTree(data.tree);
         setUserSpecies(data.species || null);
+        console.log('specie')
+        console.log(data.species)
         initializeChatbotWithTree(data.tree, data.species || null);
         await sleep(2000);
       } else {
