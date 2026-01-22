@@ -193,3 +193,32 @@
   background: #ccc;
   cursor: not-allowed;
 }
+
+.modal *{
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+
+.promptSection {
+  padding: 5px;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+}
+.promptSection button{
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bolder !important;
+  font-size: 10px !important;
+}
+.promptDisplay {
+  padding: 0 10px;
+  font-style: italic;
+  text-align: center;
+  margin: auto;
+}
+.promptDisplay *{
+  color: #666;
+}
+
+.previewFull code{
+  color: #666;
+  font-style: italic;
+}

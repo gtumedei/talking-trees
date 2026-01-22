@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect, useRef, useContext } from "react";
 import styles from './Chatbot.module.css';
-import { Button, Badge, Form } from "react-bootstrap"; 
+import { Button, Badge, Form, Modal, Alert } from "react-bootstrap"; 
 import BackButton from "@/app/component/ui/BackButton";
 import { UserContext } from "@/app/layout";
 import { Source } from "@service/types/interface_db";
-import { saveChatToFirebase } from "@service/userServices";  // Importa il servizio
-import { TreeProps } from "@service/types/interface_page";  // Importa il servizio
+import { saveChatToFirebase } from "@service/userServices";
+import { TreeProps } from "@service/types/interface_page";
 import { UserContextType } from "@/backend/types/interface_context";
 
 type Message = {
@@ -18,18 +18,44 @@ type Message = {
     sources?: Source[];
 };
 
+// Separazione delle parti del prompt
+const PROMPT_STRUCTURE = {
+    // Parte modificabile (prima parte)
+    modifiableParts: {
+        narrativo: "Rispondi in una frase in 1ª persona in tono epico e solenne come se fossi {treename}.",
+        scientifico: "Rispondi in terza persona con stile enciclopedico."
+    },
+    // Parte fissa (seconda parte)
+    fixedPart: "Usa solo il contesto.\nContesto:{context}\nDomanda:{question}\nRisposta breve:"
+};
+
+// Costruzione dei prompt completi
+const DEFAULT_PROMPTS = {
+    narrativo: PROMPT_STRUCTURE.modifiableParts.narrativo + "\n" + PROMPT_STRUCTURE.fixedPart,
+    scientifico: PROMPT_STRUCTURE.modifiableParts.scientifico + "\n" + PROMPT_STRUCTURE.fixedPart
+};
+
 export default function ChatbotContent({ variant }: TreeProps){
     const {userTree, idSpacevector, idInstance, chatbotIsReady} = useContext(UserContext) as UserContextType;
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    const mex = variant=="narrativo" ? "L'albero sta pensando..." : "Stiamo elaborando le informazioni...";
     const [hourglassIndex, setHourglassIndex] = useState(0);
-    const hourglassFrames = ["⏳", "⌛"]; // 2 frame, puoi aggiungerne altri
     const [dots, setDots] = useState(1);
-
+    
+    // Stato per il prompt e la modifica
+    const [customPrompt, setCustomPrompt] = useState(DEFAULT_PROMPTS[variant as keyof typeof DEFAULT_PROMPTS] || DEFAULT_PROMPTS.scientifico);
+    const [modifiablePart, setModifiablePart] = useState(PROMPT_STRUCTURE.modifiableParts[variant as keyof typeof PROMPT_STRUCTURE.modifiableParts] || PROMPT_STRUCTURE.modifiableParts.scientifico);
+    
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editPromptPart, setEditPromptPart] = useState("");
+    const [password, setPassword] = useState("");
+    const [passwordError, setPasswordError] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const hourglassFrames = ["⏳", "⌛"];
+    const mex = variant=="narrativo" ? "L'albero sta pensando..." : "Stiamo elaborando le informazioni...";
 
     // Versione narrativa (prima persona, tono saggio)
     const QUICK_REPLIES =
@@ -52,13 +78,18 @@ export default function ChatbotContent({ variant }: TreeProps){
             "A quale specie botanica appartiene?",
         ];
 
+    // Invece di costruire il prompt ogni volta, usa direttamente la stringa completa
+    const buildFullPrompt = (modifiable: string) => {
+        return modifiable + "\n" + PROMPT_STRUCTURE.fixedPart;
+    };
+
     // 👋 Messaggio iniziale
     useEffect(() => {
-        let text = ''
+        let text = '';
         if (variant == "narrativo"){
-            text = "Piacere di conoscerti!\n Cosa vuoi che ti racconti?"
-        }else{
-            text = "Benvenuto!\n Cosa vuoi conoscere dell'albero che hai davanti?"
+            text = "Piacere di conoscerti!\n Cosa vuoi che ti racconti?";
+        } else {
+            text = "Benvenuto!\n Cosa vuoi conoscere dell'albero che hai davanti?";
         }
 
         const welcomeMsg: Message = {
@@ -68,20 +99,38 @@ export default function ChatbotContent({ variant }: TreeProps){
             timestamp: new Date(),
         };
         setMessages([welcomeMsg]);
-    }, []);
+        
+        // Carica il prompt salvato dal localStorage se esiste
+        const savedPromptPart = localStorage.getItem(`chatbot_prompt_${variant}_modifiable`);
+        if (savedPromptPart) {
+            setModifiablePart(savedPromptPart);
+            setIsEditing(true);
+        } else {
+            // Imposta il valore predefinito
+            const defaultPart = PROMPT_STRUCTURE.modifiableParts[variant as keyof typeof PROMPT_STRUCTURE.modifiableParts] || 
+                            PROMPT_STRUCTURE.modifiableParts.scientifico;
+            setModifiablePart(defaultPart);
+            setIsEditing(false);
+        }
+    }, [variant]);
+
+// Aggiorna customPrompt quando cambia modifiablePart
+useEffect(() => {
+    setCustomPrompt(buildFullPrompt(modifiablePart));
+}, [modifiablePart]);
+    // Aggiorna customPrompt quando cambia modifiablePart
+    useEffect(() => {
+        setCustomPrompt(buildFullPrompt(modifiablePart));
+    }, [modifiablePart]);
     
     useEffect(() => {
         const interval = setInterval(() => {
-            // alterna clessidra
             setHourglassIndex(prev => (prev + 1) % hourglassFrames.length);
-
-            // alterna puntini 1 → 3
             setDots(prev => (prev % 3) + 1);
-        }, 700); // ogni 700ms
+        }, 700);
 
         return () => clearInterval(interval);
     }, []);
-
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -112,7 +161,6 @@ export default function ChatbotContent({ variant }: TreeProps){
         setIsLoading(true);
 
         try {
-            // ✅ CORREZIONE: Chiamata all'endpoint query con i parametri corretti
             const response = await fetch("https://benny2199-rag-microservice.hf.space/query", {
                 method: "POST",
                 headers: { 
@@ -120,10 +168,10 @@ export default function ChatbotContent({ variant }: TreeProps){
                     "Accept": "application/json"
                 },
                 body: JSON.stringify({
-                    space_id: idSpacevector,        // ✅ space_id (non index_id)
-                    question: queryText,            // ✅ question (non query)
-                    tree_name: userTree?.soprannome || "", // ✅ tree_name
-                    // ❌ RIMOSSO: prompt_style (ora gestito dall'istanza)
+                    space_id: idSpacevector,
+                    question: queryText,
+                    tree_name: userTree?.soprannome || "",
+                    prompt_template: customPrompt, // Invia il prompt personalizzato
                 }),
             });
 
@@ -134,7 +182,6 @@ export default function ChatbotContent({ variant }: TreeProps){
 
             const data = await response.json();
             
-            // ✅ CORREZIONE: Estrazione corretta del risultato
             if (!data.success) {
                 throw new Error(data.error || "Errore nella risposta del servizio");
             }
@@ -142,14 +189,12 @@ export default function ChatbotContent({ variant }: TreeProps){
             const botMessage: Message = {
                 id: Date.now().toString() + "_bot",
                 sender: "bot",
-                text: data.result || "Non ho trovato nulla di rilevante 😔", // ✅ data.result (non data.result.response)
+                text: data.result || "Non ho trovato nulla di rilevante 😔",
                 timestamp: new Date(),
-                sources: data.sources || [], // ✅ Mantieni le fonti se presenti
+                sources: data.sources || [],
             };
             
             const variantToUse = variant || "";
-
-            // Usa il servizio per salvare la chat su Firestore
             await saveChatToFirebase(input, botMessage.text, userTree?.soprannome || "", variantToUse);
             
             setMessages((prev) => [...prev, botMessage]);
@@ -174,6 +219,38 @@ export default function ChatbotContent({ variant }: TreeProps){
         handleSend();
     };
 
+    // Gestione modifica prompt
+    const handleOpenEditModal = () => {
+        setEditPromptPart(modifiablePart);
+        setPassword("");
+        setPasswordError(false);
+        setShowEditModal(true);
+    };
+
+    const handleSavePrompt = () => {
+        if (password === "1234") {
+            setModifiablePart(editPromptPart);
+            localStorage.setItem(`chatbot_prompt_${variant}_modifiable`, editPromptPart);
+            setShowEditModal(false);
+            setIsEditing(true);
+        } else {
+            setPasswordError(true);
+        }
+    };
+
+    const handleCancelEdit = () => {
+        setShowEditModal(false);
+        setPassword("");
+        setPasswordError(false);
+    };
+
+    const handleResetPrompt = () => {
+        const defaultPart = PROMPT_STRUCTURE.modifiableParts[variant as keyof typeof PROMPT_STRUCTURE.modifiableParts] || PROMPT_STRUCTURE.modifiableParts.scientifico;
+        setModifiablePart(defaultPart);
+        localStorage.removeItem(`chatbot_prompt_${variant}_modifiable`);
+        setIsEditing(false);
+    };
+
     if(!chatbotIsReady){
         return (
         <div className="d-flex justify-content-center align-items-center vh-100">
@@ -182,7 +259,6 @@ export default function ChatbotContent({ variant }: TreeProps){
                 {hourglassFrames[hourglassIndex]} Caricamento chatbot in corso
                 <span style={{width:"50px"}}>{".".repeat(dots)}</span>
             </p>
-
         </div>
         )
     }
@@ -190,6 +266,38 @@ export default function ChatbotContent({ variant }: TreeProps){
         return (
             <div className={styles.content}>
                 <BackButton message="Sei sicuro di voler abbandonare la chat" />
+                
+                {/* Sezione del prompt */}
+                <div className={`${styles.promptSection} mt-5 mx-1`}>
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                        <small className="text-muted">Prompt Template:</small>
+                        <div>
+                            <Button variant="outline-secondary" size="sm" onClick={handleOpenEditModal} className="me-2">
+                                Modifica
+                            </Button>
+                            <Button variant="outline-danger" size="sm" onClick={handleResetPrompt} title="Ripristina prompt predefinito"disabled={!isEditing}>
+                                Reset
+                            </Button>
+                        </div>
+                    </div>
+                    <div className={styles.promptDisplay}>
+                        <div className={styles.promptPart}>
+                            <code className={`${styles.promptCode} ${styles.modifiablePart}`}>
+                                {modifiablePart}
+                            </code>
+                            {isEditing && (
+                                <Badge bg="warning" className="ms-2">
+                                    Modificato
+                                </Badge>
+                            )}
+                        </div>
+                        <div className={styles.promptPart}>
+                            <code className={`${styles.promptCode} ${styles.fixedPart}`}>
+                                {PROMPT_STRUCTURE.fixedPart}
+                            </code>
+                        </div>
+                    </div>
+                </div>
 
                 <div className={styles.chat}>
                     {messages.map((msg) => (
@@ -278,6 +386,62 @@ export default function ChatbotContent({ variant }: TreeProps){
                         )}
                     </Button>
                 </div>
+
+                {/* Modal per la modifica del prompt */}
+                <Modal show={showEditModal} onHide={handleCancelEdit} className={styles.modal} centered>
+                    <Modal.Header closeButton>
+                        <Modal.Title className="fw-bold">Modifica il Prompt</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Form.Group className="mb-3">
+                            <Form.Control
+                                as="textarea"
+                                rows={3}
+                                value={editPromptPart}
+                                onChange={(e) => setEditPromptPart(e.target.value)}
+                                placeholder="Modifica la prima parte del prompt..."
+                            />
+                        </Form.Group>
+
+                        <div className="mb-3">
+                            <small className="text-muted d-block fw-bold">Anteprima del prompt completo:</small>
+                            <div className={styles.previewFull}>
+                                <code>{editPromptPart}\n{PROMPT_STRUCTURE.fixedPart}</code>
+                            </div>
+                        </div>
+                        
+                        <Form.Group className="mb-3">
+                            <Form.Label>Password (richiesta per la modifica):</Form.Label>
+                            <Form.Control
+                                type="password"
+                                value={password}
+                                onChange={(e) => {
+                                    setPassword(e.target.value);
+                                    setPasswordError(false);
+                                }}
+                                placeholder="Inserisci la password"
+                                isInvalid={passwordError}
+                            />
+                            {passwordError && (
+                                <Form.Control.Feedback type="invalid">
+                                    Password errata. La password corretta è "1234"
+                                </Form.Control.Feedback>
+                            )}
+                        </Form.Group>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={handleCancelEdit}>
+                            Annulla
+                        </Button>
+                        <Button 
+                            variant="primary" 
+                            onClick={handleSavePrompt}
+                            disabled={!editPromptPart.trim() || !password}
+                        >
+                            Salva Modifiche
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
             </div>
         );
     }
