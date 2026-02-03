@@ -676,7 +676,7 @@ export async function buildTreeContext(
       variant: data.variant,
       message: data.message,
     })
-    toast("✅ Spazio RAG inizializzato", { duration: Infinity })
+    toast("✅ Chat pronta all'utilizzo.", { duration: Infinity })
 
     return {
       ragStructure,
