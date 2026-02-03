@@ -9,6 +9,7 @@ import { Source } from "@service/types/interface_db"
 import { saveChatToFirebase } from "@service/userServices"
 import { TreeProps } from "@service/types/interface_page"
 import { UserContextType } from "@/backend/types/interface_context"
+import { prompts, questions } from "@/app/pages/chatbot/config"
 
 type Message = {
   id: string
@@ -22,9 +23,8 @@ type Message = {
 const PROMPT_STRUCTURE = {
   // Parte modificabile (prima parte)
   modifiableParts: {
-    narrativo:
-      "Rispondi in una frase in 1ª persona in tono epico e solenne come se fossi {treename}.",
-    scientifico: "Rispondi in terza persona con stile enciclopedico.",
+    narrativo: prompts.personified,
+    scientifico: prompts.scientific,
   },
   // Parte fissa (seconda parte)
   fixedPart: "Usa solo il contesto.\nContesto:{context}\nDomanda:{question}\nRisposta breve:",
@@ -67,26 +67,7 @@ export default function ChatbotContent({ variant }: TreeProps) {
     variant == "narrativo" ? "L'albero sta pensando..." : "Stiamo elaborando le informazioni..."
 
   // Versione narrativa (prima persona, tono saggio)
-  const QUICK_REPLIES =
-    variant === "narrativo"
-      ? [
-          "Chi sei e qual è la tua storia?",
-          "Quanti anni hai?",
-          "Qual messaggio lasceresti a noi umani?",
-          "Cosa hai visto cambiare in questi anni?",
-          "Che benefici porti all'ambiente?",
-          "Qual è la tua specie?",
-          "Cosa sai dirmi sul luogo in cui ti trovi?",
-        ]
-      : [
-          "Cosa sai dirmi di quest'albero?",
-          "Quanti anni ha?",
-          "Qual è il suo significato storico o culturale?",
-          "Quali cambiamenti ha vissuto?",
-          "Che benefici l'albero porta all'ambiente?",
-          "Qual è lo stato di salute dell'albero",
-          "A quale specie botanica appartiene?",
-        ]
+  const QUICK_REPLIES = variant === "narrativo" ? questions.personified : questions.scientific
 
   // Invece di costruire il prompt ogni volta, usa direttamente la stringa completa
   const buildFullPrompt = (modifiable: string) => {
