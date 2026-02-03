@@ -1,30 +1,31 @@
 .page {
-  padding: 10px 0;
+  padding: 32px 16;
   max-width: 1100px;
   margin: 0 auto;
   font-family: Arial, Helvetica, sans-serif;
   line-height: 1.4;
   color: #222;
   font-size: 13px;
+  max-width: 896px;
 }
-.page small{
+.page small {
   font-size: 13px;
 }
-
 
 /* Titoli e testi */
 .page strong {
   font-size: 10px;
   font-weight: 600;
   text-transform: capitalize;
-  font-family: 'OpenDyslexic', serif;
+  font-family: "OpenDyslexic", serif;
 }
 
-.page h1, .page h2, .page h3 {
+.page h1,
+.page h2,
+.page h3 {
   text-transform: capitalize;
   letter-spacing: 0.5px;
 }
-
 
 /* --- CARD BASE --- */
 .card {
@@ -32,7 +33,9 @@
   border-radius: 10px !important;
   margin: 0 10px 10px 10px !important; /* 🔸 margini laterali */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .card:hover {
@@ -50,13 +53,34 @@
 }
 
 /* --- COLORI UNIFORMI --- */
-.bg-technical { background-color: var(--dark-green); color: var(--light); }
-.bg-botanical { background-color: var(--green); color: var(--light);}
-.bg-geographic { background-color: var(--myrtle); color: var(--light);}
-.bg-ecological { background-color: var(--light-green); color: var(--light);}
-.bg-health { background-color: var(--flame); color: var(--light);}
-.bg-historical { background-color: var(--noir); color: var(--light);}
-.bg-description { background-color: var(--light-noir); color: var(--light);}
+.bg-technical {
+  background-color: var(--dark-green);
+  color: var(--light);
+}
+.bg-botanical {
+  background-color: var(--green);
+  color: var(--light);
+}
+.bg-geographic {
+  background-color: var(--myrtle);
+  color: var(--light);
+}
+.bg-ecological {
+  background-color: var(--light-green);
+  color: var(--light);
+}
+.bg-health {
+  background-color: var(--flame);
+  color: var(--light);
+}
+.bg-historical {
+  background-color: var(--noir);
+  color: var(--light);
+}
+.bg-description {
+  background-color: var(--light-noir);
+  color: var(--light);
+}
 
 .card-body {
   background-color: #f9f9f9 !important;
@@ -64,16 +88,15 @@
   padding: 12px 16px !important;
 }
 
-.pollutionInfo{
-    text-align: center;
-    font-style: italic;
-    line-height: 1.3;
-    font-size: 11px !important;
-    background: #fff !important;
-    padding: 2px 5px;
-    border-radius: 5px;
-    margin-bottom: 5px;
-
+.pollutionInfo {
+  text-align: center;
+  font-style: italic;
+  line-height: 1.3;
+  font-size: 11px !important;
+  background: #fff !important;
+  padding: 2px 5px;
+  border-radius: 5px;
+  margin-bottom: 5px;
 }
 
 /* --- BOX ECOLOGICI --- */
