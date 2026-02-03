@@ -1,0 +1,28 @@
+@layer theme, base, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme) prefix(tw);
+/* Disable preflight to avoid messing up Bootstrap's styling */
+/* @import "tailwindcss/preflight.css" layer(base); */
+@import "tailwindcss/utilities.css" layer(utilities) prefix(tw);
+
+@theme {
+  --animate-slide-down: slide-down 350ms ease-out;
+  @keyframes slide-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--height);
+    }
+  }
+
+  --animate-slide-up: slide-up 300ms ease-out;
+  @keyframes slide-up {
+    from {
+      height: var(--height);
+    }
+    to {
+      height: 0;
+    }
+  }
+}

@@ -1,22 +1,25 @@
-@import url('https://fonts.googleapis.com/css2?family=Goudy+Bookletter+1911&family=Inknut+Antiqua:wght@300;400;500;600;700;800;900&display=swap');
-@import 'bootstrap/dist/css/bootstrap.min.css';
+/* @import url("https://fonts.googleapis.com/css2?family=Goudy+Bookletter+1911&family=Inknut+Antiqua:wght@300;400;500;600;700;800;900&display=swap"); */
+
+@import "bootstrap/dist/css/bootstrap.min.css";
+@import "./tailwind.css";
+
 :root {
   --light: #f3f5f7;
   --dark: #282923ff;
 
   /* CSS HEX */
-  --dark-green: #24372Aff;
-  --green: #4B6744ff;
-  --light-green: #8BA96Eff;
-  --myrtle: #33685Eff;
-  --light-myrtle: #7CA094ff;
-  --flame: #b23c1fff;; 
+  --dark-green: #24372aff;
+  --green: #4b6744ff;
+  --light-green: #8ba96eff;
+  --myrtle: #33685eff;
+  --light-myrtle: #7ca094ff;
+  --flame: #b23c1fff;
   --light-flame: #d0493f;
-  --light-noir: #CFBEA4ff;
-  --noir: #7D5440ff;
-  --dark-noir: #4B301Eff;
+  --light-noir: #cfbea4ff;
+  --noir: #7d5440ff;
+  --dark-noir: #4b301eff;
 
-  /* CSS HSL 
+  /* CSS HSL
   --dark-green: hsla(139, 21%, 18%, 1);
   --myrtle-green: hsla(169, 34%, 30%, 1);
   --cambridge-blue: hsla(160, 16%, 56%, 1);
@@ -28,64 +31,64 @@
 }
 
 @font-face {
-  font-family: 'Woodcutter';
-  src: url('/fonts/WOODCUTTER simple font.ttf') format('truetype');
+  font-family: "Woodcutter";
+  src: url("/fonts/WOODCUTTER simple font.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Fudgie';
-  src: url('/fonts/Fudgie.ttf') format('truetype');
+  font-family: "Fudgie";
+  src: url("/fonts/Fudgie.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Marker';
-  src: url('/fonts/Studio Brush DEMO.otf') format('opentype');
+  font-family: "Marker";
+  src: url("/fonts/Studio Brush DEMO.otf") format("opentype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'OpenDyslexic';
-  src: url('/fonts/OpenDyslexic-Regular.otf') format('opentype');
+  font-family: "OpenDyslexic";
+  src: url("/fonts/OpenDyslexic-Regular.otf") format("opentype");
   font-weight: normal;
   font-style: normal;
 }
 /* Italic */
 @font-face {
-  font-family: 'OpenDyslexic';
-  src: url('/fonts/OpenDyslexic-Italic.otf') format('opentype');
+  font-family: "OpenDyslexic";
+  src: url("/fonts/OpenDyslexic-Italic.otf") format("opentype");
   font-weight: 400;
   font-style: italic;
 }
 /* Bold */
 @font-face {
-  font-family: 'OpenDyslexicBold';
-  src: url('/fonts/OpenDyslexic-Bold.otf') format('opentype');
+  font-family: "OpenDyslexicBold";
+  src: url("/fonts/OpenDyslexic-Bold.otf") format("opentype");
   font-weight: 700;
   font-style: normal;
 }
 /* Bold Italic */
 @font-face {
-  font-family: 'OpenDyslexic';
-  src: url('/fonts/OpenDyslexic-Bold-Italic.otf') format('opentype');
+  font-family: "OpenDyslexic";
+  src: url("/fonts/OpenDyslexic-Bold-Italic.otf") format("opentype");
   font-weight: 700;
   font-style: italic;
 }
 
 @font-face {
-  font-family: 'Nordic';
-  src: url('/fonts/Nordic Alternative Regular.ttf') format('truetype');
+  font-family: "Nordic";
+  src: url("/fonts/Nordic Alternative Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Oneday';
-  src: url('/fonts/ONEDAY.otf') format('opentype');
+  font-family: "Oneday";
+  src: url("/fonts/ONEDAY.otf") format("opentype");
   font-weight: normal;
   font-style: normal;
 }
@@ -97,7 +100,7 @@ html {
 }
 
 body {
-  position: relative; /* necessario per pseudo-elementi */ 
+  position: relative; /* necessario per pseudo-elementi */
   font-family: "OpenDyslexic", "Times New Roman", Times, serif;
   background-color: #00000000;
   font-size: 12px;
@@ -107,13 +110,23 @@ body .fw-bold {
   -webkit-text-stroke-width: 0;
 }
 
-h1,h2,h3,h4,h5,h6{ -webkit-text-stroke-width: 0.09px; -webkit-text-stroke-color: var(--light);}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  -webkit-text-stroke-width: 0.09px;
+  -webkit-text-stroke-color: var(--light);
+}
 
-.container{
+.container {
   padding-bottom: 20px;
 }
 
-.fw-green{-webkit-text-stroke-color: var(--green);}
+.fw-green {
+  -webkit-text-stroke-color: var(--green);
+}
 
 /* Gradiente a sinistra */
 html::before {
@@ -137,11 +150,15 @@ html::after {
   background: linear-gradient(to left, var(--dark-green), #00000000);
 }
 
-a{color: inherit;}
+a {
+  color: inherit;
+}
 
-.nordic {font-family: 'Nordic', sans-serif;}
+.nordic {
+  font-family: "Nordic", sans-serif;
+}
 .oneday {
-  font-family: 'Oneday', sans-serif;
+  font-family: "Oneday", sans-serif;
   font-size: 0.7em; /* 🔹 più piccolo in proporzione */
   vertical-align: baseline;
 }
@@ -151,30 +168,29 @@ ul {
 }
 
 ul li::marker {
-  font-size: 12px;       /* più piccolo se serve */
-  margin-right: -0.4em;   /* riduce lo spazio dopo il puntino */
+  font-size: 12px; /* più piccolo se serve */
+  margin-right: -0.4em; /* riduce lo spazio dopo il puntino */
 }
 
-
-.tx-small{
-    line-height: 24px;
-    font-size: 10px !important;
+.tx-small {
+  line-height: 24px;
+  font-size: 10px !important;
 }
 
 .tooltip {
-  --bs-tooltip-bg: #EAEAEA;
+  --bs-tooltip-bg: #eaeaea;
   --bs-tooltip-color: var(--dark-noir);
   font-family: "Woodcutter", "Times New Roman", Times, serif;
-  -webkit-text-stroke-color: #EAEAEA;
+  -webkit-text-stroke-color: #eaeaea;
   -webkit-text-stroke-width: 0.05px;
   font-size: 13px;
 }
 
-.btn{
-    font-family: 'Marker';
-    font-weight: 400 !important;
-    font-size: 14px;
-    letter-spacing: 1px;
+.btn {
+  font-family: "Marker";
+  font-weight: 400 !important;
+  font-size: 14px;
+  letter-spacing: 1px;
 }
 .btn-primary {
   color: var(--light); /* colore testo */
@@ -200,27 +216,31 @@ ul li::marker {
   border-color: var(--light-noir);
 }
 
-
-.btn-primary:hover,.btn-primary:focus {
-background-color: var(--light);
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--light);
 }
-.btn-primary.myrtle:hover,.btn-primary.myrtle:focus {
+.btn-primary.myrtle:hover,
+.btn-primary.myrtle:focus {
   color: var(--myrtle);
 }
-.btn-primary.flame:hover, .btn-primary.flame:focus {
+.btn-primary.flame:hover,
+.btn-primary.flame:focus {
   color: var(--flame);
 }
-.btn-primary.green:hover,.btn-primary.green:focus {
+.btn-primary.green:hover,
+.btn-primary.green:focus {
   color: var(--green);
 }
-.btn-primary.noir:hover, .btn-primary.noir:focus {
+.btn-primary.noir:hover,
+.btn-primary.noir:focus {
   color: var(--noir);
 }
-.btn-primary.gray:hover, .btn-primary.gray:focus {
+.btn-primary.gray:hover,
+.btn-primary.gray:focus {
   color: var(--noir);
 }
-  
-  
+
 /* Base */
 .btn-secondary {
   color: #473727b9 !important;
@@ -294,4 +314,3 @@ background-color: var(--light);
   color: #fff !important;
   border-color: var(--noir);
 }
-
