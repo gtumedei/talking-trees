@@ -1,106 +1,115 @@
-"use client";
+"use client"
 
-import { createContext, useState, useEffect, ReactNode } from "react";
-import "./globals.css";
-import { getCurrentUser } from '@service/userServices';
-import { UserContextType } from '@service/types/interface_context';
-import {UserDb} from '@service/types/interface_db'
+import { UserContextType } from "@service/types/interface_context"
+import { UserDb } from "@service/types/interface_db"
+import { getCurrentUser } from "@service/userServices"
+import { createContext, ReactNode, useEffect, useState } from "react"
+import { Toaster } from "sonner"
+
+import "./globals.css"
 
 // Definisci l'interfaccia per la struttura RAG
 interface TreeSectionStructure {
-  id: string;
-  type: string;
-  content: string;
-  tags: string[];
+  id: string
+  type: string
+  content: string
+  tags: string[]
   metadata: {
-    source: string;
-    wordCount: number;
-    confidence?: number;
-    temporalContext?: string;
-  };
+    source: string
+    wordCount: number
+    confidence?: number
+    temporalContext?: string
+  }
 }
 
 interface TreeStructure {
-  sections: TreeSectionStructure[];
+  sections: TreeSectionStructure[]
   metadata: {
-    treeName: string;
-    totalChunks: number;
-    totalWords: number;
-    sources: string[];
-  };
+    treeName: string
+    totalChunks: number
+    totalWords: number
+    sources: string[]
+  }
 }
 
 type Event = {
-  year: number;
-  text: string;
-  category: string;
-};
+  year: number
+  text: string
+  category: string
+}
 
 // Definisci le props per il layout
 interface RootLayoutProps {
-  children: ReactNode;
+  children: ReactNode
 }
 
 // Crea il contesto con tipo
-export const UserContext = createContext<UserContextType | undefined>(undefined);
+export const UserContext = createContext<UserContextType | undefined>(undefined)
 
 export default function RootLayout({ children }: RootLayoutProps) {
-  const [userTree, setUserTree] = useState<any>(null);
-  const [userSpecies, setUserSpecies] = useState<any>(null);
-  const [user, setUser] = useState<UserDb>({} as UserDb);
-  const [authLoading, setAuthLoading] = useState(true);
-  const [userCoords, setUserCoords] = useState<any>(null);
-  const [history, setHistory] = useState<Event[]>([]);
-  const [document, setDocument] = useState<TreeStructure | null>(null);
-  const [idSpacevector, setIdSpacevector] = useState<string>('');
-  const [idInstance, setIdInstance] = useState<string>('');
-  const [mainroute, setMainroute] = useState<string>(''); // inizializza come stringa vuota
-  const [chatbotIsReady, setChatbotIsReady] = useState(false);
+  const [userTree, setUserTree] = useState<any>(null)
+  const [userSpecies, setUserSpecies] = useState<any>(null)
+  const [user, setUser] = useState<UserDb>({} as UserDb)
+  const [authLoading, setAuthLoading] = useState(true)
+  const [userCoords, setUserCoords] = useState<any>(null)
+  const [history, setHistory] = useState<Event[]>([])
+  const [document, setDocument] = useState<TreeStructure | null>(null)
+  const [idSpacevector, setIdSpacevector] = useState<string>("")
+  const [idInstance, setIdInstance] = useState<string>("")
+  const [mainroute, setMainroute] = useState<string>("") // inizializza come stringa vuota
+  const [chatbotIsReady, setChatbotIsReady] = useState(false)
 
   useEffect(() => {
     const checkLoggedInUser = async () => {
       try {
-        const currentUser = getCurrentUser();
+        const currentUser = getCurrentUser()
         if (currentUser) {
-          setUser(currentUser);
+          setUser(currentUser)
         }
       } catch (error) {
-        console.error('Errore nel controllo utente:', error);
+        console.error("Errore nel controllo utente:", error)
       } finally {
-        setAuthLoading(false);
+        setAuthLoading(false)
       }
-    };
+    }
 
-    checkLoggedInUser();
+    checkLoggedInUser()
 
     // Setta la mainroute usando window.location
     if (typeof window !== "undefined") {
-      setMainroute(window.location.pathname + window.location.search);
+      setMainroute(window.location.pathname + window.location.search)
     }
-
-  }, []); // Usa il router quando cambia la path
+  }, []) // Usa il router quando cambia la path
 
   const contextValue: UserContextType = {
-    userTree, setUserTree,
-    userSpecies, setUserSpecies,
-    user, setUser,
-    userCoords, setUserCoords,
+    userTree,
+    setUserTree,
+    userSpecies,
+    setUserSpecies,
+    user,
+    setUser,
+    userCoords,
+    setUserCoords,
     authLoading,
-    history, setHistory,
-    document, setDocument,
-    idSpacevector, setIdSpacevector,
-    idInstance, setIdInstance,
-    chatbotIsReady, setChatbotIsReady,
-    mainroute // Passiamo la mainroute al contesto
-  };
+    history,
+    setHistory,
+    document,
+    setDocument,
+    idSpacevector,
+    setIdSpacevector,
+    idInstance,
+    setIdInstance,
+    chatbotIsReady,
+    setChatbotIsReady,
+    mainroute, // Passiamo la mainroute al contesto
+  }
 
   return (
     <html lang="it">
       <body>
-        <UserContext.Provider value={contextValue}>
-          {children}
-        </UserContext.Provider>
+        <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>
+        <Toaster />
       </body>
     </html>
-  );
+  )
 }

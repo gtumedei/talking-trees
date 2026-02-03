@@ -1,61 +1,61 @@
-"use client";
+"use client"
 
-import { Container, Row, Col, Button } from "react-bootstrap";
-import { FaBookOpen, FaTree, FaCamera, FaInfoCircle } from "react-icons/fa";
-import Image from "next/image";
-import styles from "./Tree.module.css";
-import Title from "@component/ui/Title";
-import TimeLine from "@component/timeline/TimeLine";
-import Link from 'next/link';
-import MapLink from "@component/maps/PositionMap";
-import { useContext, useState, useEffect } from "react";
-import { UserContext } from "@/app/layout";
-import HealthStatus from "@component/ui/HealthStatus";
-import {TreeProps} from "@service/types/interface_page"
-import { UserTreeType } from "@/backend/types/interface_context";
-import { useRouter } from "next/navigation";
-import { sleep } from "@/backend/treeServices";
+import { Container, Row, Col, Button } from "react-bootstrap"
+import { FaBookOpen, FaTree, FaCamera, FaInfoCircle } from "react-icons/fa"
+import Image from "next/image"
+import styles from "./Tree.module.css"
+import Title from "@component/ui/Title"
+import TimeLine from "@component/timeline/TimeLine"
+import Link from "next/link"
+import MapLink from "@component/maps/PositionMap"
+import { useContext, useState, useEffect } from "react"
+import { UserContext } from "@/app/layout"
+import HealthStatus from "@component/ui/HealthStatus"
+import { TreeProps } from "@service/types/interface_page"
+import { UserTreeType } from "@/backend/types/interface_context"
+import { useRouter } from "next/navigation"
+import { sleep } from "@/backend/treeServices"
 
 export default function Tree({ variant = "statico" }: TreeProps) {
-  const userContext = useContext(UserContext) || ({} as { userTree?: UserTreeType });
-  const { userTree } = userContext;
-  const [imageSrc, setImageSrc] = useState<string>("/tree/empty.png");
-  const [imageLoaded, setImageLoaded] = useState<boolean>(false);
-  const router = useRouter();
+  const userContext = useContext(UserContext) || ({} as { userTree?: UserTreeType })
+  const { userTree } = userContext
+  const [imageSrc, setImageSrc] = useState<string>("/tree/empty.png")
+  const [imageLoaded, setImageLoaded] = useState<boolean>(false)
+  const router = useRouter()
 
   // Precarica e verifica l'immagine
   useEffect(() => {
     const checkImageExists = async () => {
-      const treeId = userTree?.["id scheda"];
+      const treeId = userTree?.["id scheda"]
       if (!treeId) {
-        setImageSrc("/tree/tree-default.png");
-        return;
+        setImageSrc("/tree/tree-default.png")
+        return
       }
 
-      const potentialImageSrc = `/tree/${treeId.replaceAll('/', '.')}.png`;
+      const potentialImageSrc = `/tree/${treeId.replaceAll("/", ".")}.png`
 
       try {
-        const response = await fetch(potentialImageSrc, { method: "HEAD" });
+        const response = await fetch(potentialImageSrc, { method: "HEAD" })
         if (response.ok) {
-          setImageSrc(potentialImageSrc);
+          setImageSrc(potentialImageSrc)
         } else {
-          setImageSrc("/tree/tree-default.png");
+          setImageSrc("/tree/tree-default.png")
         }
       } catch {
-        console.log("Immagine non trovata, uso default");
-        setImageSrc("/tree/tree-default.png");
+        console.log("Immagine non trovata, uso default")
+        setImageSrc("/tree/tree-default.png")
       }
-      setImageLoaded(true);
-    };
+      setImageLoaded(true)
+    }
 
     if (userTree) {
-      checkImageExists();
+      checkImageExists()
     }
-  }, [userTree]);
+  }, [userTree])
 
   const handlePhoto = () => {
-    alert("📸 Funzionalità foto attivata!");
-  };
+    alert("📸 Funzionalità foto attivata!")
+  }
 
   // Configurazione in base alla variante
   const getTreeConfig = () => {
@@ -66,32 +66,29 @@ export default function Tree({ variant = "statico" }: TreeProps) {
           treeButtonIcon: <FaTree />,
           treeButtonHref: `/pages/chatbot?variant=${variant}`,
           treeButtonClass: "green",
-        };
+        }
       case "narrativo":
         return {
           treeButtonText: "Parla con l'albero",
           treeButtonIcon: <FaTree />,
           treeButtonHref: `/pages/chatbot?variant=${variant}`,
-        };
+        }
       case "statico":
       default:
         return {
           treeButtonText: "Informazioni sull'albero",
           treeButtonIcon: <FaInfoCircle />,
           treeButtonHref: "/pages/infoTree",
-        };
+        }
     }
-  };
+  }
 
-  const treeConfig = getTreeConfig();
+  const treeConfig = getTreeConfig()
 
-  if (!userTree) return null;
+  if (!userTree) return null
 
   // Determina la classe CSS in base al tipo di immagine
-  const imageClass =
-    imageSrc === "/tree/tree-default.png"
-      ? styles.treeImgDef
-      : styles.treeImg;
+  const imageClass = imageSrc === "/tree/tree-default.png" ? styles.treeImgDef : styles.treeImg
 
   return (
     <Container className={styles.page}>
@@ -119,34 +116,32 @@ export default function Tree({ variant = "statico" }: TreeProps) {
         {userTree["comune"]}, {userTree["provincia"]}, {userTree["regione"]}
       </p>
 
-      <Row>
+      <Row className="tw:min-h-96">
         {/* Immagine albero - MANTENUTO COME ORIGINALE */}
-        <Col xs={4} className="m-0 p-0 text-center colInfo">
-          <div className={styles.imageContainer}>
-            <Image
-              src={imageSrc}
-              alt={userTree["soprannome"] || userTree["specie nome volgare"]}
-              width={300}
-              height={400}
-              className={`${imageClass} img-fluid ${
-                !imageLoaded ? styles.treeImgBlur : styles.treeImgLoaded
-              }`}
-              priority
-            />
-          </div>
+        <Col xs={4} className="m-0 p-0 text-center colInfo tw:relative">
+          <Image
+            src={imageSrc}
+            alt={userTree["soprannome"] || userTree["specie nome volgare"]}
+            width={300}
+            height={400}
+            className={`${imageClass} img-fluid tw:max-h-128 tw:absolute tw:bottom-0 tw:left-0 ${
+              !imageLoaded ? styles.treeImgBlur : styles.treeImgLoaded
+            }`}
+            priority
+          />
         </Col>
 
         {/* Info testo */}
         <Col xs={8} className={`${styles.treeInfo} m-0 align-middle`}>
           {/* Mappa link */}
-            {userTree.lat && userTree.lon && (
-              <MapLink
-                lat={userTree.lat}
-                lng={userTree.lon}
-                label=">> Vedi posizione"
-                className="tx-small text-end w-100 mt-0 mb-2"
-              />
-            )}
+          {userTree.lat && userTree.lon && (
+            <MapLink
+              lat={userTree.lat}
+              lng={userTree.lon}
+              label=">> Vedi posizione"
+              className="tx-small text-end w-100 mt-0 mb-2"
+            />
+          )}
 
           <div>
             {/* Stato di salute attuale */}
@@ -172,7 +167,7 @@ export default function Tree({ variant = "statico" }: TreeProps) {
               {userTree["criteri di monumentalità"]
                 ?.replace(/^-/, "")
                 .split("-")
-                .map((c : string, i : any) => (
+                .map((c: string, i: any) => (
                   <li key={i}>{c}</li>
                 ))}
             </ul>
@@ -184,29 +179,28 @@ export default function Tree({ variant = "statico" }: TreeProps) {
               </p>
             )}
           </div>
-
         </Col>
       </Row>
 
-      {/* Bottone salute */}
-      <HealthStatus />
-
       {/* Timeline - MOSTRATA SOLO SE È PRESENTE IL CAMPO "eta" */}
-      {userTree["eta"] && (
-        <TimeLine eta={userTree["eta"]} endYear={new Date().getFullYear()} />
-      )}
+      {userTree["eta"] && <TimeLine eta={userTree["eta"]} endYear={new Date().getFullYear()} />}
 
       {/* Bottone di navigazione */}
-      <div className="w-100 d-flex justify-content-around">
-       <Button
-          onClick={() =>  router.push("/pages/diary")}
+      <div className="w-100 tw:flex tw:justify-between">
+        <Button
+          onClick={() => router.push("/pages/diary")}
           variant="primary"
           className="mt-3 mb-5 fw-bold d-flex align-items-center gap-2 flame"
         >
           <FaBookOpen /> Pezzi di storia
         </Button>
+        {/* Bottone salute */}
+        <HealthStatus />
         <Button
-          onClick={async() =>  {await sleep(300); router.push(treeConfig.treeButtonHref)}}
+          onClick={async () => {
+            await sleep(300)
+            router.push(treeConfig.treeButtonHref)
+          }}
           variant="primary"
           className={`mt-3 mb-5 fw-bold d-flex align-items-center gap-2 green`}
         >
@@ -233,5 +227,5 @@ export default function Tree({ variant = "statico" }: TreeProps) {
         />
       </div>*/}
     </Container>
-  );
+  )
 }
